@@ -1,0 +1,1911 @@
+<!DOCTYPE html>
+<html lang="it" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paleo Zona & Heavy Duty - Marco</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        slate: {
+                            850: '#151e2e',
+                            900: '#0f172a',
+                            950: '#020617',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #020617;
+            color: #f8fafc;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+        select {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2394a3b8' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.5rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+            padding-right: 2.5rem;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-emerald-500 selection:text-white pb-20 md:pb-8">
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed bottom-20 md:bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- Modal Riepilogo / Lista Spesa / Preset -->
+    <div id="modal-overlay" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-2xl w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+            <div class="p-4 sm:p-5 border-b border-slate-800 flex items-center justify-between bg-slate-850">
+                <h3 id="modal-title" class="text-lg font-bold text-white flex items-center gap-2">
+                    <i data-lucide="clipboard-list" class="w-5 h-5 text-emerald-400"></i>
+                    <span>Riepilogo</span>
+                </h3>
+                <button onclick="closeModal()" class="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div id="modal-body" class="p-4 sm:p-6 overflow-y-auto text-sm text-slate-300 space-y-4">
+                <!-- Content injected via JS -->
+            </div>
+            <div id="modal-footer" class="p-4 border-t border-slate-800 bg-slate-950 flex flex-wrap items-center justify-end gap-3">
+                <button onclick="copyModalText()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-xl text-sm flex items-center gap-2 transition shadow-lg shadow-emerald-900/20">
+                    <i data-lucide="copy" class="w-4 h-4"></i> Copia Testo
+                </button>
+                <button onclick="closeModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium rounded-xl text-sm transition">
+                    Chiudi
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Header -->
+    <header class="sticky top-0 z-30 bg-slate-950/90 backdrop-blur-md border-b border-slate-800/80">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center shadow-lg shadow-emerald-900/30 border border-emerald-400/30">
+                    <i data-lucide="flame" class="w-6 h-6 text-white"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h1 class="text-lg sm:text-xl font-extrabold tracking-tight text-white">PALEO ZONA <span class="text-emerald-400">&</span> HEAVY DUTY</h1>
+                        <span class="hidden sm:inline-block text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-slate-800 text-emerald-400 border border-slate-700">Marco</span>
+                    </div>
+                    <p class="text-xs text-slate-400">H.I.T.A. Program • Enrico Dell'Olio • Totale Giornaliero: <strong class="text-slate-200">12P / 11C / 17G</strong></p>
+                </div>
+            </div>
+
+            <!-- Date & Global Quick Stats -->
+            <div class="flex items-center gap-2 sm:gap-3 ml-auto">
+                <div class="flex items-center bg-slate-900 border border-slate-800 rounded-xl px-2.5 py-1.5">
+                    <i data-lucide="calendar" class="w-4 h-4 text-emerald-400 mr-2"></i>
+                    <input type="date" id="current-date-picker" onchange="changeDate(this.value)" class="bg-transparent text-xs sm:text-sm font-semibold text-white focus:outline-none cursor-pointer">
+                </div>
+
+                <button onclick="openDailySummaryModal()" class="px-3 py-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 text-xs sm:text-sm font-semibold flex items-center gap-1.5 transition" title="Riepilogo Giornaliero e Lista della Spesa">
+                    <i data-lucide="shopping-bag" class="w-4 h-4"></i>
+                    <span class="hidden sm:inline">Riepilogo & Spesa</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs (Desktop) -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 hidden md:flex items-center gap-2 pt-1">
+            <button onclick="switchTab('pasti')" id="tab-btn-pasti" class="tab-btn px-4 py-2.5 text-sm font-semibold border-b-2 border-emerald-500 text-emerald-400 flex items-center gap-2 transition">
+                <i data-lucide="utensils" class="w-4 h-4"></i>
+                1. Pianificatore Pasti (Blocchetti)
+            </button>
+            <button onclick="switchTab('integrazione')" id="tab-btn-integrazione" class="tab-btn px-4 py-2.5 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2 transition">
+                <i data-lucide="pill" class="w-4 h-4"></i>
+                2. Integrazione & Regole
+                <span id="supp-badge-desktop" class="text-[11px] px-1.5 py-0.2 rounded-full bg-slate-800 text-slate-300">0/8</span>
+            </button>
+            <button onclick="switchTab('allenamento')" id="tab-btn-allenamento" class="tab-btn px-4 py-2.5 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2 transition">
+                <i data-lucide="dumbbell" class="w-4 h-4"></i>
+                3. Allenamento Heavy Duty
+            </button>
+            <button onclick="switchTab('tavole')" id="tab-btn-tavole" class="tab-btn px-4 py-2.5 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2 transition">
+                <i data-lucide="book-open" class="w-4 h-4"></i>
+                4. Tavole Alimenti & Backup
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 flex-1">
+
+        <!-- ==========================================
+             TAB 1: PIANIFICATORE PASTI & CALCOLATORE
+             ========================================== -->
+        <section id="tab-pasti" class="space-y-6">
+            <!-- Global Daily Progress Banner -->
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl">
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-4">
+                    <div>
+                        <h2 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+                            <i data-lucide="pie-chart" class="w-5 h-5 text-emerald-400"></i>
+                            Bilancio Blocchetti della Giornata
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-0.5">Tutti gli alimenti vanno pesati <strong class="text-slate-200">crudi</strong> e solo la parte edibile. Distanza tra i pasti: <strong class="text-slate-200">2 - 5 ore</strong>.</p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <button onclick="autoFillEntireDay()" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 transition shadow-lg shadow-emerald-950/50">
+                            <i data-lucide="wand-2" class="w-4 h-4"></i> Auto-Compila Giornata
+                        </button>
+                        <button onclick="openPresetsModal()" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition">
+                            <i data-lucide="bookmark" class="w-4 h-4 text-amber-400"></i> Giornate Salvate
+                        </button>
+                        <button onclick="clearCurrentDayMeals()" class="px-3 py-2 bg-rose-950/40 hover:bg-rose-900/50 text-rose-300 border border-rose-800/50 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition">
+                            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Svuota
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 3 Macro Progress Bars -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
+                    <!-- Proteine -->
+                    <div class="bg-slate-950/80 border border-slate-800/80 rounded-xl p-3.5">
+                        <div class="flex justify-between items-center text-xs font-semibold mb-1.5">
+                            <span class="text-rose-400 flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block"></span> PROTEINE TOTALE</span>
+                            <span id="global-p-text" class="text-slate-200 font-mono">0 / 12 bl.</span>
+                        </div>
+                        <div class="w-full h-2.5 bg-slate-800 rounded-full overflow-hidden">
+                            <div id="global-p-bar" class="h-full bg-rose-500 transition-all duration-300" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <!-- Carboidrati -->
+                    <div class="bg-slate-950/80 border border-slate-800/80 rounded-xl p-3.5">
+                        <div class="flex justify-between items-center text-xs font-semibold mb-1.5">
+                            <span class="text-emerald-400 flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span> CARBOIDRATI TOTALE</span>
+                            <span id="global-c-text" class="text-slate-200 font-mono">0 / 11 bl.</span>
+                        </div>
+                        <div class="w-full h-2.5 bg-slate-800 rounded-full overflow-hidden">
+                            <div id="global-c-bar" class="h-full bg-emerald-500 transition-all duration-300" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <!-- Grassi -->
+                    <div class="bg-slate-950/80 border border-slate-800/80 rounded-xl p-3.5">
+                        <div class="flex justify-between items-center text-xs font-semibold mb-1.5">
+                            <span class="text-amber-400 flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span> GRASSI TOTALE</span>
+                            <span id="global-g-text" class="text-slate-200 font-mono">0 / 17 bl.</span>
+                        </div>
+                        <div class="w-full h-2.5 bg-slate-800 rounded-full overflow-hidden">
+                            <div id="global-g-bar" class="h-full bg-amber-500 transition-all duration-300" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Meals Grid Container -->
+            <div id="meals-container" class="space-y-6">
+                <!-- Populated dynamically via JS -->
+            </div>
+        </section>
+
+        <!-- ==========================================
+             TAB 2: INTEGRAZIONE & REGOLE
+             ========================================== -->
+        <section id="tab-integrazione" class="hidden space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                <!-- Colonna Sinistra: Checklist Integratori Giornaliera -->
+                <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-5">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+                        <div>
+                            <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                                <i data-lucide="check-square" class="w-5 h-5 text-emerald-400"></i>
+                                Checklist Integrazione Giornaliera
+                            </h2>
+                            <p class="text-xs text-slate-400 mt-0.5">Spunta gli integratori man mano che li assumi durante la giornata</p>
+                        </div>
+                        <button onclick="resetSupplementsToday()" class="text-xs text-slate-400 hover:text-white px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 transition">
+                            Azzera spunte
+                        </button>
+                    </div>
+
+                    <div id="supplements-checklist" class="space-y-4">
+                        <!-- Injected via JS -->
+                    </div>
+
+                    <!-- Box FitBar Integratori & Codice Sconto -->
+                    <div class="bg-gradient-to-r from-emerald-950/60 to-slate-900 border border-emerald-500/30 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        <div class="space-y-1">
+                            <div class="flex items-center gap-2">
+                                <span class="px-2 py-0.5 text-[10px] font-bold uppercase bg-emerald-500/20 text-emerald-300 rounded border border-emerald-500/30">Partner Ufficiale</span>
+                                <a href="https://www.fitbarintegratori.it" target="_blank" rel="noopener noreferrer" class="text-sm font-bold text-white hover:text-emerald-400 underline flex items-center gap-1">
+                                    www.fitbarintegratori.it <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                                </a>
+                            </div>
+                            <p class="text-xs text-slate-300">Sconto riservato del <strong class="text-emerald-400">10%</strong> inserendo a mano (non copia-incollare) il codice promozionale alla fine dell'ordine:</p>
+                        </div>
+                        <div class="flex items-center gap-2 bg-slate-950 px-3.5 py-2 rounded-xl border border-slate-700 shrink-0">
+                            <span class="font-mono font-extrabold text-base tracking-widest text-emerald-400">ENRICOD</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Colonna Destra: Acqua, Uova & Regole d'Oro -->
+                <div class="space-y-6">
+                    <!-- Tracker Acqua Giornaliero -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="text-base font-bold text-white flex items-center gap-2">
+                                <i data-lucide="droplets" class="w-5 h-5 text-sky-400"></i>
+                                Idratazione Giornaliera
+                            </h3>
+                            <span id="water-text" class="text-sm font-bold font-mono text-sky-400">0.0 / 2.5 L</span>
+                        </div>
+                        <p class="text-xs text-slate-400 mb-4">Obiettivo: bere tra i <strong class="text-slate-200">2 e i 3 litri</strong> di acqua al giorno.</p>
+                        <div id="water-glasses" class="grid grid-cols-6 gap-2 mb-4">
+                            <!-- 12 glasses of 250ml = 3L -->
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="addWater(-0.25)" class="flex-1 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold transition">- 250 ml</button>
+                            <button onclick="addWater(0.25)" class="flex-1 py-2 bg-sky-600 hover:bg-sky-500 text-white rounded-xl text-xs font-semibold transition">+ 250 ml (1 bicchiere)</button>
+                        </div>
+                    </div>
+
+                    <!-- Tracker Uova Settimanali -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-base font-bold text-white flex items-center gap-2">
+                                <i data-lucide="egg" class="w-5 h-5 text-amber-400"></i>
+                                Contatore Uova Settimanali
+                            </h3>
+                            <span id="eggs-count-badge" class="text-sm font-bold font-mono text-amber-400">0 / 3</span>
+                        </div>
+                        <p class="text-xs text-slate-400 mb-4">Regola H.I.T.A.: Utilizzare <strong class="text-slate-200">2/3 uova intere a settimana</strong> (gli albumi invece sono liberi).</p>
+                        <div class="flex items-center justify-between bg-slate-950 p-3 rounded-xl border border-slate-800">
+                            <div id="eggs-visual" class="flex items-center gap-2">
+                                <!-- Eggs icons -->
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <button onclick="updateWeeklyEggs(-1)" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-bold flex items-center justify-center">-</button>
+                                <button onclick="updateWeeklyEggs(1)" class="w-8 h-8 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-bold flex items-center justify-center">+</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Regole d'Oro Paleo Zona -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-3">
+                        <h3 class="text-base font-bold text-white flex items-center gap-2">
+                            <i data-lucide="shield-check" class="w-5 h-5 text-emerald-400"></i>
+                            Regole Generali H.I.T.A.
+                        </h3>
+                        <ul class="space-y-2.5 text-xs text-slate-300">
+                            <li class="flex items-start gap-2.5">
+                                <i data-lucide="scale" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>
+                                <span><strong>Peso a crudo:</strong> Tutti gli alimenti vanno pesati crudi considerando solo la parte edibile.</span>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <i data-lucide="clock" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>
+                                <span><strong>Timing dei pasti:</strong> Tra un pasto e il successivo far passare da un <strong>minimo di 2 ore</strong> a un <strong>massimo di 5 ore</strong>.</span>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <i data-lucide="apple" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>
+                                <span><strong>Carboidrati:</strong> A colazione e negli spuntini solo da Frutta. A pranzo e cena 1 blocchetto da Frutta + 2 blocchetti da Verdura.</span>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <i data-lucide="droplet" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>
+                                <span><strong>Grassi:</strong> A colazione e spuntini tutti da Frutta Secca. A pranzo (6 bl. = 18g = 2 cucchiai) e cena (3 bl. = 9g = 1 cucchiaio) tutti da Olio EVO.</span>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <i data-lucide="sparkles" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>
+                                <span><strong>Condimenti e Dolcificanti:</strong> Spezie e aromatizzatori senza restrizioni. Sale rosa moderatamente. Dolcificare solo con Stevia o Xylitolo.</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ==========================================
+             TAB 3: ALLENAMENTO HEAVY DUTY
+             ========================================== -->
+        <section id="tab-allenamento" class="hidden space-y-6">
+            <!-- Linee Guida Heavy Duty -->
+            <div class="bg-gradient-to-r from-slate-900 via-slate-900 to-emerald-950/40 border border-slate-800 rounded-2xl p-5 shadow-xl">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div class="space-y-1">
+                        <div class="flex items-center gap-2">
+                            <span class="px-2.5 py-0.5 text-[11px] font-extrabold uppercase tracking-wider bg-rose-500/20 text-rose-400 border border-rose-500/30 rounded-full">High Intensity Training</span>
+                            <h2 class="text-lg font-extrabold text-white">Programma Heavy Duty — Enrico Dell'Olio</h2>
+                        </div>
+                        <p class="text-xs text-slate-300 max-w-3xl">
+                            Strutturato per mantenere il massimo della massa muscolare in definizione. Frequenza: <strong class="text-emerald-400">1 seduta ogni 3 giorni</strong> (es. Lun - Gio - Dom - Mer). Sforzati sempre di arrivare al <strong class="text-rose-400">momentaneo cedimento muscolare</strong>.
+                        </p>
+                    </div>
+                    <div class="bg-slate-950/90 border border-slate-800 rounded-xl p-3 shrink-0 flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-lg bg-sky-500/10 border border-sky-500/30 flex items-center justify-center text-sky-400">
+                            <i data-lucide="footprints" class="w-5 h-5"></i>
+                        </div>
+                        <div class="text-xs">
+                            <div class="font-bold text-white">Cardio Giorni OFF (2x / settimana)</div>
+                            <div class="text-slate-400">40 min camminata passo rapido (senza fiatone)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Colonna Sinistra (7 col): Registra Seduta / Schede dei 3 Giorni -->
+                <div class="lg:col-span-7 bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-5">
+                    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-4">
+                        <h3 class="text-base font-bold text-white flex items-center gap-2">
+                            <i data-lucide="dumbbell" class="w-5 h-5 text-emerald-400"></i>
+                            Scheda & Registrazione Diario
+                        </h3>
+                        <!-- Selettore Giorno 1 / 2 / 3 / Cardio -->
+                        <div class="flex bg-slate-950 p-1 rounded-xl border border-slate-800">
+                            <button onclick="selectWorkoutDay('giorno1')" id="wo-tab-giorno1" class="wo-day-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 text-white transition">Giorno 1</button>
+                            <button onclick="selectWorkoutDay('giorno2')" id="wo-tab-giorno2" class="wo-day-btn px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition">Giorno 2</button>
+                            <button onclick="selectWorkoutDay('giorno3')" id="wo-tab-giorno3" class="wo-day-btn px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition">Giorno 3</button>
+                            <button onclick="selectWorkoutDay('cardio')" id="wo-tab-cardio" class="wo-day-btn px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition">Cardio 40'</button>
+                        </div>
+                    </div>
+
+                    <!-- Form Esercizi del Giorno Selezionato -->
+                    <div id="workout-form-container" class="space-y-4">
+                        <!-- Injected via JS -->
+                    </div>
+
+                    <div class="pt-2 border-t border-slate-800 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                        <input type="text" id="workout-general-notes" placeholder="Note sulla seduta (es. energia, cedimento raggiunto, sensazioni...)" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500">
+                        <button onclick="saveWorkoutSession()" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 transition shadow-lg shadow-emerald-950/60 shrink-0">
+                            <i data-lucide="save" class="w-4 h-4"></i> Salva nel Diario
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Colonna Destra (5 col): Storico Diario Allenamenti -->
+                <div class="lg:col-span-5 bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col max-h-[750px]">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-4">
+                        <div>
+                            <h3 class="text-base font-bold text-white flex items-center gap-2">
+                                <i data-lucide="history" class="w-5 h-5 text-amber-400"></i>
+                                Diario Storico Sedute
+                            </h3>
+                            <p class="text-xs text-slate-400">Tieni traccia della progressione dei carichi</p>
+                        </div>
+                        <button onclick="exportWorkoutCSV()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition">
+                            <i data-lucide="download" class="w-3.5 h-3.5"></i> CSV
+                        </button>
+                    </div>
+
+                    <div id="workout-history-list" class="flex-1 overflow-y-auto space-y-3 pr-1">
+                        <!-- Injected via JS -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             TAB 4: TAVOLE ALIMENTI & BACKUP
+             ========================================== -->
+        <section id="tab-tavole" class="hidden space-y-6">
+            <!-- Barra di Ricerca e Filtri Tavole H.I.T.A. -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                            <i data-lucide="book-open" class="w-5 h-5 text-emerald-400"></i>
+                            Tavole Ufficiali Alimenti H.I.T.A. (1 Blocchetto)
+                        </h2>
+                        <p class="text-xs text-slate-400">Ogni quantità indicata corrisponde esattamente a <strong class="text-white">1 Blocchetto</strong> pesato a crudo (parte edibile).</p>
+                    </div>
+
+                    <!-- Calcolatore Rapido Volante -->
+                    <div class="flex items-center gap-2 bg-slate-950 border border-slate-800 px-3 py-2 rounded-xl">
+                        <span class="text-xs text-slate-400 font-medium">Moltiplica tavola per:</span>
+                        <select id="table-multiplier" onchange="renderFoodTables()" class="bg-slate-800 text-emerald-400 font-bold text-xs rounded-lg px-2.5 py-1 border border-slate-700 focus:outline-none">
+                            <option value="1">1 Blocchetto</option>
+                            <option value="2">2 Blocchetti</option>
+                            <option value="3">3 Blocchetti</option>
+                            <option value="4">4 Blocchetti</option>
+                            <option value="5">5 Blocchetti</option>
+                            <option value="6">6 Blocchetti</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <div class="relative flex-1">
+                        <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                        <input type="text" id="food-search-input" oninput="renderFoodTables()" placeholder="Cerca alimento (es. pollo, salmone, broccoli, mandorle...)" class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500">
+                    </div>
+                    <div class="flex gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+                        <button onclick="setFoodTableFilter('ALL')" id="ft-filter-ALL" class="ft-filter-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-600 text-white shrink-0">Tutti</button>
+                        <button onclick="setFoodTableFilter('P')" id="ft-filter-P" class="ft-filter-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-800 text-rose-400 hover:bg-slate-700 shrink-0">Proteine</button>
+                        <button onclick="setFoodTableFilter('C')" id="ft-filter-C" class="ft-filter-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-800 text-emerald-400 hover:bg-slate-700 shrink-0">Carboidrati</button>
+                        <button onclick="setFoodTableFilter('G')" id="ft-filter-G" class="ft-filter-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-800 text-amber-400 hover:bg-slate-700 shrink-0">Grassi</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Griglia Tavole Alimenti -->
+            <div id="food-tables-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Populated by JS -->
+            </div>
+
+            <!-- Sezione Backup & Esportazione Dati (Per GitHub / Dispositivi) -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <h3 class="text-base font-bold text-white flex items-center gap-2">
+                            <i data-lucide="database" class="w-5 h-5 text-sky-400"></i>
+                            Backup & Ripristino Dati Locali (JSON)
+                        </h3>
+                        <p class="text-xs text-slate-400 mt-0.5">Tutti i tuoi dati sono salvati nel browser (`localStorage`). Puoi esportare un file di backup per passarlo dal PC allo smartphone.</p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-3">
+                        <button onclick="exportAllDataJSON()" class="px-4 py-2 bg-sky-600 hover:bg-sky-500 text-white rounded-xl text-xs font-bold flex items-center gap-2 transition">
+                            <i data-lucide="download" class="w-4 h-4"></i> Esporta Backup (.json)
+                        </button>
+                        <label class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer transition">
+                            <i data-lucide="upload" class="w-4 h-4"></i> Importa Backup
+                            <input type="file" accept=".json" onchange="importAllDataJSON(event)" class="hidden">
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Bottom Navigation Bar (Mobile Only) -->
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-slate-950/95 backdrop-blur-md border-t border-slate-800 grid grid-cols-4 py-1.5 px-2">
+        <button onclick="switchTab('pasti')" id="mob-tab-pasti" class=" flex flex-col items-center justify-center py-1 text-emerald-400">
+            <i data-lucide="utensils" class="w-5 h-5"></i>
+            <span class="text-[10px] font-bold mt-0.5">Pasti</span>
+        </button>
+        <button onclick="switchTab('integrazione')" id="mob-tab-integrazione" class="flex flex-col items-center justify-center py-1 text-slate-400">
+            <i data-lucide="pill" class="w-5 h-5"></i>
+            <span class="text-[10px] font-bold mt-0.5">Integratori</span>
+        </button>
+        <button onclick="switchTab('allenamento')" id="mob-tab-allenamento" class="flex flex-col items-center justify-center py-1 text-slate-400">
+            <i data-lucide="dumbbell" class="w-5 h-5"></i>
+            <span class="text-[10px] font-bold mt-0.5">Heavy Duty</span>
+        </button>
+        <button onclick="switchTab('tavole')" id="mob-tab-tavole" class="flex flex-col items-center justify-center py-1 text-slate-400">
+            <i data-lucide="book-open" class="w-5 h-5"></i>
+            <span class="text-[10px] font-bold mt-0.5">Tavole</span>
+        </button>
+    </nav>
+
+    <!-- ==========================================
+         JAVASCRIPT APPLICATION LOGIC
+         ========================================== -->
+    <script>
+        // ----------------------------------------------------
+        // 1. DATABASE COMPLETO ALIMENTI H.I.T.A. (1 BLOCCHETTO)
+        // ----------------------------------------------------
+        const FOODS_DB = [
+            // PROTEINE - CARNE
+            { id: 'p_agnello', name: 'Agnello magro', macro: 'P', category: 'Carne', amount: 35, unit: 'g' },
+            { id: 'p_pollo', name: 'Petto di pollo senza pelle', macro: 'P', category: 'Carne', amount: 30, unit: 'g' },
+            { id: 'p_tacchino', name: 'Petto di tacchino senza pelle', macro: 'P', category: 'Carne', amount: 30, unit: 'g' },
+            { id: 'p_vitello', name: 'Vitello (tagli magri)', macro: 'P', category: 'Carne', amount: 35, unit: 'g' },
+            { id: 'p_lumache', name: 'Lumache', macro: 'P', category: 'Carne', amount: 55, unit: 'g' },
+            { id: 'p_bresaola', name: 'Bresaola', macro: 'P', category: 'Carne', amount: 20, unit: 'g' },
+            { id: 'p_coniglio', name: 'Coniglio', macro: 'P', category: 'Carne', amount: 35, unit: 'g' },
+            { id: 'p_bovino', name: 'Bovino (tagli magri)', macro: 'P', category: 'Carne', amount: 35, unit: 'g' },
+            { id: 'p_capretto', name: 'Capretto magro', macro: 'P', category: 'Carne', amount: 35, unit: 'g' },
+            { id: 'p_cavallo', name: 'Carne di cavallo (tagli magri)', macro: 'P', category: 'Carne', amount: 35, unit: 'g' },
+            { id: 'p_manzo', name: 'Carne di manzo (tagli magri)', macro: 'P', category: 'Carne', amount: 35, unit: 'g' },
+            { id: 'p_crudo', name: 'Prosciutto crudo sgrassato', macro: 'P', category: 'Carne', amount: 25, unit: 'g' },
+
+            // PROTEINE - PESCE
+            { id: 'p_acciughe', name: "Acciughe sott'olio o sotto sale", macro: 'P', category: 'Pesce', amount: 30, unit: 'g' },
+            { id: 'p_aragosta', name: 'Aragosta', macro: 'P', category: 'Pesce', amount: 45, unit: 'g' },
+            { id: 'p_anguilla', name: 'Anguilla (filetti)', macro: 'P', category: 'Pesce', amount: 50, unit: 'g' },
+            { id: 'p_baccala', name: 'Baccalà', macro: 'P', category: 'Pesce', amount: 25, unit: 'g' },
+            { id: 'p_branzino', name: 'Branzino o spigola', macro: 'P', category: 'Pesce', amount: 50, unit: 'g' },
+            { id: 'p_branzino_fil', name: 'Branzino o spigola (filetti)', macro: 'P', category: 'Pesce', amount: 40, unit: 'g' },
+            { id: 'p_dentice', name: 'Dentice', macro: 'P', category: 'Pesce', amount: 50, unit: 'g' },
+            { id: 'p_dentice_fil', name: 'Dentice (filetti)', macro: 'P', category: 'Pesce', amount: 40, unit: 'g' },
+            { id: 'p_orata', name: 'Orata', macro: 'P', category: 'Pesce', amount: 50, unit: 'g' },
+            { id: 'p_orata_fil', name: 'Orata (filetti)', macro: 'P', category: 'Pesce', amount: 40, unit: 'g' },
+            { id: 'p_calamari', name: 'Calamari', macro: 'P', category: 'Pesce', amount: 55, unit: 'g' },
+            { id: 'p_gamberi', name: 'Gamberi o gamberetti (sgusciati)', macro: 'P', category: 'Pesce', amount: 50, unit: 'g' },
+            { id: 'p_granchio', name: 'Granchio (polpa)', macro: 'P', category: 'Pesce', amount: 40, unit: 'g' },
+            { id: 'p_merluzzo', name: 'Merluzzo', macro: 'P', category: 'Pesce', amount: 50, unit: 'g' },
+            { id: 'p_merluzzo_fil', name: 'Merluzzo (filetti)', macro: 'P', category: 'Pesce', amount: 40, unit: 'g' },
+            { id: 'p_pesce_azzurro', name: 'Pesce azzurro, sardine e sarde', macro: 'P', category: 'Pesce', amount: 35, unit: 'g' },
+            { id: 'p_persico', name: 'Persico', macro: 'P', category: 'Pesce', amount: 45, unit: 'g' },
+            { id: 'p_persico_fil', name: 'Persico (filetti)', macro: 'P', category: 'Pesce', amount: 40, unit: 'g' },
+            { id: 'p_pesce_spada', name: 'Pesce spada (trancio)', macro: 'P', category: 'Pesce', amount: 45, unit: 'g' },
+            { id: 'p_salmone', name: 'Salmone (trancio o filetto con pelle)', macro: 'P', category: 'Pesce', amount: 40, unit: 'g' },
+            { id: 'p_salmone_aff', name: 'Salmone affumicato', macro: 'P', category: 'Pesce', amount: 30, unit: 'g' },
+            { id: 'p_seppia', name: 'Seppia', macro: 'P', category: 'Pesce', amount: 50, unit: 'g' },
+            { id: 'p_sgombro', name: 'Sgombro', macro: 'P', category: 'Pesce', amount: 40, unit: 'g' },
+            { id: 'p_tonno_scatola', name: 'Tonno (in scatola sgocciolato)', macro: 'P', category: 'Pesce', amount: 30, unit: 'g' },
+            { id: 'p_tonno_trancio', name: 'Tonno (trancio)', macro: 'P', category: 'Pesce', amount: 30, unit: 'g' },
+            { id: 'p_triglia', name: 'Triglia', macro: 'P', category: 'Pesce', amount: 45, unit: 'g' },
+            { id: 'p_trota', name: 'Trota', macro: 'P', category: 'Pesce', amount: 50, unit: 'g' },
+            { id: 'p_vongole', name: 'Vongole e cozze', macro: 'P', category: 'Pesce', amount: 70, unit: 'g' },
+
+            // PROTEINE - UOVA
+            { id: 'p_uovo_intero', name: 'Uovo completo (max 2-3/sett.)', macro: 'P', category: 'Uova', amount: 1, unit: ' uovo' },
+            { id: 'p_albume', name: 'Chiara (albume)', macro: 'P', category: 'Uova', amount: 50, unit: 'ml' },
+
+            // CARBOIDRATI - VERDURE
+            { id: 'c_asparagi_campo', name: 'Asparagi di campo', macro: 'C', category: 'Verdura', amount: 270, unit: 'g' },
+            { id: 'c_asparagi_serra', name: 'Asparagi di serra', macro: 'C', category: 'Verdura', amount: 300, unit: 'g' },
+            { id: 'c_bietola', name: 'Bietola', macro: 'C', category: 'Verdura', amount: 320, unit: 'g' },
+            { id: 'c_broccoli', name: 'Broccoli', macro: 'C', category: 'Verdura', amount: 290, unit: 'g' },
+            { id: 'c_carciofi', name: 'Carciofi', macro: 'C', category: 'Verdura', amount: 360, unit: 'g' },
+            { id: 'c_cavolfiore', name: 'Cavolfiore', macro: 'C', category: 'Verdura', amount: 330, unit: 'g' },
+            { id: 'c_bruxelles', name: 'Cavolini di Bruxelles', macro: 'C', category: 'Verdura', amount: 215, unit: 'g' },
+            { id: 'c_cavolo', name: 'Cavolo', macro: 'C', category: 'Verdura', amount: 450, unit: 'g' },
+            { id: 'c_cavolo_verde', name: 'Cavolo verde', macro: 'C', category: 'Verdura', amount: 360, unit: 'g' },
+            { id: 'c_cipolle', name: 'Cipolle lesse', macro: 'C', category: 'Verdura', amount: 160, unit: 'g' },
+            { id: 'c_porcini', name: 'Funghi porcini', macro: 'C', category: 'Verdura', amount: 900, unit: 'g' },
+            { id: 'c_funghi', name: 'Funghi', macro: 'C', category: 'Verdura', amount: 200, unit: 'g' },
+            { id: 'c_melanzane', name: 'Melanzane', macro: 'C', category: 'Verdura', amount: 350, unit: 'g' },
+            { id: 'c_peperoni', name: 'Peperoni', macro: 'C', category: 'Verdura', amount: 130, unit: 'g' },
+            { id: 'c_pomodori_ins', name: 'Pomodori da insalata', macro: 'C', category: 'Verdura', amount: 300, unit: 'g' },
+            { id: 'c_pomodori_mat', name: 'Pomodori maturi', macro: 'C', category: 'Verdura', amount: 250, unit: 'g' },
+            { id: 'c_porri', name: 'Porri', macro: 'C', category: 'Verdura', amount: 170, unit: 'g' },
+            { id: 'c_radicchio_rosso', name: 'Radicchio rosso', macro: 'C', category: 'Verdura', amount: 550, unit: 'g' },
+            { id: 'c_radicchio_verde', name: 'Radicchio verde', macro: 'C', category: 'Verdura', amount: 1800, unit: 'g' },
+            { id: 'c_ravanelli', name: 'Ravanelli', macro: 'C', category: 'Verdura', amount: 500, unit: 'g' },
+            { id: 'c_rape', name: 'Rape', macro: 'C', category: 'Verdura', amount: 240, unit: 'g' },
+            { id: 'c_sedano', name: 'Sedano', macro: 'C', category: 'Verdura', amount: 380, unit: 'g' },
+            { id: 'c_spinaci', name: 'Spinaci', macro: 'C', category: 'Verdura', amount: 300, unit: 'g' },
+            { id: 'c_zucchine', name: 'Zucchine', macro: 'C', category: 'Verdura', amount: 640, unit: 'g' },
+            { id: 'c_finocchio', name: 'Finocchio', macro: 'C', category: 'Verdura', amount: 150, unit: 'g' },
+            { id: 'c_cetrioli', name: 'Cetrioli', macro: 'C', category: 'Verdura', amount: 400, unit: 'g' },
+            { id: 'c_friggitelli', name: 'Friggitelli', macro: 'C', category: 'Verdura', amount: 150, unit: 'g' },
+            { id: 'c_cime_rape', name: 'Cime di rape', macro: 'C', category: 'Verdura', amount: 450, unit: 'g' },
+
+            // CARBOIDRATI - FRUTTA
+            { id: 'c_albicocche', name: 'Albicocche', macro: 'C', category: 'Frutta', amount: 130, unit: 'g' },
+            { id: 'c_ananas', name: 'Ananas', macro: 'C', category: 'Frutta', amount: 90, unit: 'g' },
+            { id: 'c_anguria', name: 'Anguria', macro: 'C', category: 'Frutta', amount: 250, unit: 'g' },
+            { id: 'c_arancia', name: 'Arancia', macro: 'C', category: 'Frutta', amount: 115, unit: 'g' },
+            { id: 'c_ciliegie', name: 'Ciliegie', macro: 'C', category: 'Frutta', amount: 100, unit: 'g' },
+            { id: 'c_fragole', name: 'Fragole', macro: 'C', category: 'Frutta', amount: 170, unit: 'g' },
+            { id: 'c_kiwi', name: 'Kiwi', macro: 'C', category: 'Frutta', amount: 115, unit: 'g' },
+            { id: 'c_lamponi', name: 'Lamponi', macro: 'C', category: 'Frutta', amount: 100, unit: 'g' },
+            { id: 'c_mandarini', name: 'Mandarini', macro: 'C', category: 'Frutta', amount: 50, unit: 'g' },
+            { id: 'c_mela', name: 'Mela', macro: 'C', category: 'Frutta', amount: 90, unit: 'g' },
+            { id: 'c_melone', name: 'Melone', macro: 'C', category: 'Frutta', amount: 120, unit: 'g' },
+            { id: 'c_mirtilli', name: 'Mirtilli', macro: 'C', category: 'Frutta', amount: 175, unit: 'g' },
+            { id: 'c_pera', name: 'Pera', macro: 'C', category: 'Frutta', amount: 100, unit: 'g' },
+            { id: 'c_pesca', name: 'Pesca', macro: 'C', category: 'Frutta', amount: 150, unit: 'g' },
+            { id: 'c_pesca_noce', name: 'Pesca noce', macro: 'C', category: 'Frutta', amount: 60, unit: 'g' },
+            { id: 'c_pompelmo', name: 'Pompelmo', macro: 'C', category: 'Frutta', amount: 145, unit: 'g' },
+            { id: 'c_melone_bianco', name: 'Melone bianco', macro: 'C', category: 'Frutta', amount: 185, unit: 'g' },
+            { id: 'c_prugna_gialla', name: 'Prugna gialla', macro: 'C', category: 'Frutta', amount: 125, unit: 'g' },
+            { id: 'c_prugna_rossa', name: 'Prugna rossa', macro: 'C', category: 'Frutta', amount: 85, unit: 'g' },
+            { id: 'c_ribes', name: 'Ribes', macro: 'C', category: 'Frutta', amount: 135, unit: 'g' },
+            { id: 'c_nespola', name: 'Nespola', macro: 'C', category: 'Frutta', amount: 150, unit: 'g' },
+
+            // CARBOIDRATI - SOLO SE SPECIFICATO
+            { id: 'c_riso_basmati', name: 'Riso Basmati (solo se spec.)', macro: 'C', category: 'Speciale', amount: 10, unit: 'g' },
+            { id: 'c_gallette', name: 'Gallette di riso (solo se spec.)', macro: 'C', category: 'Speciale', amount: 10, unit: 'g' },
+            { id: 'c_patate', name: 'Patate (solo se spec.)', macro: 'C', category: 'Speciale', amount: 40, unit: 'g' },
+            { id: 'c_patate_dolci', name: 'Patate dolci americane (solo se spec.)', macro: 'C', category: 'Speciale', amount: 50, unit: 'g' },
+            { id: 'c_uva', name: 'Uva (solo se spec.)', macro: 'C', category: 'Speciale', amount: 60, unit: 'g' },
+            { id: 'c_banana', name: 'Banana (solo se spec.)', macro: 'C', category: 'Speciale', amount: 60, unit: 'g' },
+            { id: 'c_datteri', name: 'Datteri (solo se spec.)', macro: 'C', category: 'Speciale', amount: 15, unit: 'g' },
+            { id: 'c_fichi', name: 'Fichi freschi (solo se spec.)', macro: 'C', category: 'Speciale', amount: 80, unit: 'g' },
+            { id: 'c_kaki', name: 'Kaki (solo se spec.)', macro: 'C', category: 'Speciale', amount: 55, unit: 'g' },
+
+            // GRASSI - FRUTTA SECCA
+            { id: 'g_anacardi', name: 'Anacardi', macro: 'G', category: 'Frutta Secca', amount: 6, unit: 'g' },
+            { id: 'g_mandorle', name: 'Mandorle', macro: 'G', category: 'Frutta Secca', amount: 6, unit: 'g' },
+            { id: 'g_macadamia', name: 'Noci di macadamia', macro: 'G', category: 'Frutta Secca', amount: 5, unit: 'g' },
+            { id: 'g_noci', name: 'Noci', macro: 'G', category: 'Frutta Secca', amount: 4, unit: 'g' },
+            { id: 'g_pistacchi', name: 'Pistacchi', macro: 'G', category: 'Frutta Secca', amount: 5, unit: 'g' },
+            { id: 'g_pinoli', name: 'Pinoli', macro: 'G', category: 'Frutta Secca', amount: 6, unit: 'g' },
+
+            // GRASSI - BURRO E OLIO
+            { id: 'g_olio_evo', name: "Olio extra vergine d'oliva (3 bl. = 1 cucchiaio)", macro: 'G', category: 'Burro e Olio', amount: 3, unit: 'g' },
+            { id: 'g_ghee', name: 'Burro biologico chiarificato Ghee', macro: 'G', category: 'Burro e Olio', amount: 3, unit: 'g' },
+            { id: 'g_burro', name: 'Burro biologico non salato', macro: 'G', category: 'Burro e Olio', amount: 3, unit: 'g' }
+        ];
+
+        // ----------------------------------------------------
+        // 2. CONFIGURAZIONE PASTI E VINCOLI DEL PROGRAMMA MARCO
+        // ----------------------------------------------------
+        const MEALS_CONFIG = [
+            {
+                id: 'colazione',
+                title: 'Colazione',
+                icon: 'coffee',
+                targets: { P: 2, C: 2, G: 5 },
+                carbRule: 'FRUIT_ONLY', // 2 bl solo da frutta
+                carbSplit: { Frutta: 2, Verdura: 0 },
+                fatRule: 'NUTS_ONLY',   // 5 bl solo da frutta secca
+                ruleBadges: ['Carbo: Solo Frutta (2 bl.)', 'Grassi: Solo Frutta Secca (5 bl.)'],
+                suppNote: 'Dopo colazione: 1 gellula Omega 3 (1g) + 1g Vitamina C + 1 cps Super Burn'
+            },
+            {
+                id: 'spuntino_mattina',
+                title: '½ Mattina',
+                icon: 'apple',
+                targets: { P: 1, C: 1, G: 1 },
+                carbRule: 'FRUIT_ONLY',
+                carbSplit: { Frutta: 1, Verdura: 0 },
+                fatRule: 'NUTS_ONLY',
+                ruleBadges: ['Carbo: Solo Frutta (1 bl.)', 'Grassi: Solo Frutta Secca (1 bl.)'],
+                suppNote: null
+            },
+            {
+                id: 'pranzo',
+                title: 'Pranzo',
+                icon: 'sun',
+                targets: { P: 3, C: 3, G: 6 },
+                carbRule: 'SPLIT_2V_1F', // 2 bl verdura + 1 bl frutta
+                carbSplit: { Verdura: 2, Frutta: 1 },
+                fatRule: 'OIL_ONLY',     // 6 bl olio EVO (18g = 2 cucchiai)
+                ruleBadges: ['Carbo: 2 bl. Verdura + 1 bl. Frutta', 'Grassi: 6 bl. Olio EVO (18g = 2 cucchiai)'],
+                suppNote: 'Dopo pranzo: 1 capsula di Super Burn (Biotech USA)'
+            },
+            {
+                id: 'spuntino_pomeriggio',
+                title: '½ Pomeriggio',
+                icon: 'sunset',
+                targets: { P: 1, C: 1, G: 1 },
+                carbRule: 'FRUIT_ONLY',
+                carbSplit: { Frutta: 1, Verdura: 0 },
+                fatRule: 'NUTS_ONLY',
+                ruleBadges: ['Carbo: Solo Frutta (1 bl.)', 'Grassi: Solo Frutta Secca (1 bl.)'],
+                suppNote: null
+            },
+            {
+                id: 'cena',
+                title: 'Cena',
+                icon: 'utensils-crossed',
+                targets: { P: 4, C: 3, G: 3 },
+                carbRule: 'SPLIT_2V_1F', // 2 bl verdura + 1 bl frutta
+                carbSplit: { Verdura: 2, Frutta: 1 },
+                fatRule: 'OIL_ONLY',     // 3 bl olio EVO (9g = 1 cucchiaio)
+                ruleBadges: ['Carbo: 2 bl. Verdura + 1 bl. Frutta', 'Grassi: 3 bl. Olio EVO (9g = 1 cucchiaio)'],
+                suppNote: 'Dopo cena: 1 gellula Omega 3 (1g) + 1g Vitamina C + 1 cps Super Burn'
+            },
+            {
+                id: 'prenanna',
+                title: 'Prima di dormire',
+                icon: 'moon',
+                targets: { P: 1, C: 1, G: 1 },
+                carbRule: 'FRUIT_ONLY',
+                carbSplit: { Frutta: 1, Verdura: 0 },
+                fatRule: 'NUTS_ONLY',
+                ruleBadges: ['Carbo: Solo Frutta (1 bl.)', 'Grassi: Solo Frutta Secca (1 bl.)'],
+                suppNote: 'Prima di coricarti: 1 cucchiaino da caffè di Magnesio Supremo in tisana camomilla e/o valeriana'
+            }
+        ];
+
+        // ----------------------------------------------------
+        // 3. INTEGRATORI GIORNALIERI
+        // ----------------------------------------------------
+        const SUPPLEMENTS_CONFIG = [
+            { id: 'col_omega3', timing: 'Dopo Colazione', name: 'Omega 3 (Biotech USA)', dose: '1 gellula da 1g' },
+            { id: 'col_vitc', timing: 'Dopo Colazione', name: 'Vitamina C (Biotech USA)', dose: '1 g' },
+            { id: 'col_superburn', timing: 'Dopo Colazione', name: 'Super Burn (Biotech USA)', dose: '1 capsula' },
+            { id: 'pra_superburn', timing: 'Dopo Pranzo', name: 'Super Burn (Biotech USA)', dose: '1 capsula' },
+            { id: 'cen_omega3', timing: 'Dopo Cena', name: 'Omega 3 (Biotech USA)', dose: '1 gellula da 1g' },
+            { id: 'cen_vitc', timing: 'Dopo Cena', name: 'Vitamina C (Biotech USA)', dose: '1 g' },
+            { id: 'cen_superburn', timing: 'Dopo Cena', name: 'Super Burn (Biotech USA)', dose: '1 capsula' },
+            { id: 'nan_magnesio', timing: 'Prima di Coricarsi', name: 'Magnesio Supremo in tisana (camomilla/valeriana)', dose: '1 cucchiaino da caffè' }
+        ];
+
+        // ----------------------------------------------------
+        // 4. SCHEDA ALLENAMENTO HEAVY DUTY
+        // ----------------------------------------------------
+        const WORKOUT_DAYS = {
+            giorno1: {
+                title: 'Primo Giorno (Petto / Dorso / Stacchi)',
+                exercises: [
+                    { id: 'g1_chest_orizz', name: 'Chest Press orizzontale', sets: 2, targetReps: '8 - 12 rip.' },
+                    { id: 'g1_chest_incl', name: 'Chest Press inclinata', sets: 1, targetReps: '6 - 10 rip.' },
+                    { id: 'g1_lat_inv', name: 'Tirate al Lat-machine impugnatura stretta inversa', sets: 2, targetReps: '6 - 10 rip.' },
+                    { id: 'g1_pulley', name: 'Lat pulley basso', sets: 2, targetReps: '6 - 10 rip.' },
+                    { id: 'g1_stacchi', name: 'Stacchi da terra con bilanciere', sets: 1, targetReps: '6 - 10 rip.' }
+                ]
+            },
+            giorno2: {
+                title: 'Secondo Giorno (Spalle / Trapezi / Gambe / Addome)',
+                exercises: [
+                    { id: 'g2_shoulder', name: 'Shoulder Press', sets: 2, targetReps: '6 - 10 rip.' },
+                    { id: 'g2_scrollate', name: 'Scrollate con Bilanciere', sets: 1, targetReps: '6 - 10 rip.' },
+                    { id: 'g2_squat', name: 'Squat con bilanciere libero al Power Rack', sets: 2, targetReps: '8 - 12 rip.' },
+                    { id: 'g2_calf', name: 'Calf in piedi', sets: 2, targetReps: '12 - 20 rip.' },
+                    { id: 'g2_crunch', name: 'Crunch alla macchina', sets: 2, targetReps: '12 - 20 rip.' }
+                ]
+            },
+            giorno3: {
+                title: 'Terzo Giorno (Deltoidi / Tricipiti / Bicipiti)',
+                exercises: [
+                    { id: 'g3_alzate_lat', name: 'Alzate laterali alla lateral-machine o in piedi con manubri', sets: 2, targetReps: '6 - 10 rip.' },
+                    { id: 'g3_cavi_90', name: 'Tirate laterali ai cavi ad 1 braccio per deltoidi busto flesso 90°', sets: 2, targetReps: '6 - 10 rip.' },
+                    { id: 'g3_pushdown', name: 'Push Down ai cavi (Tricipiti)', sets: 2, targetReps: '6 - 10 rip.' },
+                    { id: 'g3_curl_bil', name: 'Curl con bilanciere dritto in piedi (Bicipiti)', sets: 2, targetReps: '6 - 10 rip.' }
+                ]
+            },
+            cardio: {
+                title: 'Sessione Cardio (Giorni OFF pesi - 2x a settimana)',
+                exercises: [
+                    { id: 'cardio_walk', name: 'Camminata a passo rapido (senza fiatone)', sets: 1, targetReps: '40 minuti' }
+                ]
+            }
+        };
+
+        // ----------------------------------------------------
+        // 5. STATO DELL'APPLICAZIONE & LOCALSTORAGE
+        // ----------------------------------------------------
+        const STORAGE_KEY = 'paleo_zona_marco_v1';
+        let currentDate = new Date().toISOString().split('T')[0];
+        let selectedWorkoutDay = 'giorno1';
+        let currentFoodTableFilter = 'ALL';
+        // Mappa per sapere se l'utente ha sbloccato "Mostra tutte le fonti" in uno specifico pasto
+        let showAllFoodsOverride = {};
+
+        let appState = {
+            days: {},           // { 'YYYY-MM-DD': { meals: {...}, supplements: {...}, water: 0 } }
+            weeklyEggs: 0,      // contatore uova intere settimanali
+            savedPresets: [],   // giornate tipo salvate [{ name, meals }]
+            workoutHistory: []  // storico sedute [{ id, date, dayKey, dayTitle, results, notes }]
+        };
+
+        function loadState() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    appState = { ...appState, ...parsed };
+                }
+            } catch (e) {
+                console.error('Errore lettura localStorage:', e);
+            }
+            ensureDayInitialized(currentDate);
+        }
+
+        function saveState() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+            } catch (e) {
+                console.error('Errore salvataggio localStorage:', e);
+            }
+        }
+
+        function createDefaultDayMeals() {
+            return {
+                colazione: {
+                    P: [{ foodId: 'p_albume', blocks: 2 }],
+                    C: [{ foodId: 'c_mela', blocks: 2 }],
+                    G: [{ foodId: 'g_mandorle', blocks: 5 }]
+                },
+                spuntino_mattina: {
+                    P: [{ foodId: 'p_bresaola', blocks: 1 }],
+                    C: [{ foodId: 'c_kiwi', blocks: 1 }],
+                    G: [{ foodId: 'g_noci', blocks: 1 }]
+                },
+                pranzo: {
+                    P: [{ foodId: 'p_pollo', blocks: 3 }],
+                    C: [
+                        { foodId: 'c_zucchine', blocks: 2 },
+                        { foodId: 'c_ananas', blocks: 1 }
+                    ],
+                    G: [{ foodId: 'g_olio_evo', blocks: 6 }]
+                },
+                spuntino_pomeriggio: {
+                    P: [{ foodId: 'p_tonno_scatola', blocks: 1 }],
+                    C: [{ foodId: 'c_arancia', blocks: 1 }],
+                    G: [{ foodId: 'g_mandorle', blocks: 1 }]
+                },
+                cena: {
+                    P: [{ foodId: 'p_salmone', blocks: 4 }],
+                    C: [
+                        { foodId: 'c_broccoli', blocks: 2 },
+                        { foodId: 'c_mirtilli', blocks: 1 }
+                    ],
+                    G: [{ foodId: 'g_olio_evo', blocks: 3 }]
+                },
+                prenanna: {
+                    P: [{ foodId: 'p_tacchino', blocks: 1 }],
+                    C: [{ foodId: 'c_pera', blocks: 1 }],
+                    G: [{ foodId: 'g_macadamia', blocks: 1 }]
+                }
+            };
+        }
+
+        function ensureDayInitialized(dateStr) {
+            if (!appState.days[dateStr]) {
+                appState.days[dateStr] = {
+                    meals: createDefaultDayMeals(),
+                    supplements: {},
+                    water: 0
+                };
+                saveState();
+            }
+        }
+
+        // ----------------------------------------------------
+        // 6. HELPER FUNZIONI ALIMENTI E FILTRI PASTO
+        // ----------------------------------------------------
+        function getFoodById(foodId) {
+            return FOODS_DB.find(f => f.id === foodId) || null;
+        }
+
+        function getAllowedFoodsForMealMacro(mealCfg, macro, unlockAll) {
+            const allOfMacro = FOODS_DB.filter(f => f.macro === macro);
+            if (unlockAll) return allOfMacro;
+
+            if (macro === 'P') return allOfMacro;
+
+            if (macro === 'C') {
+                if (mealCfg.carbRule === 'FRUIT_ONLY') {
+                    return allOfMacro.filter(f => f.category === 'Frutta');
+                }
+                if (mealCfg.carbRule === 'SPLIT_2V_1F') {
+                    return allOfMacro.filter(f => f.category === 'Verdura' || f.category === 'Frutta');
+                }
+            }
+
+            if (macro === 'G') {
+                if (mealCfg.fatRule === 'NUTS_ONLY') {
+                    return allOfMacro.filter(f => f.category === 'Frutta Secca');
+                }
+                if (mealCfg.fatRule === 'OIL_ONLY') {
+                    return allOfMacro.filter(f => f.id === 'g_olio_evo');
+                }
+            }
+            return allOfMacro;
+        }
+
+        function formatGramsCalculation(food, blocks) {
+            if (!food || !blocks) return '0g';
+            const total = +(blocks * food.amount).toFixed(1);
+            let extra = '';
+            if (food.id === 'g_olio_evo') {
+                const spoons = +(blocks / 3).toFixed(1);
+                extra = ` (${spoons} cucchiai${spoons === 1 ? 'o' : ''})`;
+            }
+            return `${total}${food.unit}${extra}`;
+        }
+
+        // Valida lo stato di un singolo macro nel pasto rispetto ai blocchetti e alle regole specifiche
+        function evaluateMealMacroStatus(mealCfg, macro, rows) {
+            const target = mealCfg.targets[macro];
+            const totalBlocks = +(rows.reduce((acc, r) => acc + (parseFloat(r.blocks) || 0), 0)).toFixed(2);
+
+            if (macro === 'C' && mealCfg.carbRule === 'SPLIT_2V_1F') {
+                let vegBlocks = 0;
+                let fruitBlocks = 0;
+                let otherBlocks = 0;
+                rows.forEach(r => {
+                    const f = getFoodById(r.foodId);
+                    const b = parseFloat(r.blocks) || 0;
+                    if (f?.category === 'Verdura') vegBlocks += b;
+                    else if (f?.category === 'Frutta') fruitBlocks += b;
+                    else otherBlocks += b;
+                });
+                vegBlocks = +vegBlocks.toFixed(2);
+                fruitBlocks = +fruitBlocks.toFixed(2);
+                const isExact = vegBlocks === 2 && fruitBlocks === 1 && otherBlocks === 0;
+                return {
+                    totalBlocks,
+                    target,
+                    isOk: isExact,
+                    detailText: `${vegBlocks}/2 Verdura • ${fruitBlocks}/1 Frutta`
+                };
+            }
+
+            if (macro === 'C' && mealCfg.carbRule === 'FRUIT_ONLY') {
+                let nonFruit = rows.some(r => {
+                    const f = getFoodById(r.foodId);
+                    return f && f.category !== 'Frutta' && (parseFloat(r.blocks) || 0) > 0;
+                });
+                return {
+                    totalBlocks,
+                    target,
+                    isOk: totalBlocks === target && !nonFruit,
+                    detailText: nonFruit ? `${totalBlocks}/${target} bl. (Fonte non Frutta)` : `${totalBlocks}/${target} bl. Frutta`
+                };
+            }
+
+            if (macro === 'G' && mealCfg.fatRule === 'OIL_ONLY') {
+                let nonOil = rows.some(r => r.foodId !== 'g_olio_evo' && (parseFloat(r.blocks) || 0) > 0);
+                return {
+                    totalBlocks,
+                    target,
+                    isOk: totalBlocks === target && !nonOil,
+                    detailText: `${totalBlocks}/${target} bl. Olio EVO`
+                };
+            }
+
+            if (macro === 'G' && mealCfg.fatRule === 'NUTS_ONLY') {
+                let nonNuts = rows.some(r => {
+                    const f = getFoodById(r.foodId);
+                    return f && f.category !== 'Frutta Secca' && (parseFloat(r.blocks) || 0) > 0;
+                });
+                return {
+                    totalBlocks,
+                    target,
+                    isOk: totalBlocks === target && !nonNuts,
+                    detailText: `${totalBlocks}/${target} bl. Frutta Secca`
+                };
+            }
+
+            return {
+                totalBlocks,
+                target,
+                isOk: totalBlocks === target,
+                detailText: `${totalBlocks}/${target} bl.`
+            };
+        }
+
+        // ----------------------------------------------------
+        // 7. RENDERING TAB 1: PIANIFICATORE PASTI
+        // ----------------------------------------------------
+        function renderMealsPlanner() {
+            ensureDayInitialized(currentDate);
+            const dayData = appState.days[currentDate];
+            const container = document.getElementById('meals-container');
+
+            let globalP = 0, globalC = 0, globalG = 0;
+
+            const mealsHtml = MEALS_CONFIG.map(mealCfg => {
+                const mealRows = dayData.meals[mealCfg.id] || { P: [], C: [], G: [] };
+                const unlockAll = !!showAllFoodsOverride[mealCfg.id];
+
+                const statusP = evaluateMealMacroStatus(mealCfg, 'P', mealRows.P);
+                const statusC = evaluateMealMacroStatus(mealCfg, 'C', mealRows.C);
+                const statusG = evaluateMealMacroStatus(mealCfg, 'G', mealRows.G);
+
+                globalP += statusP.totalBlocks;
+                globalC += statusC.totalBlocks;
+                globalG += statusG.totalBlocks;
+
+                const mealComplete = statusP.isOk && statusC.isOk && statusG.isOk;
+
+                return `
+                <div class="bg-slate-900 border ${mealComplete ? 'border-emerald-500/40' : 'border-slate-800'} rounded-2xl overflow-hidden shadow-xl transition">
+                    <!-- Meal Card Header -->
+                    <div class="p-4 sm:px-6 bg-slate-850 border-b border-slate-800 flex flex-wrap items-center justify-between gap-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl ${mealComplete ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-slate-800 text-slate-300 border border-slate-700'} flex items-center justify-center">
+                                <i data-lucide="${mealCfg.icon}" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2.5">
+                                    <h3 class="text-base sm:text-lg font-extrabold text-white">${mealCfg.title}</h3>
+                                    <span class="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-slate-950 border border-slate-700 text-slate-200">
+                                        ${mealCfg.targets.P}P + ${mealCfg.targets.C}C + ${mealCfg.targets.G}G
+                                    </span>
+                                    ${mealComplete ? `
+                                        <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
+                                            <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> Pasto OK
+                                        </span>
+                                    ` : `
+                                        <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1">
+                                            <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i> Da bilanciare
+                                        </span>
+                                    `}
+                                </div>
+                                <div class="flex flex-wrap items-center gap-1.5 mt-1">
+                                    ${mealCfg.ruleBadges.map(b => `<span class="text-[11px] text-slate-400 bg-slate-900/90 px-2 py-0.5 rounded border border-slate-800">${b}</span>`).join('')}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Meal Action Controls -->
+                        <div class="flex items-center gap-2 ml-auto">
+                            <label class="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-200 cursor-pointer bg-slate-900 px-2.5 py-1.5 rounded-xl border border-slate-800">
+                                <input type="checkbox" ${unlockAll ? 'checked' : ''} onchange="toggleUnlockAllFoods('${mealCfg.id}')" class="rounded accent-emerald-500">
+                                <span>Mostra tutte le fonti</span>
+                            </label>
+                            <button onclick="suggestSingleMeal('${mealCfg.id}')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 rounded-xl text-xs font-semibold flex items-center gap-1 transition" title="Genera combinazione automatica per questo pasto">
+                                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Suggerisci
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 3 Columns for P, C, G -->
+                    <div class="p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-3 gap-5">
+                        ${renderMacroColumn(mealCfg, 'P', 'PROTEINE', 'rose', mealRows.P, statusP, unlockAll)}
+                        ${renderMacroColumn(mealCfg, 'C', 'CARBOIDRATI', 'emerald', mealRows.C, statusC, unlockAll)}
+                        ${renderMacroColumn(mealCfg, 'G', 'GRASSI', 'amber', mealRows.G, statusG, unlockAll)}
+                    </div>
+
+                    ${mealCfg.suppNote ? `
+                    <div class="px-4 sm:px-6 py-2.5 bg-slate-950/80 border-t border-slate-800/80 flex items-center justify-between gap-2 text-xs text-slate-300">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="pill" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+                            <span><strong>Integrazione:</strong> ${mealCfg.suppNote}</span>
+                        </div>
+                        <button onclick="switchTab('integrazione')" class="text-emerald-400 hover:underline font-semibold shrink-0">Vai a spunte →</button>
+                    </div>
+                    ` : ''}
+                </div>
+                `;
+            }).join('');
+
+            container.innerHTML = mealsHtml;
+
+            // Update Global Header Progress Bars
+            updateGlobalBars(globalP, globalC, globalG);
+            lucide.createIcons();
+        }
+
+        function renderMacroColumn(mealCfg, macroKey, macroLabel, colorName, rows, statusObj, unlockAll) {
+            const allowedFoods = getAllowedFoodsForMealMacro(mealCfg, macroKey, unlockAll);
+
+            // Group allowed foods by category for clean optgroups
+            const grouped = {};
+            allowedFoods.forEach(f => {
+                if (!grouped[f.category]) grouped[f.category] = [];
+                grouped[f.category].push(f);
+            });
+
+            const statusBadgeClass = statusObj.isOk
+                ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+                : 'bg-amber-500/20 text-amber-300 border-amber-500/30';
+
+            const blockOptions = [0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 6];
+
+            const rowsHtml = rows.map((row, idx) => {
+                const currentFood = getFoodById(row.foodId);
+                // Ensure current selected food is in dropdown even if filter is locked
+                let optionsHtml = '';
+                Object.keys(grouped).forEach(cat => {
+                    optionsHtml += `<optgroup label="${cat}">`;
+                    grouped[cat].forEach(f => {
+                        const sel = f.id === row.foodId ? 'selected' : '';
+                        optionsHtml += `<option value="${f.id}" ${sel}>${f.name} (1 bl = ${f.amount}${f.unit})</option>`;
+                    });
+                    optionsHtml += `</optgroup>`;
+                });
+
+                if (currentFood && !allowedFoods.some(f => f.id === currentFood.id)) {
+                    optionsHtml = `<optgroup label="Scelta fuori regola"><option value="${currentFood.id}" selected>${currentFood.name} (1 bl = ${currentFood.amount}${currentFood.unit})</option></optgroup>` + optionsHtml;
+                }
+
+                const calcGrams = formatGramsCalculation(currentFood, row.blocks);
+
+                return `
+                <div class="bg-slate-950 border border-slate-800/90 rounded-xl p-2.5 space-y-2">
+                    <div class="flex items-center gap-1.5">
+                        <select onchange="updateMealRowFood('${mealCfg.id}', '${macroKey}', ${idx}, this.value)" class="w-full bg-slate-900 text-slate-100 text-xs font-medium rounded-lg px-2.5 py-2 border border-slate-700/80 focus:outline-none focus:border-${colorName}-500">
+                            ${optionsHtml}
+                        </select>
+                        ${rows.length > 1 ? `
+                        <button onclick="removeMealRow('${mealCfg.id}', '${macroKey}', ${idx})" class="p-2 text-slate-500 hover:text-rose-400 hover:bg-slate-900 rounded-lg transition shrink-0" title="Rimuovi riga">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                        ` : ''}
+                    </div>
+                    <div class="flex items-center justify-between gap-2 pt-0.5">
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-[11px] text-slate-400">Blocchetti:</span>
+                            <select onchange="updateMealRowBlocks('${mealCfg.id}', '${macroKey}', ${idx}, this.value)" class="bg-slate-900 text-white text-xs font-bold rounded-lg pl-2.5 pr-7 py-1 border border-slate-700 focus:outline-none">
+                                ${blockOptions.map(b => `<option value="${b}" ${parseFloat(row.blocks) === b ? 'selected' : ''}>${b} bl.</option>`).join('')}
+                            </select>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-xs font-extrabold font-mono px-2.5 py-1 rounded-lg bg-${colorName}-500/10 text-${colorName}-300 border border-${colorName}-500/20">
+                                ${calcGrams}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                `;
+            }).join('');
+
+            return `
+            <div class="bg-slate-950/50 border border-slate-800/80 rounded-xl p-3.5 flex flex-col justify-between space-y-3">
+                <div class="space-y-2.5">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                        <span class="text-xs font-extrabold tracking-wider text-${colorName}-400">${macroLabel} (${mealCfg.targets[macroKey]} BL.)</span>
+                        <span class="text-[11px] font-mono font-bold px-2 py-0.5 rounded border ${statusBadgeClass}">
+                            ${statusObj.detailText}
+                        </span>
+                    </div>
+                    <div class="space-y-2">
+                        ${rowsHtml}
+                    </div>
+                </div>
+
+                <button onclick="addMealRow('${mealCfg.id}', '${macroKey}')" class="w-full py-1.5 rounded-lg border border-dashed border-slate-700 hover:border-slate-500 text-slate-400 hover:text-slate-200 text-xs font-semibold flex items-center justify-center gap-1 transition">
+                    <i data-lucide="plus" class="w-3.5 h-3.5"></i> Combina altro alimento
+                </button>
+            </div>
+            `;
+        }
+
+        function updateGlobalBars(p, c, g) {
+            p = +p.toFixed(1);
+            c = +c.toFixed(1);
+            g = +g.toFixed(1);
+
+            document.getElementById('global-p-text').textContent = `${p} / 12 bl.`;
+            document.getElementById('global-c-text').textContent = `${c} / 11 bl.`;
+            document.getElementById('global-g-text').textContent = `${g} / 17 bl.`;
+
+            document.getElementById('global-p-bar').style.width = `${Math.min(100, (p / 12) * 100)}%`;
+            document.getElementById('global-c-bar').style.width = `${Math.min(100, (c / 11) * 100)}%`;
+            document.getElementById('global-g-bar').style.width = `${Math.min(100, (g / 17) * 100)}%`;
+        }
+
+        // ----------------------------------------------------
+        // 8. AZIONI INTERATTIVE SUI PASTI
+        // ----------------------------------------------------
+        function updateMealRowFood(mealId, macro, rowIndex, newFoodId) {
+            appState.days[currentDate].meals[mealId][macro][rowIndex].foodId = newFoodId;
+            saveState();
+            renderMealsPlanner();
+        }
+
+        function updateMealRowBlocks(mealId, macro, rowIndex, newBlocks) {
+            appState.days[currentDate].meals[mealId][macro][rowIndex].blocks = parseFloat(newBlocks) || 1;
+            saveState();
+            renderMealsPlanner();
+        }
+
+        function addMealRow(mealId, macro) {
+            const mealCfg = MEALS_CONFIG.find(m => m.id === mealId);
+            const unlockAll = !!showAllFoodsOverride[mealId];
+            const allowed = getAllowedFoodsForMealMacro(mealCfg, macro, unlockAll);
+            const currentRows = appState.days[currentDate].meals[mealId][macro];
+            const usedBlocks = currentRows.reduce((acc, r) => acc + (parseFloat(r.blocks) || 0), 0);
+            const remaining = Math.max(0.5, +(mealCfg.targets[macro] - usedBlocks).toFixed(1));
+
+            const defaultFood = allowed[0] ? allowed[0].id : FOODS_DB.find(f => f.macro === macro).id;
+            currentRows.push({ foodId: defaultFood, blocks: remaining });
+            saveState();
+            renderMealsPlanner();
+        }
+
+        function removeMealRow(mealId, macro, rowIndex) {
+            appState.days[currentDate].meals[mealId][macro].splice(rowIndex, 1);
+            saveState();
+            renderMealsPlanner();
+        }
+
+        function toggleUnlockAllFoods(mealId) {
+            showAllFoodsOverride[mealId] = !showAllFoodsOverride[mealId];
+            renderMealsPlanner();
+        }
+
+        function pickRandom(arr) {
+            return arr[Math.floor(Math.random() * arr.length)];
+        }
+
+        function suggestSingleMeal(mealId, silent = false) {
+            const mealCfg = MEALS_CONFIG.find(m => m.id === mealId);
+            const proteins = FOODS_DB.filter(f => f.macro === 'P' && f.id !== 'p_uovo_intero');
+            const fruits = FOODS_DB.filter(f => f.macro === 'C' && f.category === 'Frutta');
+            const veggies = FOODS_DB.filter(f => f.macro === 'C' && f.category === 'Verdura');
+            const nuts = FOODS_DB.filter(f => f.macro === 'G' && f.category === 'Frutta Secca');
+
+            const newMeal = { P: [], C: [], G: [] };
+
+            // Proteine
+            newMeal.P.push({ foodId: pickRandom(proteins).id, blocks: mealCfg.targets.P });
+
+            // Carboidrati
+            if (mealCfg.carbRule === 'SPLIT_2V_1F') {
+                newMeal.C.push({ foodId: pickRandom(veggies).id, blocks: 2 });
+                newMeal.C.push({ foodId: pickRandom(fruits).id, blocks: 1 });
+            } else {
+                newMeal.C.push({ foodId: pickRandom(fruits).id, blocks: mealCfg.targets.C });
+            }
+
+            // Grassi
+            if (mealCfg.fatRule === 'OIL_ONLY') {
+                newMeal.G.push({ foodId: 'g_olio_evo', blocks: mealCfg.targets.G });
+            } else {
+                newMeal.G.push({ foodId: pickRandom(nuts).id, blocks: mealCfg.targets.G });
+            }
+
+            appState.days[currentDate].meals[mealId] = newMeal;
+            saveState();
+            if (!silent) {
+                renderMealsPlanner();
+                showToast(`Nuova combinazione generata per ${mealCfg.title}!`);
+            }
+        }
+
+        function autoFillEntireDay() {
+            MEALS_CONFIG.forEach(m => suggestSingleMeal(m.id, true));
+            renderMealsPlanner();
+            showToast('Intera giornata compilata rispettando tutti i blocchetti!');
+        }
+
+        function clearCurrentDayMeals() {
+            MEALS_CONFIG.forEach(m => {
+                appState.days[currentDate].meals[m.id] = {
+                    P: [{ foodId: 'p_pollo', blocks: m.targets.P }],
+                    C: m.carbRule === 'SPLIT_2V_1F'
+                        ? [{ foodId: 'c_zucchine', blocks: 2 }, { foodId: 'c_mela', blocks: 1 }]
+                        : [{ foodId: 'c_mela', blocks: m.targets.C }],
+                    G: m.fatRule === 'OIL_ONLY'
+                        ? [{ foodId: 'g_olio_evo', blocks: m.targets.G }]
+                        : [{ foodId: 'g_mandorle', blocks: m.targets.G }]
+                };
+            });
+            saveState();
+            renderMealsPlanner();
+            showToast('Pasti della giornata reimpostati al modello base.');
+        }
+
+        // ----------------------------------------------------
+        // 9. RIEPILOGO GIORNALIERO & LISTA DELLA SPESA (MODAL)
+        // ----------------------------------------------------
+        let currentModalPlainText = '';
+
+        function openDailySummaryModal() {
+            ensureDayInitialized(currentDate);
+            const dayMeals = appState.days[currentDate].meals;
+            const shoppingMap = {}; // foodId -> { food, totalBlocks, totalAmount }
+
+            let menuLines = [`📅 MENU PALEO ZONA MARCO — ${currentDate}\n========================================`];
+
+            MEALS_CONFIG.forEach(mealCfg => {
+                const m = dayMeals[mealCfg.id];
+                menuLines.push(`\n🍽️ ${mealCfg.title.toUpperCase()} (${mealCfg.targets.P}P + ${mealCfg.targets.C}C + ${mealCfg.targets.G}G):`);
+                ['P', 'C', 'G'].forEach(macro => {
+                    m[macro].forEach(r => {
+                        const food = getFoodById(r.foodId);
+                        if (!food) return;
+                        const blocks = parseFloat(r.blocks) || 0;
+                        const amt = +(blocks * food.amount).toFixed(1);
+                        menuLines.push(`  • [${macro}] ${food.name}: ${amt}${food.unit} (${blocks} bl.)`);
+
+                        if (!shoppingMap[food.id]) {
+                            shoppingMap[food.id] = { food, totalBlocks: 0, totalAmount: 0 };
+                        }
+                        shoppingMap[food.id].totalBlocks += blocks;
+                        shoppingMap[food.id].totalAmount += amt;
+                    });
+                });
+            });
+
+            menuLines.push(`\n🛒 LISTA DELLA SPESA TOTALE GIORNATA (PESO A CRUDO):\n========================================`);
+            Object.values(shoppingMap).forEach(item => {
+                menuLines.push(`  ▪ ${item.food.name}: ${+item.totalAmount.toFixed(1)}${item.food.unit} (${+item.totalBlocks.toFixed(1)} blocchetti)`);
+            });
+
+            currentModalPlainText = menuLines.join('\n');
+
+            // Render HTML in Modal
+            const shoppingHtml = Object.values(shoppingMap).map(item => `
+                <div class="flex items-center justify-between py-2 px-3 bg-slate-950 rounded-xl border border-slate-800">
+                    <span class="font-medium text-slate-200">${item.food.name}</span>
+                    <span class="font-mono font-bold text-emerald-400">${+item.totalAmount.toFixed(1)}${item.food.unit} <span class="text-xs text-slate-500">(${+item.totalBlocks.toFixed(1)} bl.)</span></span>
+                </div>
+            `).join('');
+
+            const mealCardsHtml = MEALS_CONFIG.map(mealCfg => {
+                const m = dayMeals[mealCfg.id];
+                const items = [...m.P, ...m.C, ...m.G].map(r => {
+                    const f = getFoodById(r.foodId);
+                    return f ? `<li class="flex justify-between text-xs py-0.5"><span class="text-slate-300">${f.name}</span><strong class="text-white font-mono">${formatGramsCalculation(f, r.blocks)}</strong></li>` : '';
+                }).join('');
+                return `
+                    <div class="bg-slate-950 border border-slate-800 rounded-xl p-3">
+                        <div class="text-xs font-bold text-emerald-400 uppercase mb-1.5">${mealCfg.title}</div>
+                        <ul class="space-y-1">${items}</ul>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('modal-title').innerHTML = `<i data-lucide="shopping-bag" class="w-5 h-5 text-emerald-400"></i> <span>Riepilogo Giornaliero & Lista Spesa (${currentDate})</span>`;
+            document.getElementById('modal-body').innerHTML = `
+                <div class="space-y-4">
+                    <div>
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Totale Grammature Giornaliere (Lista della Spesa a Crudo)</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            ${shoppingHtml}
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Dettaglio Pasto per Pasto</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                            ${mealCardsHtml}
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('modal-overlay').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        // Gestione Preset Giornate Salvate
+        function openPresetsModal() {
+            const presetsListHtml = appState.savedPresets.length === 0
+                ? `<p class="text-xs text-slate-400 italic py-4 text-center">Nessuna giornata salvata nei preferiti. Salva la configurazione attuale qui sotto!</p>`
+                : appState.savedPresets.map((p, idx) => `
+                    <div class="flex items-center justify-between bg-slate-950 border border-slate-800 p-3 rounded-xl">
+                        <div>
+                            <div class="font-bold text-white text-sm">${p.name}</div>
+                            <div class="text-[11px] text-slate-400">Salvata il ${p.createdAt}</div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="applyPreset(${idx})" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold transition">Carica oggi</button>
+                            <button onclick="deletePreset(${idx})" class="p-1.5 text-slate-400 hover:text-rose-400 rounded-lg transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        </div>
+                    </div>
+                `).join('');
+
+            document.getElementById('modal-title').innerHTML = `<i data-lucide="bookmark" class="w-5 h-5 text-amber-400"></i> <span>Giornate Tipo Salvate</span>`;
+            document.getElementById('modal-body').innerHTML = `
+                <div class="space-y-4">
+                    <div class="bg-slate-950 border border-slate-800 p-3.5 rounded-xl space-y-2">
+                        <label class="text-xs font-bold text-slate-300">Salva i pasti di oggi come modello riutilizzabile:</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="new-preset-name" placeholder="Es. Giornata Pollo + Salmone" class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+                            <button onclick="saveCurrentDayAsPreset()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs shrink-0 transition">Salva Modello</button>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        ${presetsListHtml}
+                    </div>
+                </div>
+            `;
+            document.getElementById('modal-overlay').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function saveCurrentDayAsPreset() {
+            const input = document.getElementById('new-preset-name');
+            const name = (input?.value || '').trim() || `Menu Paleo #${appState.savedPresets.length + 1}`;
+            const copyMeals = JSON.parse(JSON.stringify(appState.days[currentDate].meals));
+            appState.savedPresets.push({
+                name,
+                createdAt: currentDate,
+                meals: copyMeals
+            });
+            saveState();
+            openPresetsModal();
+            showToast(`Modello "${name}" salvato!`);
+        }
+
+        function applyPreset(idx) {
+            const preset = appState.savedPresets[idx];
+            if (!preset) return;
+            appState.days[currentDate].meals = JSON.parse(JSON.stringify(preset.meals));
+            saveState();
+            renderMealsPlanner();
+            closeModal();
+            showToast(`Modello "${preset.name}" applicato alla giornata!`);
+        }
+
+        function deletePreset(idx) {
+            appState.savedPresets.splice(idx, 1);
+            saveState();
+            openPresetsModal();
+        }
+
+        function closeModal() {
+            document.getElementById('modal-overlay').classList.add('hidden');
+        }
+
+        function copyModalText() {
+            if (!currentModalPlainText) {
+                openDailySummaryModal();
+            }
+            const temp = document.createElement('textarea');
+            temp.value = currentModalPlainText;
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand('copy');
+            document.body.removeChild(temp);
+            showToast('Riepilogo copiato negli appunti!');
+        }
+
+        // ----------------------------------------------------
+        // 10. RENDERING TAB 2: INTEGRAZIONE, ACQUA, UOVA
+        // ----------------------------------------------------
+        function renderSupplementsAndRules() {
+            ensureDayInitialized(currentDate);
+            const dayData = appState.days[currentDate];
+            const suppContainer = document.getElementById('supplements-checklist');
+
+            // Group supplements by timing
+            const groups = {};
+            SUPPLEMENTS_CONFIG.forEach(s => {
+                if (!groups[s.timing]) groups[s.timing] = [];
+                groups[s.timing].push(s);
+            });
+
+            let checkedCount = 0;
+            const html = Object.keys(groups).map(timing => {
+                const itemsHtml = groups[timing].map(item => {
+                    const isChecked = !!dayData.supplements[item.id];
+                    if (isChecked) checkedCount++;
+                    return `
+                        <label class="flex items-center justify-between p-3 rounded-xl border ${isChecked ? 'bg-emerald-950/30 border-emerald-500/40' : 'bg-slate-950 border-slate-800'} cursor-pointer hover:border-slate-700 transition">
+                            <div class="flex items-center gap-3">
+                                <input type="checkbox" ${isChecked ? 'checked' : ''} onchange="toggleSupplement('${item.id}')" class="w-4 h-4 rounded accent-emerald-500">
+                                <div>
+                                    <div class="text-sm font-semibold ${isChecked ? 'line-through text-slate-400' : 'text-white'}">${item.name}</div>
+                                    <div class="text-xs text-slate-400">Dose: <strong class="text-slate-300">${item.dose}</strong></div>
+                                </div>
+                            </div>
+                            <span class="text-[11px] font-bold px-2 py-0.5 rounded ${isChecked ? 'bg-emerald-500/20 text-emerald-300' : 'bg-slate-800 text-slate-400'}">
+                                ${isChecked ? 'Assunto' : 'Da assumere'}
+                            </span>
+                        </label>
+                    `;
+                }).join('');
+
+                return `
+                    <div class="space-y-2">
+                        <h4 class="text-xs font-extrabold uppercase tracking-wider text-emerald-400">${timing}</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                            ${itemsHtml}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            suppContainer.innerHTML = html;
+            document.getElementById('supp-badge-desktop').textContent = `${checkedCount}/${SUPPLEMENTS_CONFIG.length}`;
+
+            // Render Water Tracker
+            const waterLiters = +(dayData.water || 0).toFixed(2);
+            document.getElementById('water-text').textContent = `${waterLiters} / 2.5 L`;
+            const glassesContainer = document.getElementById('water-glasses');
+            const filledGlasses = Math.round(waterLiters / 0.25);
+            let glassesHtml = '';
+            for (let i = 1; i <= 12; i++) {
+                const active = i <= filledGlasses;
+                glassesHtml += `
+                    <button onclick="setWaterGlasses(${i})" class="h-10 rounded-lg border flex flex-col items-center justify-center transition ${active ? 'bg-sky-500/20 border-sky-400 text-sky-300' : 'bg-slate-950 border-slate-800 text-slate-600 hover:border-slate-700'}" title="${i * 250} ml">
+                        <i data-lucide="cup-soda" class="w-4 h-4"></i>
+                    </button>
+                `;
+            }
+            glassesContainer.innerHTML = glassesHtml;
+
+            // Render Weekly Eggs Tracker
+            const eggs = appState.weeklyEggs || 0;
+            document.getElementById('eggs-count-badge').textContent = `${eggs} / 3 uova`;
+            let eggsHtml = '';
+            for (let i = 1; i <= 3; i++) {
+                const used = i <= eggs;
+                eggsHtml += `
+                    <div class="w-9 h-9 rounded-xl border flex items-center justify-center ${used ? 'bg-amber-500/20 border-amber-400 text-amber-300' : 'bg-slate-900 border-slate-800 text-slate-600'}">
+                        <i data-lucide="egg" class="w-5 h-5"></i>
+                    </div>
+                `;
+            }
+            if (eggs > 3) {
+                eggsHtml += `<span class="text-xs font-bold text-rose-400 ml-1">+${eggs - 3} extra!</span>`;
+            }
+            document.getElementById('eggs-visual').innerHTML = eggsHtml;
+
+            lucide.createIcons();
+        }
+
+        function toggleSupplement(suppId) {
+            const curr = !!appState.days[currentDate].supplements[suppId];
+            appState.days[currentDate].supplements[suppId] = !curr;
+            saveState();
+            renderSupplementsAndRules();
+        }
+
+        function resetSupplementsToday() {
+            appState.days[currentDate].supplements = {};
+            saveState();
+            renderSupplementsAndRules();
+            showToast('Spunte integratori di oggi azzerate.');
+        }
+
+        function addWater(deltaLiters) {
+            const current = appState.days[currentDate].water || 0;
+            appState.days[currentDate].water = Math.max(0, Math.min(4, +(current + deltaLiters).toFixed(2)));
+            saveState();
+            renderSupplementsAndRules();
+        }
+
+        function setWaterGlasses(numGlasses) {
+            appState.days[currentDate].water = +(numGlasses * 0.25).toFixed(2);
+            saveState();
+            renderSupplementsAndRules();
+        }
+
+        function updateWeeklyEggs(delta) {
+            appState.weeklyEggs = Math.max(0, (appState.weeklyEggs || 0) + delta);
+            saveState();
+            renderSupplementsAndRules();
+        }
+
+        // ----------------------------------------------------
+        // 11. RENDERING TAB 3: ALLENAMENTO HEAVY DUTY
+        // ----------------------------------------------------
+        function selectWorkoutDay(dayKey) {
+            selectedWorkoutDay = dayKey;
+            document.querySelectorAll('.wo-day-btn').forEach(btn => {
+                btn.className = 'wo-day-btn px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition';
+            });
+            const activeBtn = document.getElementById(`wo-tab-${dayKey}`);
+            if (activeBtn) {
+                activeBtn.className = 'wo-day-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 text-white transition';
+            }
+            renderWorkoutTab();
+        }
+
+        function renderWorkoutTab() {
+            const dayConfig = WORKOUT_DAYS[selectedWorkoutDay];
+            const formContainer = document.getElementById('workout-form-container');
+
+            // Find previous session of same dayKey to show reference weights
+            const lastSession = appState.workoutHistory.find(s => s.dayKey === selectedWorkoutDay);
+
+            const exercisesHtml = dayConfig.exercises.map((ex, idx) => {
+                let setsInputsHtml = '';
+                for (let s = 1; s <= ex.sets; s++) {
+                    const prevSet = lastSession?.results?.[ex.id]?.[s - 1];
+                    const prevPlaceholderKg = prevSet?.kg ? `Prec: ${prevSet.kg}kg` : 'Kg';
+                    const prevPlaceholderReps = prevSet?.reps ? `Prec: ${prevSet.reps}` : 'Rip.';
+
+                    setsInputsHtml += `
+                        <div class="flex items-center gap-2 bg-slate-900 p-2 rounded-xl border border-slate-800">
+                            <span class="text-xs font-bold text-slate-400 w-14">Serie ${s}:</span>
+                            <div class="flex items-center gap-1.5 flex-1">
+                                <input type="number" step="0.5" id="wo-kg-${ex.id}-${s}" placeholder="${prevPlaceholderKg}" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-emerald-500">
+                                <span class="text-xs text-slate-500">kg</span>
+                            </div>
+                            <span class="text-slate-600">×</span>
+                            <div class="flex items-center gap-1.5 flex-1">
+                                <input type="number" id="wo-reps-${ex.id}-${s}" placeholder="${prevPlaceholderReps}" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-emerald-500">
+                                <span class="text-xs text-slate-500">rip</span>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                return `
+                    <div class="bg-slate-950 border border-slate-800/90 rounded-xl p-4 space-y-3">
+                        <div class="flex flex-wrap items-center justify-between gap-2">
+                            <div class="flex items-center gap-2">
+                                <span class="w-6 h-6 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-extrabold flex items-center justify-center">${idx + 1}</span>
+                                <h4 class="text-sm font-bold text-white">${ex.name}</h4>
+                            </div>
+                            <span class="text-xs font-mono font-semibold px-2.5 py-0.5 rounded-full bg-slate-900 text-emerald-400 border border-slate-800">
+                                ${ex.sets} serie × ${ex.targetReps}
+                            </span>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                            ${setsInputsHtml}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            formContainer.innerHTML = `
+                <div class="text-xs font-bold uppercase tracking-wider text-emerald-400">${dayConfig.title}</div>
+                ${exercisesHtml}
+            `;
+
+            renderWorkoutHistory();
+            lucide.createIcons();
+        }
+
+        function saveWorkoutSession() {
+            const dayConfig = WORKOUT_DAYS[selectedWorkoutDay];
+            const results = {};
+            let hasAnyEntry = false;
+
+            dayConfig.exercises.forEach(ex => {
+                results[ex.id] = [];
+                for (let s = 1; s <= ex.sets; s++) {
+                    const kgVal = document.getElementById(`wo-kg-${ex.id}-${s}`)?.value || '';
+                    const repsVal = document.getElementById(`wo-reps-${ex.id}-${s}`)?.value || '';
+                    if (kgVal || repsVal) hasAnyEntry = true;
+                    results[ex.id].push({
+                        kg: kgVal || '-',
+                        reps: repsVal || '-'
+                    });
+                }
+            });
+
+            const notes = document.getElementById('workout-general-notes')?.value || '';
+            if (!hasAnyEntry && !notes) {
+                showToast('Inserisci almeno un carico o una nota prima di salvare.', 'amber');
+                return;
+            }
+
+            appState.workoutHistory.unshift({
+                id: 'wo_' + Date.now(),
+                date: currentDate,
+                dayKey: selectedWorkoutDay,
+                dayTitle: dayConfig.title,
+                results,
+                notes
+            });
+
+            document.getElementById('workout-general-notes').value = '';
+            saveState();
+            renderWorkoutTab();
+            showToast('Seduta Heavy Duty registrata nel diario!');
+        }
+
+        function deleteWorkoutSession(sessionId) {
+            appState.workoutHistory = appState.workoutHistory.filter(s => s.id !== sessionId);
+            saveState();
+            renderWorkoutHistory();
+            showToast('Voce rimossa dal diario.');
+        }
+
+        function renderWorkoutHistory() {
+            const listEl = document.getElementById('workout-history-list');
+            if (!appState.workoutHistory || appState.workoutHistory.length === 0) {
+                listEl.innerHTML = `
+                    <div class="text-center py-12 px-4 border border-dashed border-slate-800 rounded-xl text-slate-500 text-xs">
+                        <i data-lucide="clipboard" class="w-8 h-8 mx-auto mb-2 opacity-50"></i>
+                        Nessun allenamento registrato. Compila i carichi a sinistra e salva la tua prima seduta Heavy Duty!
+                    </div>
+                `;
+                return;
+            }
+
+            listEl.innerHTML = appState.workoutHistory.map(session => {
+                const dayCfg = WORKOUT_DAYS[session.dayKey];
+                const exLines = (dayCfg?.exercises || []).map(ex => {
+                    const setsArr = session.results?.[ex.id] || [];
+                    const setsStr = setsArr.map((st, idx) => `S${idx + 1}: <strong>${st.kg}kg × ${st.reps}</strong>`).join(' | ');
+                    return `<div class="text-xs text-slate-300 flex flex-col sm:flex-row sm:justify-between border-b border-slate-800/60 py-1"><span class="text-slate-400">${ex.name}</span><span class="font-mono text-[11px] text-emerald-300">${setsStr}</span></div>`;
+                }).join('');
+
+                return `
+                    <div class="bg-slate-950 border border-slate-800 rounded-xl p-3.5 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <span class="text-[11px] font-mono text-amber-400 font-bold">${session.date}</span>
+                                <h4 class="text-xs font-extrabold text-white">${session.dayTitle}</h4>
+                            </div>
+                            <button onclick="deleteWorkoutSession('${session.id}')" class="p-1 text-slate-500 hover:text-rose-400 transition" title="Elimina">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                        <div class="space-y-0.5">
+                            ${exLines}
+                        </div>
+                        ${session.notes ? `<div class="text-[11px] italic text-slate-400 bg-slate-900 p-2 rounded-lg border border-slate-800">Note: "${session.notes}"</div>` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function exportWorkoutCSV() {
+            if (!appState.workoutHistory.length) {
+                showToast('Nessun allenamento da esportare.', 'amber');
+                return;
+            }
+            let csv = 'Data,Scheda,Esercizio,Serie,Kg,Ripetizioni,Note\n';
+            appState.workoutHistory.forEach(s => {
+                const dayCfg = WORKOUT_DAYS[s.dayKey];
+                (dayCfg?.exercises || []).forEach(ex => {
+                    const sets = s.results?.[ex.id] || [];
+                    sets.forEach((st, idx) => {
+                        const cleanNotes = (s.notes || '').replace(/"/g, '""');
+                        csv += `"${s.date}","${s.dayTitle}","${ex.name}",${idx + 1},"${st.kg}","${st.reps}","${cleanNotes}"\n`;
+                    });
+                });
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `diario_heavy_duty_marco_${currentDate}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('Diario esportato in CSV!');
+        }
+
+        // ----------------------------------------------------
+        // 12. RENDERING TAB 4: TAVOLE ALIMENTI & BACKUP
+        // ----------------------------------------------------
+        function setFoodTableFilter(filter) {
+            currentFoodTableFilter = filter;
+            document.querySelectorAll('.ft-filter-btn').forEach(btn => {
+                btn.classList.remove('bg-emerald-600', 'text-white');
+                btn.classList.add('bg-slate-800');
+            });
+            const active = document.getElementById(`ft-filter-${filter}`);
+            if (active) {
+                active.classList.remove('bg-slate-800');
+                active.classList.add('bg-emerald-600', 'text-white');
+            }
+            renderFoodTables();
+        }
+
+        function renderFoodTables() {
+            const query = (document.getElementById('food-search-input')?.value || '').toLowerCase().trim();
+            const mult = parseFloat(document.getElementById('table-multiplier')?.value) || 1;
+            const container = document.getElementById('food-tables-container');
+
+            const filtered = FOODS_DB.filter(f => {
+                if (currentFoodTableFilter !== 'ALL' && f.macro !== currentFoodTableFilter) return false;
+                if (query && !f.name.toLowerCase().includes(query) && !f.category.toLowerCase().includes(query)) return false;
+                return true;
+            });
+
+            const categoriesMap = {};
+            filtered.forEach(f => {
+                const key = `${f.macro}_${f.category}`;
+                if (!categoriesMap[key]) {
+                    categoriesMap[key] = { macro: f.macro, category: f.category, items: [] };
+                }
+                categoriesMap[key].items.push(f);
+            });
+
+            const colorByMacro = { P: 'rose', C: 'emerald', G: 'amber' };
+            const labelByMacro = { P: 'Proteine', C: 'Carboidrati', G: 'Grassi' };
+
+            container.innerHTML = Object.values(categoriesMap).map(group => {
+                const col = colorByMacro[group.macro];
+                const rowsHtml = group.items.map(item => `
+                    <div class="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-slate-800/60 transition border-b border-slate-800/50 last:border-0">
+                        <span class="text-xs text-slate-200">${item.name}</span>
+                        <span class="text-xs font-mono font-bold text-${col}-400 shrink-0 ml-2">${+(item.amount * mult).toFixed(1)}${item.unit}</span>
+                    </div>
+                `).join('');
+
+                return `
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-lg flex flex-col">
+                        <div class="p-3.5 bg-slate-850 border-b border-slate-800 flex items-center justify-between">
+                            <div>
+                                <span class="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded bg-${col}-500/20 text-${col}-300 border border-${col}-500/30">${labelByMacro[group.macro]}</span>
+                                <h3 class="text-sm font-bold text-white mt-1">${group.category}</h3>
+                            </div>
+                            <span class="text-xs font-mono text-slate-400">${mult} bl.</span>
+                        </div>
+                        <div class="p-2 divide-y divide-slate-800/40 max-h-96 overflow-y-auto">
+                            ${rowsHtml}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function exportAllDataJSON() {
+            const dataStr = JSON.stringify(appState, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `paleo_zona_marco_backup_${currentDate}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('Backup JSON scaricato con successo!');
+        }
+
+        function importAllDataJSON(event) {
+            const file = event.target.files?.[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (imported && typeof imported === 'object') {
+                        appState = { ...appState, ...imported };
+                        saveState();
+                        ensureDayInitialized(currentDate);
+                        renderMealsPlanner();
+                        renderSupplementsAndRules();
+                        renderWorkoutTab();
+                        showToast('Backup importato e ripristinato!');
+                    }
+                } catch (err) {
+                    showToast('File JSON non valido.', 'rose');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // ----------------------------------------------------
+        // 13. NAVIGAZIONE TAB, DATA E TOAST
+        // ----------------------------------------------------
+        function switchTab(tabId) {
+            ['pasti', 'integrazione', 'allenamento', 'tavole'].forEach(t => {
+                document.getElementById(`tab-${t}`).classList.add('hidden');
+                const dBtn = document.getElementById(`tab-btn-${t}`);
+                if (dBtn) {
+                    dBtn.classList.remove('border-emerald-500', 'text-emerald-400');
+                    dBtn.classList.add('border-transparent', 'text-slate-400');
+                }
+                const mBtn = document.getElementById(`mob-tab-${t}`);
+                if (mBtn) {
+                    mBtn.classList.remove('text-emerald-400');
+                    mBtn.classList.add('text-slate-400');
+                }
+            });
+
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+            const activeDBtn = document.getElementById(`tab-btn-${tabId}`);
+            if (activeDBtn) {
+                activeDBtn.classList.remove('border-transparent', 'text-slate-400');
+                activeDBtn.classList.add('border-emerald-500', 'text-emerald-400');
+            }
+            const activeMBtn = document.getElementById(`mob-tab-${tabId}`);
+            if (activeMBtn) {
+                activeMBtn.classList.remove('text-slate-400');
+                activeMBtn.classList.add('text-emerald-400');
+            }
+
+            if (tabId === 'pasti') renderMealsPlanner();
+            if (tabId === 'integrazione') renderSupplementsAndRules();
+            if (tabId === 'allenamento') renderWorkoutTab();
+            if (tabId === 'tavole') renderFoodTables();
+        }
+
+        function changeDate(newDateStr) {
+            if (!newDateStr) return;
+            currentDate = newDateStr;
+            ensureDayInitialized(currentDate);
+            renderMealsPlanner();
+            renderSupplementsAndRules();
+            showToast(`Giornata selezionata: ${currentDate}`);
+        }
+
+        function showToast(message, color = 'emerald') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const borderCol = color === 'rose' ? 'border-rose-500' : color === 'amber' ? 'border-amber-500' : 'border-emerald-500';
+            toast.className = `bg-slate-900/95 backdrop-blur border-l-4 ${borderCol} text-white px-4 py-3 rounded-xl shadow-2xl text-xs font-semibold flex items-center gap-2 transition-all duration-300`;
+            toast.innerHTML = `<span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 2600);
+        }
+
+        // ----------------------------------------------------
+        // 14. INIZIALIZZAZIONE AL CARICAMENTO PAGINA
+        // ----------------------------------------------------
+        window.onload = function() {
+            document.getElementById('current-date-picker').value = currentDate;
+            loadState();
+            renderMealsPlanner();
+            renderSupplementsAndRules();
+            renderWorkoutTab();
+            renderFoodTables();
+            lucide.createIcons();
+        };
+    </script>
+</body>
+</html>
