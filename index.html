@@ -693,7 +693,7 @@
                 carbSplit: { Frutta: 1, Verdura: 0 },
                 fatRule: 'NUTS_ONLY',
                 ruleBadges: ['Carbo: Solo Frutta (1 bl.)', 'Grassi: Solo Frutta Secca (1 bl.)'],
-                suppNote: 'Prima di coricarti: 1 cucchiaino da caffè di Magnesio Supremo in tisana camomilla e/o valeriana'
+                suppNote: 'Prima di coricarti: Magnesio bisglicinato (dose da etichetta) con tisana camomilla e/o valeriana'
             }
         ];
 
@@ -708,7 +708,7 @@
             { id: 'cen_omega3', timing: 'Dopo Cena', name: 'Omega 3 (Biotech USA)', dose: '1 gellula da 1g' },
             { id: 'cen_vitc', timing: 'Dopo Cena', name: 'Vitamina C (Biotech USA)', dose: '1 g' },
             { id: 'cen_superburn', timing: 'Dopo Cena', name: 'Super Burn (Biotech USA)', dose: '1 capsula' },
-            { id: 'nan_magnesio', timing: 'Prima di Coricarsi', name: 'Magnesio Supremo in tisana (camomilla/valeriana)', dose: '1 cucchiaino da caffè' }
+            { id: 'nan_magnesio', timing: 'Prima di Coricarsi', name: 'Magnesio bisglicinato + tisana (camomilla/valeriana)', dose: 'dose da etichetta' }
         ];
 
         // ----------------------------------------------------
@@ -756,7 +756,23 @@
         // 5. STATO DELL'APPLICAZIONE & LOCALSTORAGE
         // ----------------------------------------------------
         const STORAGE_KEY = 'paleo_zona_marco_v1';
-        let currentDate = new Date().toISOString().split('T')[0];
+        // Verdure con blocchetto "mangiabile" (<= 300 g) usate dalla composizione automatica
+        const MAX_VEG_BLOCK_G = 300;
+        // Oltre questa quantità per riga di verdura mostra un avviso
+        const VEG_WARN_G = 600;
+        function localDateStr(d = new Date()) {
+            const y = d.getFullYear(), m = String(d.getMonth() + 1).padStart(2, '0'), day = String(d.getDate()).padStart(2, '0');
+            return `${y}-${m}-${day}`;
+        }
+        // Lunedì della settimana di una data YYYY-MM-DD (chiave settimanale)
+        function weekKeyOf(dateStr) {
+            const [y, m, d] = dateStr.split('-').map(Number);
+            const dt = new Date(y, m - 1, d);
+            const dow = (dt.getDay() + 6) % 7; // 0 = lunedì
+            dt.setDate(dt.getDate() - dow);
+            return localDateStr(dt);
+        }
+        let currentDate = localDateStr();
         let selectedWorkoutDay = 'giorno1';
         let currentFoodTableFilter = 'ALL';
         // Mappa per sapere se l'utente ha sbloccato "Mostra tutte le fonti" in uno specifico pasto
@@ -764,7 +780,8 @@
 
         let appState = {
             days: {},           // { 'YYYY-MM-DD': { meals: {...}, supplements: {...}, water: 0 } }
-            weeklyEggs: 0,      // contatore uova intere settimanali
+            weeklyEggs: 0,      // (legacy)
+            eggsExtraByWeek: {}, // uova extra inserite a mano, per settimana (chiave = lunedì)
             savedPresets: [],   // giornate tipo salvate [{ name, meals }]
             workoutHistory: []  // storico sedute [{ id, date, dayKey, dayTitle, results, notes }]
         };
@@ -805,7 +822,8 @@
                 pranzo: {
                     P: [{ foodId: 'p_pollo', blocks: 3 }],
                     C: [
-                        { foodId: 'c_zucchine', blocks: 2 },
+                        { foodId: 'c_peperoni', blocks: 1 },
+                        { foodId: 'c_finocchio', blocks: 1 },
                         { foodId: 'c_ananas', blocks: 1 }
                     ],
                     G: [{ foodId: 'g_olio_evo', blocks: 6 }]
@@ -818,7 +836,8 @@
                 cena: {
                     P: [{ foodId: 'p_salmone', blocks: 4 }],
                     C: [
-                        { foodId: 'c_broccoli', blocks: 2 },
+                        { foodId: 'c_broccoli', blocks: 1 },
+                        { foodId: 'c_funghi', blocks: 1 },
                         { foodId: 'c_mirtilli', blocks: 1 }
                     ],
                     G: [{ foodId: 'g_olio_evo', blocks: 3 }]
@@ -879,6 +898,9 @@
             if (!food || !blocks) return '0g';
             const total = +(blocks * food.amount).toFixed(1);
             let extra = '';
+            if (food.category === 'Verdura' && total > VEG_WARN_G) {
+                extra = ' ⚠️ porzione enorme: scegli una verdura più densa';
+            }
             if (food.id === 'g_olio_evo') {
                 const spoons = +(blocks / 3).toFixed(1);
                 extra = ` (${spoons} cucchiai${spoons === 1 ? 'o' : ''})`;
@@ -1156,12 +1178,14 @@
             appState.days[currentDate].meals[mealId][macro][rowIndex].foodId = newFoodId;
             saveState();
             renderMealsPlanner();
+            renderSupplementsAndRules();
         }
 
         function updateMealRowBlocks(mealId, macro, rowIndex, newBlocks) {
             appState.days[currentDate].meals[mealId][macro][rowIndex].blocks = parseFloat(newBlocks) || 1;
             saveState();
             renderMealsPlanner();
+            renderSupplementsAndRules();
         }
 
         function addMealRow(mealId, macro) {
@@ -1176,12 +1200,14 @@
             currentRows.push({ foodId: defaultFood, blocks: remaining });
             saveState();
             renderMealsPlanner();
+            renderSupplementsAndRules();
         }
 
         function removeMealRow(mealId, macro, rowIndex) {
             appState.days[currentDate].meals[mealId][macro].splice(rowIndex, 1);
             saveState();
             renderMealsPlanner();
+            renderSupplementsAndRules();
         }
 
         function toggleUnlockAllFoods(mealId) {
@@ -1197,7 +1223,7 @@
             const mealCfg = MEALS_CONFIG.find(m => m.id === mealId);
             const proteins = FOODS_DB.filter(f => f.macro === 'P' && f.id !== 'p_uovo_intero');
             const fruits = FOODS_DB.filter(f => f.macro === 'C' && f.category === 'Frutta');
-            const veggies = FOODS_DB.filter(f => f.macro === 'C' && f.category === 'Verdura');
+            const veggies = FOODS_DB.filter(f => f.macro === 'C' && f.category === 'Verdura' && f.amount <= MAX_VEG_BLOCK_G);
             const nuts = FOODS_DB.filter(f => f.macro === 'G' && f.category === 'Frutta Secca');
 
             const newMeal = { P: [], C: [], G: [] };
@@ -1207,7 +1233,11 @@
 
             // Carboidrati
             if (mealCfg.carbRule === 'SPLIT_2V_1F') {
-                newMeal.C.push({ foodId: pickRandom(veggies).id, blocks: 2 });
+                // due verdure diverse da 1 blocchetto ciascuna: piatto più vario e grammature realistiche
+                const v1 = pickRandom(veggies);
+                let v2 = pickRandom(veggies.filter(v => v.id !== v1.id));
+                newMeal.C.push({ foodId: v1.id, blocks: 1 });
+                newMeal.C.push({ foodId: v2.id, blocks: 1 });
                 newMeal.C.push({ foodId: pickRandom(fruits).id, blocks: 1 });
             } else {
                 newMeal.C.push({ foodId: pickRandom(fruits).id, blocks: mealCfg.targets.C });
@@ -1248,6 +1278,7 @@
             });
             saveState();
             renderMealsPlanner();
+            renderSupplementsAndRules();
             showToast('Pasti della giornata reimpostati al modello base.');
         }
 
@@ -1389,6 +1420,7 @@
             appState.days[currentDate].meals = JSON.parse(JSON.stringify(preset.meals));
             saveState();
             renderMealsPlanner();
+            renderSupplementsAndRules();
             closeModal();
             showToast(`Modello "${preset.name}" applicato alla giornata!`);
         }
@@ -1482,7 +1514,7 @@
             glassesContainer.innerHTML = glassesHtml;
 
             // Render Weekly Eggs Tracker
-            const eggs = appState.weeklyEggs || 0;
+            const eggs = countWeeklyEggs(currentDate);
             document.getElementById('eggs-count-badge').textContent = `${eggs} / 3 uova`;
             let eggsHtml = '';
             for (let i = 1; i <= 3; i++) {
@@ -1528,8 +1560,26 @@
             renderSupplementsAndRules();
         }
 
+        function countWeeklyEggs(dateStr) {
+            const wk = weekKeyOf(dateStr);
+            let fromMeals = 0;
+            Object.keys(appState.days || {}).forEach(ds => {
+                if (weekKeyOf(ds) !== wk) return;
+                const meals = appState.days[ds].meals || {};
+                Object.values(meals).forEach(m => (m.P || []).forEach(r => {
+                    if (r.foodId === 'p_uovo_intero') fromMeals += parseFloat(r.blocks) || 0;
+                }));
+            });
+            const extra = (appState.eggsExtraByWeek || {})[wk] || 0;
+            return Math.round(fromMeals + extra);
+        }
+
         function updateWeeklyEggs(delta) {
-            appState.weeklyEggs = Math.max(0, (appState.weeklyEggs || 0) + delta);
+            const wk = weekKeyOf(currentDate);
+            appState.eggsExtraByWeek = appState.eggsExtraByWeek || {};
+            // le uova messe nei pasti si contano da sole: i pulsanti +/- gestiscono solo quelle extra
+            const current = appState.eggsExtraByWeek[wk] || 0;
+            appState.eggsExtraByWeek[wk] = Math.max(0, current + delta);
             saveState();
             renderSupplementsAndRules();
         }
