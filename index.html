@@ -133,18 +133,22 @@
                 <i data-lucide="map-pin" class="w-4 h-4"></i>
                 2. Fuori casa
             </button>
+            <button onclick="switchTab('storico')" id="tab-btn-storico" class="tab-btn px-4 py-2.5 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2 transition">
+                <i data-lucide="history" class="w-4 h-4"></i>
+                3. Storico
+            </button>
             <button onclick="switchTab('integrazione')" id="tab-btn-integrazione" class="tab-btn px-4 py-2.5 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2 transition">
                 <i data-lucide="pill" class="w-4 h-4"></i>
-                3. Integrazione & Regole
+                4. Integrazione & Regole
                 <span id="supp-badge-desktop" class="text-[11px] px-1.5 py-0.2 rounded-full bg-slate-800 text-slate-300">0/8</span>
             </button>
             <button onclick="switchTab('allenamento')" id="tab-btn-allenamento" class="tab-btn px-4 py-2.5 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2 transition">
                 <i data-lucide="dumbbell" class="w-4 h-4"></i>
-                4. Allenamento Heavy Duty
+                5. Allenamento Heavy Duty
             </button>
             <button onclick="switchTab('tavole')" id="tab-btn-tavole" class="tab-btn px-4 py-2.5 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2 transition">
                 <i data-lucide="book-open" class="w-4 h-4"></i>
-                5. Tavole Alimenti & Backup
+                6. Tavole Alimenti & Backup
             </button>
         </div>
     </header>
@@ -215,6 +219,8 @@
                 </div>
             </div>
 
+            <div id="day-log-card"></div>
+
             <!-- Meals Grid Container -->
             <div id="meals-container" class="space-y-6">
                 <!-- Populated dynamically via JS -->
@@ -263,8 +269,8 @@
                             <!-- 12 glasses of 250ml = 3L -->
                         </div>
                         <div class="flex gap-2">
-                            <button onclick="addWater(-0.25)" class="flex-1 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold transition">- 250 ml</button>
-                            <button onclick="addWater(0.25)" class="flex-1 py-2 bg-sky-600 hover:bg-sky-500 text-white rounded-xl text-xs font-semibold transition">+ 250 ml (1 bicchiere)</button>
+                            <button id="water-minus" onclick="addWaterGlasses(-1)" class="flex-1 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold transition">- 250 ml</button>
+                            <button id="water-plus" onclick="addWaterGlasses(1)" class="flex-1 py-2 bg-sky-600 hover:bg-sky-500 text-white rounded-xl text-xs font-semibold transition">+ 250 ml (1 bicchiere)</button>
                         </div>
                     </div>
 
@@ -459,15 +465,15 @@
                             <i data-lucide="database" class="w-5 h-5 text-sky-400"></i>
                             Backup & Ripristino Dati Locali (JSON)
                         </h3>
-                        <p class="text-xs text-slate-400 mt-0.5">Tutti i tuoi dati sono salvati nel browser (`localStorage`). Puoi esportare un file di backup per passarlo dal PC allo smartphone.</p>
+                        <p class="text-xs text-slate-400 mt-0.5">I dati restano nel browser. Esporta un file JSON con la data nel nome, oppure usa la sincronizzazione dal tab Storico. Non caricare peso e pressione nel repository pubblico paleo.</p>
                     </div>
                     <div class="flex flex-wrap items-center gap-3">
                         <button onclick="exportAllDataJSON()" class="px-4 py-2 bg-sky-600 hover:bg-sky-500 text-white rounded-xl text-xs font-bold flex items-center gap-2 transition">
-                            <i data-lucide="download" class="w-4 h-4"></i> Esporta Backup (.json)
+                            <i data-lucide="download" class="w-4 h-4"></i> Esporta backup
                         </button>
                         <label class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer transition">
-                            <i data-lucide="upload" class="w-4 h-4"></i> Importa Backup
-                            <input type="file" accept=".json" onchange="importAllDataJSON(event)" class="hidden">
+                            <i data-lucide="upload" class="w-4 h-4"></i> Importa backup
+                            <input type="file" accept=".json,application/json" onchange="importAllDataJSON(event)" class="hidden">
                         </label>
                     </div>
                 </div>
@@ -550,29 +556,113 @@
             </div>
         </section>
 
+        <!-- ==========================================
+             TAB: STORICO, GRAFICI E BACKUP
+             ========================================== -->
+        <section id="tab-storico" class="hidden space-y-6">
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl">
+                <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                    <i data-lucide="history" class="w-5 h-5 text-emerald-400"></i>
+                    Storico
+                </h2>
+                <p class="text-sm text-slate-300 mt-1">Peso, pressione, acqua e caffè giorno per giorno. Tocca una riga per aprire quella data.</p>
+            </div>
+            <div id="storico-charts" class="grid grid-cols-1 lg:grid-cols-3 gap-3"></div>
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl shadow-xl overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left min-w-[640px]">
+                        <thead class="bg-slate-950 text-[11px] uppercase tracking-wider text-slate-400">
+                            <tr>
+                                <th class="px-3 py-3 font-bold">Data</th>
+                                <th class="px-3 py-3 font-bold">Peso</th>
+                                <th class="px-3 py-3 font-bold">Pressione</th>
+                                <th class="px-3 py-3 font-bold">Acqua</th>
+                                <th class="px-3 py-3 font-bold">Caffè</th>
+                                <th class="px-3 py-3 font-bold">Pasti</th>
+                            </tr>
+                        </thead>
+                        <tbody id="storico-table" class="divide-y divide-slate-800"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
+                <div>
+                    <h3 class="text-base font-bold text-white flex items-center gap-2">
+                        <i data-lucide="database" class="w-5 h-5 text-sky-400"></i>
+                        Backup
+                    </h3>
+                    <p class="text-xs text-slate-400 mt-1">Esporta tutto il diario in un file JSON con la data nel nome. L’importazione unisce i giorni: stessa data nel file sostituisce quel giorno, gli altri restano.</p>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <button type="button" onclick="exportAllDataJSON()" class="px-4 py-2 bg-sky-600 hover:bg-sky-500 text-white rounded-xl text-xs font-bold">Esporta backup</button>
+                    <label class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl text-xs font-bold cursor-pointer">
+                        Importa backup
+                        <input type="file" accept=".json,application/json" onchange="importAllDataJSON(event)" class="hidden">
+                    </label>
+                </div>
+
+                <div class="border-t border-slate-800 pt-4 space-y-3">
+                    <h3 class="text-base font-bold text-white">Salvataggio su GitHub (opzionale)</h3>
+                    <div class="bg-rose-500/10 border border-rose-500/40 rounded-xl p-3 text-xs text-rose-100 leading-relaxed">
+                        Il repository <strong>mcitossi/paleo</strong> è pubblico. Peso, pressione e il diario non vanno mai caricati lì. Crea un repository <strong>privato</strong> chiamato <strong>paleo-dati</strong>. Poi, in GitHub, Impostazioni → Developer settings → Personal access tokens → Fine-grained token: accesso solo a quel repository, permesso <strong>Contents: Read and write</strong>. Incolla il token qui sotto. Resta solo in questo browser (localStorage), non nel codice e non nel file di backup.
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <label class="block text-xs text-slate-300 sm:col-span-2">Token personale
+                            <input id="gh-token" type="password" autocomplete="off" spellcheck="false" placeholder="github_pat_…" onchange="saveGithubSettingsFromForm()" class="mt-1 w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                        </label>
+                        <label class="block text-xs text-slate-300">Owner
+                            <input id="gh-owner" type="text" autocomplete="off" onchange="saveGithubSettingsFromForm()" class="mt-1 w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                        </label>
+                        <label class="block text-xs text-slate-300">Repository privato
+                            <input id="gh-repo" type="text" autocomplete="off" onchange="saveGithubSettingsFromForm()" class="mt-1 w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                        </label>
+                        <label class="block text-xs text-slate-300">Branch
+                            <input id="gh-branch" type="text" autocomplete="off" onchange="saveGithubSettingsFromForm()" class="mt-1 w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                        </label>
+                        <label class="flex items-center gap-2 text-xs text-slate-200 sm:col-span-2">
+                            <input id="gh-auto" type="checkbox" onchange="saveGithubSettingsFromForm()" class="rounded accent-emerald-500">
+                            Salvataggio automatico (al primo avvio di un giorno nuovo e dopo le modifiche, al massimo una volta ogni 3 minuti)
+                        </label>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <button type="button" id="gh-save-btn" onclick="saveGithubSettingsFromForm(); saveToGithub({ manual: true })" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold">Salva su GitHub</button>
+                        <button type="button" id="gh-restore-btn" onclick="saveGithubSettingsFromForm(); restoreFromGithub()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-100 border border-slate-700 rounded-xl text-xs font-bold">Ripristina da GitHub</button>
+                        <button type="button" onclick="saveGithubSettingsFromForm()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 rounded-xl text-xs font-bold">Memorizza impostazioni</button>
+                    </div>
+                    <p id="github-sync-status" class="text-xs text-slate-400"></p>
+                    <p class="text-[11px] text-slate-500">File sul repo privato: <span class="font-mono text-slate-400">backup/paleo-backup.json</span> e uno snapshot <span class="font-mono text-slate-400">backup/AAAA-MM-GG.json</span>.</p>
+                </div>
+            </div>
+        </section>
+
     </main>
 
     <!-- Bottom Navigation Bar (Mobile Only) -->
-    <nav class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-slate-950/95 backdrop-blur-md border-t border-slate-800 grid grid-cols-5 py-1.5 px-1">
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-slate-950/95 backdrop-blur-md border-t border-slate-800 grid grid-cols-6 py-1.5 px-0.5">
         <button onclick="switchTab('pasti')" id="mob-tab-pasti" class=" flex flex-col items-center justify-center py-1 text-emerald-400">
-            <i data-lucide="utensils" class="w-5 h-5"></i>
-            <span class="text-[10px] font-bold mt-0.5">Pasti</span>
+            <i data-lucide="utensils" class="w-4 h-4"></i>
+            <span class="text-[9px] font-bold mt-0.5">Pasti</span>
         </button>
         <button onclick="switchTab('fuoricasa')" id="mob-tab-fuoricasa" class="flex flex-col items-center justify-center py-1 text-slate-400">
-            <i data-lucide="map-pin" class="w-5 h-5"></i>
-            <span class="text-[10px] font-bold mt-0.5">Fuori</span>
+            <i data-lucide="map-pin" class="w-4 h-4"></i>
+            <span class="text-[9px] font-bold mt-0.5">Fuori</span>
+        </button>
+        <button onclick="switchTab('storico')" id="mob-tab-storico" class="flex flex-col items-center justify-center py-1 text-slate-400">
+            <i data-lucide="history" class="w-4 h-4"></i>
+            <span class="text-[9px] font-bold mt-0.5">Storico</span>
         </button>
         <button onclick="switchTab('integrazione')" id="mob-tab-integrazione" class="flex flex-col items-center justify-center py-1 text-slate-400">
-            <i data-lucide="pill" class="w-5 h-5"></i>
-            <span class="text-[10px] font-bold mt-0.5">Integr.</span>
+            <i data-lucide="pill" class="w-4 h-4"></i>
+            <span class="text-[9px] font-bold mt-0.5">Integr.</span>
         </button>
         <button onclick="switchTab('allenamento')" id="mob-tab-allenamento" class="flex flex-col items-center justify-center py-1 text-slate-400">
-            <i data-lucide="dumbbell" class="w-5 h-5"></i>
-            <span class="text-[10px] font-bold mt-0.5">Pesi</span>
+            <i data-lucide="dumbbell" class="w-4 h-4"></i>
+            <span class="text-[9px] font-bold mt-0.5">Pesi</span>
         </button>
         <button onclick="switchTab('tavole')" id="mob-tab-tavole" class="flex flex-col items-center justify-center py-1 text-slate-400">
-            <i data-lucide="book-open" class="w-5 h-5"></i>
-            <span class="text-[10px] font-bold mt-0.5">Tavole</span>
+            <i data-lucide="book-open" class="w-4 h-4"></i>
+            <span class="text-[9px] font-bold mt-0.5">Tavole</span>
         </button>
     </nav>
 
@@ -588,6 +678,7 @@
             { id: 'p_agnello', name: 'Agnello magro', macro: 'P', category: 'Carne', amount: 35, unit: 'g' },
             { id: 'p_pollo', name: 'Petto di pollo senza pelle', macro: 'P', category: 'Carne', amount: 30, unit: 'g' },
             { id: 'p_tacchino', name: 'Petto di tacchino senza pelle', macro: 'P', category: 'Carne', amount: 30, unit: 'g' },
+            { id: 'p_fesa_tacchino', name: 'Fesa di tacchino al forno', macro: 'P', category: 'Carne', amount: 30, unit: 'g', note: 'valori Zona standard, da confermare con Enrico' },
             { id: 'p_vitello', name: 'Vitello (tagli magri)', macro: 'P', category: 'Carne', amount: 35, unit: 'g' },
             { id: 'p_lumache', name: 'Lumache', macro: 'P', category: 'Carne', amount: 55, unit: 'g' },
             { id: 'p_bresaola', name: 'Bresaola', macro: 'P', category: 'Carne', amount: 20, unit: 'g' },
@@ -627,6 +718,12 @@
             { id: 'p_triglia', name: 'Triglia', macro: 'P', category: 'Pesce', amount: 45, unit: 'g' },
             { id: 'p_trota', name: 'Trota', macro: 'P', category: 'Pesce', amount: 50, unit: 'g' },
             { id: 'p_vongole', name: 'Vongole e cozze', macro: 'P', category: 'Pesce', amount: 70, unit: 'g' },
+            { id: 'p_polpo', name: 'Polpo', macro: 'P', category: 'Pesce', amount: 50, unit: 'g', note: 'valori Zona standard, da confermare con Enrico' },
+            { id: 'p_sogliola', name: 'Sogliola', macro: 'P', category: 'Pesce', amount: 50, unit: 'g', note: 'valori Zona standard, da confermare con Enrico' },
+            { id: 'p_platessa', name: 'Platessa', macro: 'P', category: 'Pesce', amount: 50, unit: 'g', note: 'valori Zona standard, da confermare con Enrico' },
+            { id: 'p_nasello', name: 'Nasello', macro: 'P', category: 'Pesce', amount: 50, unit: 'g', note: 'valori Zona standard, da confermare con Enrico' },
+            { id: 'p_cernia', name: 'Cernia', macro: 'P', category: 'Pesce', amount: 50, unit: 'g', note: 'valori Zona standard, da confermare con Enrico' },
+            { id: 'p_alici_fresche', name: 'Alici o acciughe fresche', macro: 'P', category: 'Pesce', amount: 35, unit: 'g', note: 'valori Zona standard, da confermare con Enrico' },
 
             // PROTEINE - UOVA
             { id: 'p_uovo_intero', name: 'Uovo completo (max 2-3/sett.)', macro: 'P', category: 'Uova', amount: 1, unit: ' uovo' },
@@ -661,6 +758,17 @@
             { id: 'c_cetrioli', name: 'Cetrioli', macro: 'C', category: 'Verdura', amount: 400, unit: 'g' },
             { id: 'c_friggitelli', name: 'Friggitelli', macro: 'C', category: 'Verdura', amount: 150, unit: 'g' },
             { id: 'c_cime_rape', name: 'Cime di rape', macro: 'C', category: 'Verdura', amount: 450, unit: 'g' },
+            { id: 'c_rucola', name: 'Rucola', macro: 'C', category: 'Verdura', amount: 500, unit: 'g', note: 'valori Zona standard, da confermare con Enrico' },
+            { id: 'c_lattuga', name: 'Lattuga', macro: 'C', category: 'Verdura', amount: 500, unit: 'g', note: 'valori Zona standard, da confermare con Enrico' },
+            { id: 'c_valeriana', name: 'Valeriana', macro: 'C', category: 'Verdura', amount: 450, unit: 'g', note: 'valori Zona standard, da confermare con Enrico' },
+            { id: 'c_scarola', name: 'Scarola', macro: 'C', category: 'Verdura', amount: 400, unit: 'g', note: 'valori Zona standard, da confermare con Enrico' },
+            { id: 'c_cicoria', name: 'Cicoria o catalogna', macro: 'C', category: 'Verdura', amount: 400, unit: 'g', note: 'valori Zona standard, da confermare con Enrico' },
+            { id: 'c_cavolo_nero', name: 'Cavolo nero', macro: 'C', category: 'Verdura', amount: 250, unit: 'g', note: 'valori Zona standard, da confermare con Enrico' },
+            { id: 'c_cavolo_cappuccio', name: 'Cavolo cappuccio', macro: 'C', category: 'Verdura', amount: 300, unit: 'g', note: 'valori Zona standard, da confermare con Enrico' },
+            { id: 'c_fagiolini', name: 'Fagiolini', macro: 'C', category: 'Verdura', amount: 200, unit: 'g', note: 'valori Zona standard, da confermare con Enrico' },
+            { id: 'c_zucca', name: 'Zucca', macro: 'C', category: 'Verdura', amount: 150, unit: 'g', note: 'valori Zona standard, da confermare con Enrico' },
+            { id: 'c_carote', name: 'Carote crude', macro: 'C', category: 'Verdura', amount: 150, unit: 'g', note: 'valori Zona standard, da confermare con Enrico' },
+            { id: 'c_indivia', name: 'Indivia', macro: 'C', category: 'Verdura', amount: 300, unit: 'g', note: 'valori Zona standard, da confermare con Enrico' },
 
             // CARBOIDRATI - FRUTTA
             { id: 'c_albicocche', name: 'Albicocche', macro: 'C', category: 'Frutta', amount: 130, unit: 'g' },
@@ -684,6 +792,9 @@
             { id: 'c_prugna_rossa', name: 'Prugna rossa', macro: 'C', category: 'Frutta', amount: 85, unit: 'g' },
             { id: 'c_ribes', name: 'Ribes', macro: 'C', category: 'Frutta', amount: 135, unit: 'g' },
             { id: 'c_nespola', name: 'Nespola', macro: 'C', category: 'Frutta', amount: 150, unit: 'g' },
+            { id: 'c_melagrana', name: 'Melagrana', macro: 'C', category: 'Frutta', amount: 90, unit: 'g', note: 'valori Zona standard, da confermare con Enrico' },
+            { id: 'c_more', name: 'More', macro: 'C', category: 'Frutta', amount: 100, unit: 'g', note: 'valori Zona standard, da confermare con Enrico' },
+            { id: 'c_clementine', name: 'Clementine', macro: 'C', category: 'Frutta', amount: 80, unit: 'g', note: 'valori Zona standard, da confermare con Enrico' },
 
             // CARBOIDRATI - SOLO SE SPECIFICATO
             { id: 'c_riso_basmati', name: 'Riso Basmati (solo se spec.)', macro: 'C', category: 'Speciale', amount: 10, unit: 'g' },
@@ -703,6 +814,10 @@
             { id: 'g_noci', name: 'Noci', macro: 'G', category: 'Frutta Secca', amount: 4, unit: 'g' },
             { id: 'g_pistacchi', name: 'Pistacchi', macro: 'G', category: 'Frutta Secca', amount: 5, unit: 'g' },
             { id: 'g_pinoli', name: 'Pinoli', macro: 'G', category: 'Frutta Secca', amount: 6, unit: 'g' },
+            { id: 'g_nocciole', name: 'Nocciole', macro: 'G', category: 'Frutta Secca', amount: 5, unit: 'g', note: 'valori Zona standard, da confermare con Enrico' },
+            { id: 'g_noci_brasiliane', name: 'Noci brasiliane', macro: 'G', category: 'Frutta Secca', amount: 5, unit: 'g', note: 'max 1-2 al giorno. Valori Zona standard, da confermare con Enrico' },
+            { id: 'g_semi_zucca', name: 'Semi di zucca', macro: 'G', category: 'Frutta Secca', amount: 6, unit: 'g', note: 'valori Zona standard, da confermare con Enrico' },
+            { id: 'g_burro_mandorle', name: 'Burro di mandorle 100%', macro: 'G', category: 'Frutta Secca', amount: 6, unit: 'g', note: 'valori Zona standard, da confermare con Enrico' },
 
             // GRASSI - BURRO E OLIO
             { id: 'g_olio_evo', name: "Olio extra vergine d'oliva (3 bl. = 1 cucchiaio)", macro: 'G', category: 'Burro e Olio', amount: 3, unit: 'g' },
@@ -952,6 +1067,7 @@
             weeklyEggs: 0,      // (legacy) non più mostrato: migrato una volta in eggsExtraByWeek
             eggsExtraByWeek: {}, // uova extra inserite a mano, per settimana (chiave = lunedì)
             jollyBarId: 'pb_arancia', // ultima barretta jolly scelta
+            glassMl: 250,       // ml di un bicchiere d'acqua (il volume resta in day.water, litri)
             savedPresets: [],   // giornate tipo salvate [{ name, meals }]
             workoutHistory: []  // storico sedute [{ id, date, dayKey, dayTitle, results, notes }]
         };
@@ -971,6 +1087,8 @@
             appState.savedPresets = appState.savedPresets || [];
             appState.workoutHistory = appState.workoutHistory || [];
             if (!JOLLY_BARS.some(b => b.id === appState.jollyBarId)) appState.jollyBarId = 'pb_arancia';
+            const glass = parseInt(appState.glassMl, 10);
+            appState.glassMl = glass >= 50 && glass <= 1000 ? glass : 250;
             migrateLegacyWeeklyEggs();
             ensureDayInitialized(currentDate);
         }
@@ -993,10 +1111,12 @@
 
         function saveState() {
             try {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+                const payload = buildBackupObject();
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
             } catch (e) {
                 console.error('Errore salvataggio localStorage:', e);
             }
+            scheduleGithubAutoSync();
         }
 
         function createDefaultDayMeals() {
@@ -1096,13 +1216,22 @@
             return formatBarretteAmount((parseFloat(blocks) || 0) / per);
         }
 
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>"']/g, ch => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            }[ch]));
+        }
+
         function foodOptionLabel(food) {
+            let label;
             if (isJollyFood(food)) {
                 const one = formatJollyPortion(food, 1);
                 const tag = food.emergency ? ' · emergenza' : '';
-                return `${food.name} (1 bl = ${one})${tag}`;
+                label = `${food.name} (1 bl = ${one})${tag}`;
+            } else {
+                label = `${food.name} (1 bl = ${food.amount}${food.unit})`;
             }
-            return `${food.name} (1 bl = ${food.amount}${food.unit})`;
+            return food.note ? `${label} — ${food.note}` : label;
         }
 
         function getAllowedFoodsForMealMacro(mealCfg, macro, unlockAll) {
@@ -1360,6 +1489,7 @@
 
             // Update Global Header Progress Bars
             updateGlobalBars(globalP, globalC, globalG);
+            renderDayLog();
             lucide.createIcons();
         }
 
@@ -1429,6 +1559,7 @@
                             </span>
                         </div>
                     </div>
+                    ${currentFood?.note ? `<p class="text-[10px] leading-snug text-amber-200/80">${escapeHtml(currentFood.note)}</p>` : ''}
                 </div>
                 `;
             }).join('');
@@ -1626,7 +1757,7 @@
             const proteins = FOODS_DB.filter(f => f.macro === 'P' && f.id !== 'p_uovo_intero' && !f.jolly);
             const fruits = FOODS_DB.filter(f => f.macro === 'C' && f.category === 'Frutta');
             const veggies = FOODS_DB.filter(f => f.macro === 'C' && f.category === 'Verdura' && f.amount <= MAX_VEG_BLOCK_G);
-            const nuts = FOODS_DB.filter(f => f.macro === 'G' && f.category === 'Frutta Secca');
+            const nuts = FOODS_DB.filter(f => f.macro === 'G' && f.category === 'Frutta Secca' && f.id !== 'g_noci_brasiliane');
 
             const newMeal = { P: [], C: [], G: [] };
 
@@ -1942,21 +2073,27 @@
             suppContainer.innerHTML = html;
             document.getElementById('supp-badge-desktop').textContent = `${checkedCount}/${SUPPLEMENTS_CONFIG.length}`;
 
-            // Render Water Tracker
-            const waterLiters = +(dayData.water || 0).toFixed(2);
-            document.getElementById('water-text').textContent = `${waterLiters} / 2.5 L`;
+            // Render Water Tracker (stesso volume del diario: day.water in litri)
+            const waterLiters = +((dayData.water || 0)).toFixed(2);
+            const ml = glassMl();
+            const filledGlasses = Math.round(waterLiters / (ml / 1000));
+            document.getElementById('water-text').textContent = `${formatItNumber(waterLiters, 2)} L · ${filledGlasses} bic.`;
             const glassesContainer = document.getElementById('water-glasses');
-            const filledGlasses = Math.round(waterLiters / 0.25);
+            const glassCount = Math.min(16, Math.max(12, filledGlasses));
             let glassesHtml = '';
-            for (let i = 1; i <= 12; i++) {
+            for (let i = 1; i <= glassCount; i++) {
                 const active = i <= filledGlasses;
                 glassesHtml += `
-                    <button onclick="setWaterGlasses(${i})" class="h-10 rounded-lg border flex flex-col items-center justify-center transition ${active ? 'bg-sky-500/20 border-sky-400 text-sky-300' : 'bg-slate-950 border-slate-800 text-slate-600 hover:border-slate-700'}" title="${i * 250} ml">
+                    <button onclick="setWaterGlasses(${i})" class="h-10 rounded-lg border flex flex-col items-center justify-center transition ${active ? 'bg-sky-500/20 border-sky-400 text-sky-300' : 'bg-slate-950 border-slate-800 text-slate-600 hover:border-slate-700'}" title="${i * ml} ml">
                         <i data-lucide="cup-soda" class="w-4 h-4"></i>
                     </button>
                 `;
             }
             glassesContainer.innerHTML = glassesHtml;
+            const waterMinus = document.getElementById('water-minus');
+            const waterPlus = document.getElementById('water-plus');
+            if (waterMinus) waterMinus.textContent = `- ${ml} ml`;
+            if (waterPlus) waterPlus.textContent = `+ ${ml} ml (1 bicchiere)`;
 
             // Render Weekly Eggs Tracker
             const eggs = countWeeklyEggs(currentDate);
@@ -1992,17 +2129,50 @@
             showToast('Spunte integratori di oggi azzerate.');
         }
 
+        function glassMl() {
+            const n = parseInt(appState.glassMl, 10);
+            return n >= 50 && n <= 1000 ? n : 250;
+        }
+
+        function formatItNumber(value, digits) {
+            return (+value).toFixed(digits).replace('.', ',');
+        }
+
+        function setDayWaterLiters(liters) {
+            const day = appState.days[currentDate];
+            day.water = Math.max(0, Math.min(8, +liters.toFixed(3)));
+        }
+
         function addWater(deltaLiters) {
             const current = appState.days[currentDate].water || 0;
-            appState.days[currentDate].water = Math.max(0, Math.min(4, +(current + deltaLiters).toFixed(2)));
+            setDayWaterLiters(current + deltaLiters);
             saveState();
-            renderSupplementsAndRules();
+            refreshDaySurfaces();
+        }
+
+        function addWaterGlasses(delta) {
+            const step = glassMl() / 1000;
+            const current = appState.days[currentDate].water || 0;
+            setDayWaterLiters(current + delta * step);
+            saveState();
+            refreshDaySurfaces();
         }
 
         function setWaterGlasses(numGlasses) {
-            appState.days[currentDate].water = +(numGlasses * 0.25).toFixed(2);
+            setDayWaterLiters(numGlasses * (glassMl() / 1000));
             saveState();
-            renderSupplementsAndRules();
+            refreshDaySurfaces();
+        }
+
+        function refreshDaySurfaces() {
+            renderDayLog();
+            if (!document.getElementById('tab-integrazione')?.classList.contains('hidden')) renderSupplementsAndRules();
+            else if (document.getElementById('water-text')) {
+                const liters = +((appState.days[currentDate].water || 0)).toFixed(2);
+                const glasses = Math.round(liters / (glassMl() / 1000));
+                document.getElementById('water-text').textContent = `${formatItNumber(liters, 2)} L · ${glasses} bic.`;
+            }
+            renderStoricoIfVisible();
         }
 
         function eggsFromMealsInWeek(dateStr) {
@@ -2292,7 +2462,7 @@
                 const col = colorByMacro[group.macro];
                 const rowsHtml = group.items.map(item => `
                     <div class="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-slate-800/60 transition border-b border-slate-800/50 last:border-0">
-                        <span class="text-xs text-slate-200">${item.name}</span>
+                        <span class="text-xs text-slate-200">${escapeHtml(item.name)}${item.note ? `<span class="block text-[10px] text-amber-200/80 font-sans font-normal mt-0.5">${escapeHtml(item.note)}</span>` : ''}</span>
                         <span class="text-xs font-mono font-bold text-${col}-400 shrink-0 ml-2">${+(item.amount * mult).toFixed(1)}${item.unit}</span>
                     </div>
                 `).join('');
@@ -2315,7 +2485,7 @@
         }
 
         function exportAllDataJSON() {
-            const dataStr = JSON.stringify(appState, null, 2);
+            const dataStr = JSON.stringify(buildBackupObject(), null, 2);
             const blob = new Blob([dataStr], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -2323,45 +2493,596 @@
             a.download = `paleo_zona_marco_backup_${currentDate}.json`;
             a.click();
             URL.revokeObjectURL(url);
-            showToast('Backup JSON scaricato con successo!');
+            showToast('Backup JSON scaricato.');
         }
 
         function importAllDataJSON(event) {
-            const file = event.target.files?.[0];
+            const input = event.target;
+            const file = input.files?.[0];
             if (!file) return;
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
                     const imported = JSON.parse(e.target.result);
-                    if (imported && typeof imported === 'object') {
-                        const importedHadMigrationFlag = Object.prototype.hasOwnProperty.call(imported, 'legacyWeeklyEggsMigrated');
-                        appState = { ...appState, ...imported };
-                        appState.days = appState.days || {};
-                        appState.eggsExtraByWeek = appState.eggsExtraByWeek || {};
-                        appState.savedPresets = appState.savedPresets || [];
-                        appState.workoutHistory = appState.workoutHistory || [];
-                        if (!JOLLY_BARS.some(b => b.id === appState.jollyBarId)) appState.jollyBarId = 'pb_arancia';
-                        if (!importedHadMigrationFlag) appState.legacyWeeklyEggsMigrated = false;
-                        migrateLegacyWeeklyEggs();
-                        saveState();
-                        ensureDayInitialized(currentDate);
-                        renderMealsPlanner();
-                        renderSupplementsAndRules();
-                        renderWorkoutTab();
-                        showToast('Backup importato e ripristinato!');
+                    if (!imported || typeof imported !== 'object' || Array.isArray(imported)) {
+                        showToast('File JSON non valido.', 'rose');
+                        return;
                     }
+                    const ok = window.confirm('Importare questo backup? I giorni con la stessa data nel file sostituiscono quelli già presenti. Gli altri giorni restano. Il token GitHub non viene modificato.');
+                    if (!ok) return;
+                    applyImportedBackup(imported);
+                    showToast('Backup importato e unito.');
                 } catch (err) {
                     showToast('File JSON non valido.', 'rose');
+                } finally {
+                    input.value = '';
                 }
             };
             reader.readAsText(file);
+        }
+
+        function buildBackupObject() {
+            const copy = JSON.parse(JSON.stringify(appState));
+            delete copy.githubToken;
+            delete copy.githubSettings;
+            delete copy.github;
+            return copy;
+        }
+
+        function mergeRecords(localList, incomingList, keyFn) {
+            const base = Array.isArray(localList) ? localList.slice() : [];
+            if (!Array.isArray(incomingList)) return base;
+            incomingList.forEach(item => {
+                const key = keyFn(item);
+                const idx = base.findIndex(existing => keyFn(existing) === key);
+                if (idx >= 0) base[idx] = item;
+                else base.push(item);
+            });
+            return base;
+        }
+
+        function applyImportedBackup(imported) {
+            const hadFlag = Object.prototype.hasOwnProperty.call(imported, 'legacyWeeklyEggsMigrated');
+            const days = { ...(appState.days || {}) };
+            if (imported.days && typeof imported.days === 'object') {
+                Object.keys(imported.days).forEach(key => { days[key] = imported.days[key]; });
+            }
+            const incomingEggs = imported.eggsExtraByWeek && typeof imported.eggsExtraByWeek === 'object' ? imported.eggsExtraByWeek : {};
+            const next = {
+                ...appState,
+                ...imported,
+                days,
+                eggsExtraByWeek: { ...(appState.eggsExtraByWeek || {}), ...incomingEggs },
+                savedPresets: mergeRecords(appState.savedPresets, imported.savedPresets, item => `${item?.name}|${item?.createdAt}`),
+                workoutHistory: mergeRecords(appState.workoutHistory, imported.workoutHistory, item => item?.id)
+            };
+            delete next.githubToken;
+            delete next.githubSettings;
+            delete next.github;
+            appState = next;
+            const glass = parseInt(appState.glassMl, 10);
+            appState.glassMl = glass >= 50 && glass <= 1000 ? glass : 250;
+            if (!JOLLY_BARS.some(bar => bar.id === appState.jollyBarId)) appState.jollyBarId = 'pb_arancia';
+            appState.days = appState.days || {};
+            appState.eggsExtraByWeek = appState.eggsExtraByWeek || {};
+            appState.savedPresets = appState.savedPresets || [];
+            appState.workoutHistory = appState.workoutHistory || [];
+            if (!hadFlag) appState.legacyWeeklyEggsMigrated = false;
+            migrateLegacyWeeklyEggs();
+            ensureDayInitialized(currentDate);
+            saveState();
+            renderMealsPlanner();
+            renderSupplementsAndRules();
+            renderWorkoutTab();
+            if (document.getElementById('food-tables-container')) renderFoodTables();
+            renderStoricoIfVisible();
+        }
+
+        function formatDateIt(iso) {
+            const [y, m, d] = String(iso || '').split('-');
+            if (!y || !m || !d) return iso || '';
+            return `${d}/${m}/${y}`;
+        }
+
+        function bpList(day) {
+            return Array.isArray(day?.bp) ? day.bp : [];
+        }
+
+        function validBp(reading) {
+            return reading && Number(reading.sys) > 0 && Number(reading.dia) > 0;
+        }
+
+        function bpSummary(day) {
+            const list = bpList(day).filter(validBp);
+            if (!list.length) return '—';
+            const first = list[0];
+            const bpm = Number(first.bpm) > 0 ? ` · ${first.bpm}` : '';
+            const extra = list.length > 1 ? ` (+${list.length - 1})` : '';
+            return `${first.sys}/${first.dia}${bpm}${extra}`;
+        }
+
+        function dayProgress(dateStr) {
+            const day = appState.days[dateStr];
+            if (!day?.meals) return null;
+            let ok = 0;
+            let p = 0, c = 0, g = 0;
+            MEALS_CONFIG.forEach(cfg => {
+                const meal = day.meals[cfg.id] || { P: [], C: [], G: [] };
+                const sp = evaluateMealMacroStatus(cfg, 'P', meal.P || []);
+                const sc = evaluateMealMacroStatus(cfg, 'C', meal.C || []);
+                const sg = evaluateMealMacroStatus(cfg, 'G', meal.G || []);
+                if (sp.isOk && sc.isOk && sg.isOk) ok += 1;
+                p += sp.totalBlocks;
+                c += sc.totalBlocks;
+                g += sg.totalBlocks;
+            });
+            const done = Math.min(p, 12) + Math.min(c, 11) + Math.min(g, 17);
+            return { mealsOk: ok, mealsTotal: MEALS_CONFIG.length, blockPct: Math.round((done / 40) * 100) };
+        }
+
+        function renderDayLog() {
+            const host = document.getElementById('day-log-card');
+            if (!host || !appState.days[currentDate]) return;
+            const day = appState.days[currentDate];
+            const liters = +((day.water || 0)).toFixed(2);
+            const ml = glassMl();
+            const glasses = Math.round(liters / (ml / 1000));
+            const coffee = parseInt(day.coffee, 10) || 0;
+            const weight = day.weightKg ? String(day.weightKg).replace('.', ',') : '';
+            const readings = bpList(day);
+            const shown = readings.length ? readings : [{ t: '', sys: '', dia: '', bpm: '', draft: true }];
+            const bpHtml = shown.map((reading, index) => `
+                <div class="grid grid-cols-2 sm:grid-cols-[6rem_1fr_1fr_5rem_auto] gap-2 items-end">
+                    <label class="text-[10px] text-slate-400 col-span-2 sm:col-span-1">Ora
+                        <input type="time" value="${escapeHtml(reading.t || '')}" onchange="updateBp(${index}, 't', this.value)" class="mt-1 w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-white">
+                    </label>
+                    <label class="text-[10px] text-slate-400">Sistolica
+                        <input inputmode="numeric" value="${escapeHtml(reading.sys || '')}" placeholder="120" onchange="updateBp(${index}, 'sys', this.value)" class="mt-1 w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-white">
+                    </label>
+                    <label class="text-[10px] text-slate-400">Diastolica
+                        <input inputmode="numeric" value="${escapeHtml(reading.dia || '')}" placeholder="80" onchange="updateBp(${index}, 'dia', this.value)" class="mt-1 w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-white">
+                    </label>
+                    <label class="text-[10px] text-slate-400">Battiti
+                        <input inputmode="numeric" value="${escapeHtml(reading.bpm || '')}" placeholder="bpm" onchange="updateBp(${index}, 'bpm', this.value)" class="mt-1 w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-white">
+                    </label>
+                    ${reading.draft ? '<span class="hidden sm:block"></span>' : `<button type="button" onclick="removeBpReading(${index})" class="h-8 px-2 text-slate-500 hover:text-rose-300 text-xs" title="Rimuovi misurazione">✕</button>`}
+                </div>
+            `).join('');
+            host.innerHTML = `
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-4">
+                    <div class="flex items-center justify-between gap-2">
+                        <h3 class="text-sm font-bold text-white flex items-center gap-2"><i data-lucide="clipboard-plus" class="w-4 h-4 text-emerald-400"></i> Diario del ${formatDateIt(currentDate)}</h3>
+                        <button type="button" onclick="switchTab('storico')" class="text-[11px] font-semibold text-emerald-300 hover:underline">Apri storico</button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
+                        <label class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-slate-300">Peso (kg)
+                            <input id="day-weight" inputmode="decimal" value="${escapeHtml(weight)}" placeholder="es. 82,4" onchange="setWeightKg(this.value)" class="mt-1 w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-2 text-sm text-white">
+                        </label>
+                        <div class="bg-slate-950 border border-slate-800 rounded-xl p-3">
+                            <div class="text-xs text-slate-300 mb-2">Caffè</div>
+                            <div class="flex items-center gap-2">
+                                <button type="button" onclick="addCoffee(-1)" class="w-9 h-9 rounded-lg bg-slate-800 text-white font-bold">−</button>
+                                <span id="coffee-count" class="min-w-8 text-center font-mono font-bold text-white">${coffee}</span>
+                                <button type="button" onclick="addCoffee(1)" class="w-9 h-9 rounded-lg bg-amber-700 text-white font-bold">+</button>
+                            </div>
+                        </div>
+                        <div class="bg-slate-950 border border-slate-800 rounded-xl p-3 md:col-span-2">
+                            <div class="flex items-center justify-between gap-2 text-xs text-slate-300">
+                                <span>Acqua</span>
+                                <span id="day-water-label" class="font-mono text-sky-300">${glasses} bic. · ${formatItNumber(liters, 2)} L</span>
+                            </div>
+                            <div class="mt-2 flex flex-wrap items-center gap-2">
+                                <button type="button" onclick="addWaterGlasses(-1)" class="w-9 h-9 rounded-lg bg-slate-800 text-white font-bold">−</button>
+                                <button type="button" onclick="addWaterGlasses(1)" class="w-9 h-9 rounded-lg bg-sky-600 text-white font-bold">+</button>
+                                <label class="text-[11px] text-slate-400 flex items-center gap-1">Bicchiere
+                                    <input id="glass-ml" inputmode="numeric" value="${ml}" onchange="setGlassMl(this.value)" class="w-16 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-xs text-white"> ml
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between">
+                            <h4 class="text-xs font-bold uppercase tracking-wider text-rose-300">Pressione</h4>
+                            <button type="button" onclick="addBpReading()" class="text-[11px] font-semibold text-slate-300 hover:text-white">+ Aggiungi misurazione</button>
+                        </div>
+                        <p class="text-[11px] text-slate-500">mmHg e battiti. La prima riga va bene come misurazione del mattino. I campi vuoti restano facoltativi.</p>
+                        <div class="space-y-2">${bpHtml}</div>
+                    </div>
+                </div>
+            `;
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function setWeightKg(value) {
+            const raw = String(value).trim().replace(',', '.');
+            const day = appState.days[currentDate];
+            if (raw === '') day.weightKg = null;
+            else {
+                const n = Math.round(parseFloat(raw) * 10) / 10;
+                if (!isFinite(n) || n < 30 || n > 300) {
+                    showToast('Inserisci un peso tra 30 e 300 kg.', 'rose');
+                    renderDayLog();
+                    return;
+                }
+                day.weightKg = n;
+            }
+            saveState();
+            renderStoricoIfVisible();
+        }
+
+        function setGlassMl(value) {
+            const n = parseInt(value, 10);
+            if (!(n >= 50 && n <= 1000)) {
+                showToast('Il bicchiere deve essere tra 50 e 1000 ml.', 'rose');
+                renderDayLog();
+                return;
+            }
+            appState.glassMl = n;
+            saveState();
+            refreshDaySurfaces();
+        }
+
+        function addCoffee(delta) {
+            const day = appState.days[currentDate];
+            day.coffee = Math.max(0, Math.min(20, (parseInt(day.coffee, 10) || 0) + delta));
+            saveState();
+            refreshDaySurfaces();
+        }
+
+        function ensureBpArray() {
+            const day = appState.days[currentDate];
+            if (!Array.isArray(day.bp)) day.bp = [];
+            return day.bp;
+        }
+
+        function updateBp(index, field, value) {
+            const list = ensureBpArray();
+            if (!list[index]) list[index] = { t: '', sys: '', dia: '', bpm: '' };
+            if (field === 't') list[index].t = String(value || '').slice(0, 5);
+            else {
+                const raw = String(value).trim().replace(',', '.');
+                list[index][field] = raw === '' ? '' : String(Math.max(0, Math.round(Number(raw) || 0)));
+            }
+            saveState();
+            renderDayLog();
+            renderStoricoIfVisible();
+        }
+
+        function addBpReading() {
+            ensureBpArray().push({ t: '', sys: '', dia: '', bpm: '' });
+            saveState();
+            renderDayLog();
+            lucide.createIcons();
+        }
+
+        function removeBpReading(index) {
+            ensureBpArray().splice(index, 1);
+            saveState();
+            renderDayLog();
+            renderStoricoIfVisible();
+            lucide.createIcons();
+        }
+
+        function svgChart(title, series) {
+            const points = series.flatMap(item => item.points);
+            if (!points.length) {
+                return `<div class="bg-slate-900 border border-slate-800 rounded-2xl p-4"><h3 class="text-sm font-bold text-white">${escapeHtml(title)}</h3><p class="text-xs text-slate-500 mt-2">Nessun dato.</p></div>`;
+            }
+            const w = 360, h = 168, padL = 38, padR = 10, padT = 14, padB = 26;
+            const dates = [...new Set(points.map(point => point.x))].sort();
+            let min = Math.min(...points.map(point => point.y));
+            let max = Math.max(...points.map(point => point.y));
+            if (min === max) { min -= 1; max += 1; }
+            const xAt = date => dates.length === 1 ? padL + (w - padL - padR) / 2 : padL + (dates.indexOf(date) / (dates.length - 1)) * (w - padL - padR);
+            const yAt = y => padT + (1 - (y - min) / (max - min)) * (h - padT - padB);
+            const drawn = series.map(item => {
+                const ordered = item.points.slice().sort((a, b) => a.x.localeCompare(b.x));
+                const d = ordered.map((point, i) => `${i ? 'L' : 'M'}${xAt(point.x).toFixed(1)},${yAt(point.y).toFixed(1)}`).join(' ');
+                const dots = ordered.map(point => `<circle cx="${xAt(point.x).toFixed(1)}" cy="${yAt(point.y).toFixed(1)}" r="2.6" fill="${item.color}"></circle>`).join('');
+                return `<path d="${d}" fill="none" stroke="${item.color}" stroke-width="2"></path>${dots}`;
+            }).join('');
+            const legend = series.map(item => `<span class="inline-flex items-center gap-1 mr-2"><span class="inline-block w-2 h-2 rounded-full" style="background:${item.color}"></span>${escapeHtml(item.name)}</span>`).join('');
+            const yDigits = max >= 30 ? 0 : 1;
+            return `
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3">
+                    <div class="flex items-start justify-between gap-2 mb-1">
+                        <h3 class="text-sm font-bold text-white">${escapeHtml(title)}</h3>
+                        <div class="text-[10px] text-slate-400 text-right">${legend}</div>
+                    </div>
+                    <svg viewBox="0 0 ${w} ${h}" class="w-full h-40" role="img" aria-label="${escapeHtml(title)}">
+                        <line x1="${padL}" y1="${padT}" x2="${padL}" y2="${h - padB}" stroke="#334155"></line>
+                        <line x1="${padL}" y1="${h - padB}" x2="${w - padR}" y2="${h - padB}" stroke="#334155"></line>
+                        <text x="2" y="${padT + 8}" fill="#94a3b8" font-size="10">${formatItNumber(max, yDigits)}</text>
+                        <text x="2" y="${h - padB}" fill="#94a3b8" font-size="10">${formatItNumber(min, yDigits)}</text>
+                        <text x="${padL}" y="${h - 6}" fill="#94a3b8" font-size="10">${formatDateIt(dates[0]).slice(0, 5)}</text>
+                        <text x="${w - padR}" y="${h - 6}" fill="#94a3b8" font-size="10" text-anchor="end">${formatDateIt(dates[dates.length - 1]).slice(0, 5)}</text>
+                        ${drawn}
+                    </svg>
+                </div>`;
+        }
+
+        function renderStorico() {
+            const charts = document.getElementById('storico-charts');
+            const table = document.getElementById('storico-table');
+            if (!charts || !table) return;
+            const dates = Object.keys(appState.days || {}).filter(key => /^\d{4}-\d{2}-\d{2}$/.test(key)).sort();
+            const weight = [];
+            const sys = [];
+            const dia = [];
+            const water = [];
+            dates.forEach(date => {
+                const day = appState.days[date] || {};
+                if (day.weightKg) weight.push({ x: date, y: Number(day.weightKg) });
+                const reading = bpList(day).find(validBp);
+                if (reading) {
+                    sys.push({ x: date, y: Number(reading.sys) });
+                    dia.push({ x: date, y: Number(reading.dia) });
+                }
+                if ((day.water || 0) > 0) water.push({ x: date, y: +Number(day.water).toFixed(2) });
+            });
+            charts.innerHTML = [
+                svgChart('Peso (kg)', [{ name: 'Peso', color: '#34d399', points: weight }]),
+                svgChart('Pressione', [{ name: 'Sistolica', color: '#fb7185', points: sys }, { name: 'Diastolica', color: '#38bdf8', points: dia }]),
+                svgChart('Acqua (L)', [{ name: 'Litri', color: '#38bdf8', points: water }])
+            ].join('');
+            const ml = glassMl();
+            table.innerHTML = dates.slice().reverse().map(date => {
+                const day = appState.days[date] || {};
+                const liters = +((day.water || 0)).toFixed(2);
+                const glasses = Math.round(liters / (ml / 1000));
+                const progress = dayProgress(date);
+                const meals = progress ? `${progress.mealsOk}/${progress.mealsTotal} · ${progress.blockPct}% blocchi` : '—';
+                return `
+                    <tr class="hover:bg-slate-800/60 cursor-pointer" onclick="openHistoryDay('${date}')">
+                        <td class="px-3 py-2.5 font-semibold text-white whitespace-nowrap">${formatDateIt(date)}</td>
+                        <td class="px-3 py-2.5 text-slate-200">${day.weightKg ? `${formatItNumber(day.weightKg, 1)} kg` : '—'}</td>
+                        <td class="px-3 py-2.5 text-slate-200">${escapeHtml(bpSummary(day))}</td>
+                        <td class="px-3 py-2.5 text-slate-200">${liters ? `${glasses} bic. · ${formatItNumber(liters, 2)} L` : '—'}</td>
+                        <td class="px-3 py-2.5 text-slate-200">${day.coffee || '—'}</td>
+                        <td class="px-3 py-2.5 text-slate-300">${meals}</td>
+                    </tr>`;
+            }).join('') || `<tr><td colspan="6" class="px-3 py-6 text-center text-slate-500">Nessun giorno registrato.</td></tr>`;
+            syncGithubForm();
+        }
+
+        function renderStoricoIfVisible() {
+            const tab = document.getElementById('tab-storico');
+            if (tab && !tab.classList.contains('hidden')) renderStorico();
+        }
+
+        function openHistoryDay(dateStr) {
+            const picker = document.getElementById('current-date-picker');
+            if (picker) picker.value = dateStr;
+            changeDate(dateStr);
+            switchTab('pasti');
+        }
+
+        const GITHUB_SETTINGS_KEY = 'paleo_zona_marco_github_v1';
+        const GITHUB_MIN_INTERVAL_MS = 3 * 60 * 1000;
+        let githubSyncTimer = null;
+        let githubSyncing = false;
+
+        function defaultGithubSettings() {
+            return { token: '', owner: 'mcitossi', repo: 'paleo-dati', branch: 'main', auto: false, lastSyncAt: null, lastSyncDay: null, lastError: '' };
+        }
+
+        function loadGithubSettings() {
+            const defaults = defaultGithubSettings();
+            try {
+                const raw = localStorage.getItem(GITHUB_SETTINGS_KEY);
+                if (!raw) return defaults;
+                const parsed = JSON.parse(raw);
+                return { ...defaults, ...parsed, token: typeof parsed.token === 'string' ? parsed.token : '', auto: !!parsed.auto };
+            } catch (e) {
+                return defaults;
+            }
+        }
+
+        function storeGithubSettings(next) {
+            const clean = { ...defaultGithubSettings(), ...next, token: String(next.token || '') };
+            localStorage.setItem(GITHUB_SETTINGS_KEY, JSON.stringify(clean));
+            return clean;
+        }
+
+        function syncGithubForm() {
+            const settings = loadGithubSettings();
+            const token = document.getElementById('gh-token');
+            if (!token) return;
+            token.value = settings.token;
+            document.getElementById('gh-owner').value = settings.owner;
+            document.getElementById('gh-repo').value = settings.repo;
+            document.getElementById('gh-branch').value = settings.branch;
+            document.getElementById('gh-auto').checked = settings.auto;
+            renderGithubStatus();
+        }
+
+        function saveGithubSettingsFromForm() {
+            const current = loadGithubSettings();
+            return storeGithubSettings({
+                ...current,
+                token: document.getElementById('gh-token')?.value || '',
+                owner: (document.getElementById('gh-owner')?.value || 'mcitossi').trim(),
+                repo: (document.getElementById('gh-repo')?.value || 'paleo-dati').trim(),
+                branch: (document.getElementById('gh-branch')?.value || 'main').trim(),
+                auto: !!document.getElementById('gh-auto')?.checked
+            });
+        }
+
+        function renderGithubStatus(pending) {
+            const el = document.getElementById('github-sync-status');
+            if (!el) return;
+            if (pending) {
+                el.className = 'text-xs text-slate-300';
+                el.textContent = pending;
+                return;
+            }
+            const settings = loadGithubSettings();
+            const when = settings.lastSyncAt
+                ? new Date(settings.lastSyncAt).toLocaleString('it-IT', { dateStyle: 'short', timeStyle: 'short' })
+                : 'mai';
+            el.className = settings.lastError ? 'text-xs text-rose-300' : 'text-xs text-slate-400';
+            el.textContent = settings.lastError
+                ? `Ultimo salvataggio: ${when}. ${settings.lastError}`
+                : `Ultimo salvataggio su GitHub: ${when}.`;
+        }
+
+        function assertSafeGithubTarget(settings) {
+            const owner = (settings.owner || '').trim();
+            const repo = (settings.repo || '').trim();
+            const branch = (settings.branch || '').trim() || 'main';
+            const token = (settings.token || '').trim();
+            if (!owner || !repo) throw new Error('Inserisci owner e nome del repository.');
+            if (repo.toLowerCase() === 'paleo') {
+                throw new Error('Il repository «paleo» è pubblico: i dati di salute non vanno caricati lì. Usa un repository privato, per esempio paleo-dati, e un token solo per quello.');
+            }
+            if (!/^[A-Za-z0-9_.-]+$/.test(owner) || !/^[A-Za-z0-9_.-]+$/.test(repo) || !/^[A-Za-z0-9_./-]+$/.test(branch)) {
+                throw new Error('Owner, repository o branch non validi.');
+            }
+            if (!token) throw new Error('Incolla un token personale prima di sincronizzare.');
+            return { ...settings, owner, repo, branch, token };
+        }
+
+        function utf8ToB64(text) {
+            const bytes = new TextEncoder().encode(text);
+            let binary = '';
+            bytes.forEach(byte => { binary += String.fromCharCode(byte); });
+            return btoa(binary);
+        }
+
+        function b64ToUtf8(b64) {
+            const binary = atob(String(b64 || '').replace(/\s/g, ''));
+            const bytes = new Uint8Array(binary.length);
+            for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+            return new TextDecoder().decode(bytes);
+        }
+
+        function githubHeaders(token) {
+            return {
+                Authorization: `Bearer ${token}`,
+                Accept: 'application/vnd.github+json',
+                'X-GitHub-Api-Version': '2022-11-28',
+                'Content-Type': 'application/json'
+            };
+        }
+
+        async function githubErrorMessage(response) {
+            let detail = '';
+            try {
+                const body = await response.json();
+                detail = body.message || '';
+            } catch (e) { /* risposta non JSON */ }
+            if (response.status === 401) return 'Token non valido o scaduto. Creane uno nuovo, solo per il repository privato.';
+            if (response.status === 403) return 'Permesso negato. Il token deve avere Contents in lettura e scrittura solo su questo repository.';
+            if (response.status === 404) return 'Repository o file non trovato. Controlla owner, nome del repo privato e il branch.';
+            return `Errore GitHub (${response.status})${detail ? `: ${detail}` : ''}`;
+        }
+
+        async function putGithubFile(settings, path, text, message) {
+            const base = `https://api.github.com/repos/${encodeURIComponent(settings.owner)}/${encodeURIComponent(settings.repo)}/contents/${path}`;
+            const headers = githubHeaders(settings.token);
+            let sha = '';
+            const getRes = await fetch(`${base}?ref=${encodeURIComponent(settings.branch)}`, { headers });
+            if (getRes.status === 200) {
+                const data = await getRes.json();
+                sha = data.sha || '';
+            } else if (getRes.status !== 404) {
+                throw new Error(await githubErrorMessage(getRes));
+            }
+            const payload = { message, content: utf8ToB64(text), branch: settings.branch };
+            if (sha) payload.sha = sha;
+            const putRes = await fetch(base, { method: 'PUT', headers, body: JSON.stringify(payload) });
+            if (!putRes.ok) throw new Error(await githubErrorMessage(putRes));
+            return putRes.json();
+        }
+
+        async function saveToGithub(opts = {}) {
+            if (githubSyncing) return;
+            let settings;
+            try {
+                if (opts.manual) saveGithubSettingsFromForm();
+                settings = assertSafeGithubTarget(loadGithubSettings());
+            } catch (err) {
+                storeGithubSettings({ ...loadGithubSettings(), lastError: err.message });
+                renderGithubStatus();
+                if (opts.manual) showToast(err.message, 'rose');
+                return;
+            }
+            githubSyncing = true;
+            renderGithubStatus('Salvataggio su GitHub…');
+            try {
+                const text = JSON.stringify(buildBackupObject(), null, 2);
+                if (settings.token.length > 12 && text.includes(settings.token)) throw new Error('Salvataggio annullato: il backup non deve contenere il token.');
+                const message = opts.auto ? `Backup automatico ${currentDate}` : `Backup paleo ${currentDate}`;
+                await putGithubFile(settings, 'backup/paleo-backup.json', text, message);
+                await putGithubFile(settings, `backup/${currentDate}.json`, text, message);
+                storeGithubSettings({ ...loadGithubSettings(), token: settings.token, lastSyncAt: new Date().toISOString(), lastSyncDay: currentDate, lastError: '' });
+                renderGithubStatus();
+                if (opts.manual) showToast('Backup salvato su GitHub.');
+            } catch (err) {
+                const message = err?.message || 'Salvataggio su GitHub non riuscito.';
+                storeGithubSettings({ ...loadGithubSettings(), lastError: message });
+                renderGithubStatus();
+                showToast(message, 'rose');
+            } finally {
+                githubSyncing = false;
+            }
+        }
+
+        async function restoreFromGithub() {
+            let settings;
+            try {
+                saveGithubSettingsFromForm();
+                settings = assertSafeGithubTarget(loadGithubSettings());
+            } catch (err) {
+                showToast(err.message, 'rose');
+                renderGithubStatus();
+                return;
+            }
+            renderGithubStatus('Lettura del backup da GitHub…');
+            try {
+                const url = `https://api.github.com/repos/${encodeURIComponent(settings.owner)}/${encodeURIComponent(settings.repo)}/contents/backup/paleo-backup.json?ref=${encodeURIComponent(settings.branch)}`;
+                const response = await fetch(url, { headers: githubHeaders(settings.token) });
+                if (response.status === 404) throw new Error('Nessun backup trovato su GitHub (backup/paleo-backup.json).');
+                if (!response.ok) throw new Error(await githubErrorMessage(response));
+                const data = await response.json();
+                const imported = JSON.parse(b64ToUtf8(data.content));
+                const ok = window.confirm('Ripristinare il backup da GitHub? I giorni con la stessa data nel file sostituiscono quelli di questo browser. Il token resta quello già salvato qui.');
+                if (!ok) {
+                    renderGithubStatus();
+                    return;
+                }
+                applyImportedBackup(imported);
+                showToast('Backup GitHub ripristinato.');
+                renderGithubStatus();
+            } catch (err) {
+                const message = err?.message || 'Ripristino da GitHub non riuscito.';
+                storeGithubSettings({ ...loadGithubSettings(), lastError: message });
+                renderGithubStatus();
+                showToast(message, 'rose');
+            }
+        }
+
+        function scheduleGithubAutoSync() {
+            if (!appReady) return;
+            const settings = loadGithubSettings();
+            if (!settings.auto || !settings.token) return;
+            clearTimeout(githubSyncTimer);
+            const last = Date.parse(settings.lastSyncAt || '') || 0;
+            const wait = Math.max(4000, GITHUB_MIN_INTERVAL_MS - (Date.now() - last));
+            githubSyncTimer = setTimeout(() => saveToGithub({ auto: true }), wait);
+        }
+
+        function maybeAutoSyncNewDay() {
+            const settings = loadGithubSettings();
+            if (!settings.auto || !settings.token || settings.lastSyncDay === currentDate) return;
+            saveToGithub({ auto: true });
         }
 
         // ----------------------------------------------------
         // 13. NAVIGAZIONE TAB, DATA E TOAST
         // ----------------------------------------------------
         function switchTab(tabId) {
-            ['pasti', 'fuoricasa', 'integrazione', 'allenamento', 'tavole'].forEach(t => {
+            ['pasti', 'fuoricasa', 'storico', 'integrazione', 'allenamento', 'tavole'].forEach(t => {
                 document.getElementById(`tab-${t}`).classList.add('hidden');
                 const dBtn = document.getElementById(`tab-btn-${t}`);
                 if (dBtn) {
@@ -2389,6 +3110,7 @@
 
             if (tabId === 'pasti') renderMealsPlanner();
             if (tabId === 'fuoricasa') renderFuoriCasa();
+            if (tabId === 'storico') renderStorico();
             if (tabId === 'integrazione') renderSupplementsAndRules();
             if (tabId === 'allenamento') renderWorkoutTab();
             if (tabId === 'tavole') renderFoodTables();
@@ -2434,6 +3156,7 @@
             ensureDayInitialized(currentDate);
             renderMealsPlanner();
             renderSupplementsAndRules();
+            renderStoricoIfVisible();
             showToast(`Giornata selezionata: ${currentDate}`);
         }
 
@@ -2453,6 +3176,7 @@
         // ----------------------------------------------------
         // 14. INIZIALIZZAZIONE AL CARICAMENTO PAGINA
         // ----------------------------------------------------
+        let appReady = false;
         window.onload = function() {
             document.getElementById('current-date-picker').value = currentDate;
             loadState();
@@ -2462,6 +3186,8 @@
             renderFoodTables();
             renderFuoriCasa();
             lucide.createIcons();
+            appReady = true;
+            maybeAutoSyncNewDay();
         };
     </script>
 </body>
