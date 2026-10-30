@@ -2,7 +2,10 @@
 <html lang="it" class="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Paleo Zona & Heavy Duty - Marco</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -60,9 +63,13 @@
             -moz-appearance: none;
             appearance: none;
         }
+        nav button { min-height: 3.25rem; }
+        details > summary { cursor: pointer; list-style: none; }
+        details > summary::-webkit-details-marker { display: none; }
+        .touch { min-height: 2.75rem; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col selection:bg-emerald-500 selection:text-white pb-20 md:pb-8">
+<body class="min-h-screen flex flex-col selection:bg-emerald-500 selection:text-white pb-28 md:pb-8">
 
     <!-- Toast Notification Container -->
     <div id="toast-container" class="fixed bottom-20 md:bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none"></div>
@@ -118,37 +125,27 @@
 
                 <button onclick="openDailySummaryModal()" class="px-3 py-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 text-xs sm:text-sm font-semibold flex items-center gap-1.5 transition" title="Riepilogo Giornaliero e Lista della Spesa">
                     <i data-lucide="shopping-bag" class="w-4 h-4"></i>
-                    <span class="hidden sm:inline">Riepilogo & Spesa</span>
+                    <span class="hidden sm:inline">Riepilogo</span>
                 </button>
             </div>
         </div>
 
         <!-- Navigation Tabs (Desktop) -->
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 hidden md:flex flex-wrap items-center gap-2 pt-1">
-            <button onclick="switchTab('pasti')" id="tab-btn-pasti" class="tab-btn px-4 py-2.5 text-sm font-semibold border-b-2 border-emerald-500 text-emerald-400 flex items-center gap-2 transition">
-                <i data-lucide="utensils" class="w-4 h-4"></i>
-                1. Pianificatore Pasti
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 hidden md:flex flex-wrap items-center gap-1 pt-1">
+            <button onclick="switchTab('pasti')" id="tab-btn-pasti" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-emerald-500 text-emerald-400 flex items-center gap-2 transition">
+                <i data-lucide="sun" class="w-4 h-4"></i> Oggi
             </button>
-            <button onclick="switchTab('fuoricasa')" id="tab-btn-fuoricasa" class="tab-btn px-4 py-2.5 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2 transition">
-                <i data-lucide="map-pin" class="w-4 h-4"></i>
-                2. Fuori casa
+            <button onclick="switchTab('storico')" id="tab-btn-storico" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2 transition">
+                <i data-lucide="history" class="w-4 h-4"></i> Storico
             </button>
-            <button onclick="switchTab('storico')" id="tab-btn-storico" class="tab-btn px-4 py-2.5 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2 transition">
-                <i data-lucide="history" class="w-4 h-4"></i>
-                3. Storico
+            <button onclick="switchTab('spesa')" id="tab-btn-spesa" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2 transition">
+                <i data-lucide="shopping-cart" class="w-4 h-4"></i> Spesa
             </button>
-            <button onclick="switchTab('integrazione')" id="tab-btn-integrazione" class="tab-btn px-4 py-2.5 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2 transition">
-                <i data-lucide="pill" class="w-4 h-4"></i>
-                4. Integrazione & Regole
-                <span id="supp-badge-desktop" class="text-[11px] px-1.5 py-0.2 rounded-full bg-slate-800 text-slate-300">0/8</span>
+            <button onclick="switchTab('fuoricasa')" id="tab-btn-fuoricasa" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2 transition">
+                <i data-lucide="map-pin" class="w-4 h-4"></i> Fuori casa
             </button>
-            <button onclick="switchTab('allenamento')" id="tab-btn-allenamento" class="tab-btn px-4 py-2.5 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2 transition">
-                <i data-lucide="dumbbell" class="w-4 h-4"></i>
-                5. Allenamento Heavy Duty
-            </button>
-            <button onclick="switchTab('tavole')" id="tab-btn-tavole" class="tab-btn px-4 py-2.5 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2 transition">
-                <i data-lucide="book-open" class="w-4 h-4"></i>
-                6. Tavole Alimenti & Backup
+            <button onclick="switchTab('impostazioni')" id="tab-btn-impostazioni" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2 transition">
+                <i data-lucide="settings" class="w-4 h-4"></i> Impostazioni
             </button>
         </div>
     </header>
@@ -168,8 +165,11 @@
                             <i data-lucide="pie-chart" class="w-5 h-5 text-emerald-400"></i>
                             Bilancio Blocchetti della Giornata
                         </h2>
-                        <p class="text-xs text-slate-400 mt-0.5">Tutti gli alimenti vanno pesati <strong class="text-slate-200">crudi</strong> e solo la parte edibile. Distanza tra i pasti: <strong class="text-slate-200">2 - 5 ore</strong>.</p>
-                        <p class="text-[11px] text-amber-200/90 mt-1.5 max-w-3xl">Fuori casa puoi inserire una <button type="button" onclick="switchTab('fuoricasa')" class="underline font-semibold text-amber-100">barretta jolly</button> nel pasto. Scelta paleo: Paleobull. EnerZona 40-30-30 solo in emergenza (proteine della soia e zuccheri, non è paleo).</p>
+                        <p class="text-sm text-slate-400 mt-1">Pesa a crudo. Tra un pasto e l’altro: 2–5 ore.</p>
+                        <details class="mt-2 max-w-3xl">
+                            <summary class="text-sm text-amber-200/90">Nota sulla barretta jolly</summary>
+                            <p class="text-sm text-slate-300 mt-2 leading-relaxed">Fuori casa puoi inserire una <button type="button" onclick="switchTab('fuoricasa')" class="underline font-semibold text-amber-100">barretta jolly</button> nel pasto. Scelta paleo: Paleobull. EnerZona 40-30-30 solo in emergenza (proteine della soia e zuccheri, non è paleo).</p>
+                        </details>
                     </div>
                     <div class="flex flex-wrap items-center gap-2">
                         <button onclick="autoFillEntireDay()" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 transition shadow-lg shadow-emerald-950/50">
@@ -231,6 +231,7 @@
              TAB 2: INTEGRAZIONE & REGOLE
              ========================================== -->
         <section id="tab-integrazione" class="hidden space-y-6">
+            <button type="button" onclick="switchTab('impostazioni')" class="touch text-sm font-semibold text-emerald-300">← Impostazioni</button>
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 
                 <!-- Colonna Sinistra: Checklist Integratori Giornaliera -->
@@ -333,6 +334,7 @@
              TAB 3: ALLENAMENTO HEAVY DUTY
              ========================================== -->
         <section id="tab-allenamento" class="hidden space-y-6">
+            <button type="button" onclick="switchTab('impostazioni')" class="touch text-sm font-semibold text-emerald-300">← Impostazioni</button>
             <!-- Linee Guida Heavy Duty -->
             <div class="bg-gradient-to-r from-slate-900 via-slate-900 to-emerald-950/40 border border-slate-800 rounded-2xl p-5 shadow-xl">
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -413,6 +415,7 @@
              TAB 4: TAVOLE ALIMENTI & BACKUP
              ========================================== -->
         <section id="tab-tavole" class="hidden space-y-6">
+            <button type="button" onclick="switchTab('impostazioni')" class="touch text-sm font-semibold text-emerald-300">← Impostazioni</button>
             <!-- Barra di Ricerca e Filtri Tavole H.I.T.A. -->
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -586,83 +589,119 @@
                 </div>
             </div>
 
+        </section>
+
+        <section id="tab-spesa" class="hidden space-y-5">
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-3">
+                <div class="flex items-start justify-between gap-3">
+                    <div>
+                        <h2 class="text-xl font-bold text-white">Spesa della settimana</h2>
+                        <p id="spesa-week" class="text-sm text-slate-400 mt-1"></p>
+                    </div>
+                    <button type="button" onclick="resetShoppingWeek()" class="touch shrink-0 px-3 rounded-xl bg-slate-800 text-slate-200 text-sm font-semibold">Azzera spunte</button>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">Quantità indicative per una settimana tipo, da adattare. Solo alimenti facili da trovare al supermercato.</p>
+            </div>
+            <div id="spesa-list" class="space-y-4"></div>
+            <form id="spesa-add-form" onsubmit="addCustomShopItem(event)" class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
+                <h3 class="text-base font-bold text-white">Aggiungi un articolo</h3>
+                <input id="spesa-new-name" required placeholder="Nome" class="touch w-full bg-slate-950 border border-slate-700 rounded-xl px-3 text-base text-white">
+                <input id="spesa-new-qty" placeholder="Quantità (facoltativa)" class="touch w-full bg-slate-950 border border-slate-700 rounded-xl px-3 text-base text-white">
+                <select id="spesa-new-group" class="touch w-full bg-slate-950 border border-slate-700 rounded-xl px-3 text-base text-white"></select>
+                <button type="submit" class="touch w-full rounded-xl bg-emerald-600 text-white font-bold">Aggiungi</button>
+            </form>
+        </section>
+
+        <section id="tab-impostazioni" class="hidden space-y-5">
+            <div>
+                <h2 class="text-xl font-bold text-white">Impostazioni</h2>
+                <p class="text-sm text-slate-400 mt-1">Backup, integratori, allenamento e tavole. Il resto della giornata sta in Oggi.</p>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <button type="button" onclick="switchTab('integrazione')" class="touch text-left rounded-2xl bg-slate-900 border border-slate-800 px-4 py-4">
+                    <div class="font-bold text-white">Integrazione <span id="supp-badge-desktop" class="text-emerald-300 font-mono text-sm">0/8</span></div>
+                    <div class="text-sm text-slate-400 mt-1">Spunte, uova e acqua</div>
+                </button>
+                <button type="button" onclick="switchTab('allenamento')" class="touch text-left rounded-2xl bg-slate-900 border border-slate-800 px-4 py-4">
+                    <div class="font-bold text-white">Allenamento</div>
+                    <div class="text-sm text-slate-400 mt-1">Scheda Heavy Duty</div>
+                </button>
+                <button type="button" onclick="switchTab('tavole')" class="touch text-left rounded-2xl bg-slate-900 border border-slate-800 px-4 py-4">
+                    <div class="font-bold text-white">Tavole alimenti</div>
+                    <div class="text-sm text-slate-400 mt-1">Blocchetti e ricerca</div>
+                </button>
+            </div>
+
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
                 <div>
-                    <h3 class="text-base font-bold text-white flex items-center gap-2">
-                        <i data-lucide="database" class="w-5 h-5 text-sky-400"></i>
-                        Backup
-                    </h3>
-                    <p class="text-xs text-slate-400 mt-1">Esporta tutto il diario in un file JSON con la data nel nome. L’importazione unisce i giorni: stessa data nel file sostituisce quel giorno, gli altri restano.</p>
+                    <h3 class="text-lg font-bold text-white">Backup sul dispositivo</h3>
+                    <p class="text-sm text-slate-400 mt-1 leading-relaxed">Esporta tutto il diario in un file JSON con la data nel nome. L’importazione unisce i giorni: stessa data nel file sostituisce quel giorno, gli altri restano. Il token GitHub non entra nel file.</p>
                 </div>
-                <div class="flex flex-wrap gap-2">
-                    <button type="button" onclick="exportAllDataJSON()" class="px-4 py-2 bg-sky-600 hover:bg-sky-500 text-white rounded-xl text-xs font-bold">Esporta backup</button>
-                    <label class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl text-xs font-bold cursor-pointer">
+                <div class="flex flex-col sm:flex-row gap-2">
+                    <button type="button" onclick="exportAllDataJSON()" class="touch px-4 rounded-xl bg-sky-600 text-white text-sm font-bold">Esporta backup</button>
+                    <label class="touch px-4 rounded-xl bg-slate-800 text-slate-100 border border-slate-700 text-sm font-bold flex items-center justify-center cursor-pointer">
                         Importa backup
                         <input type="file" accept=".json,application/json" onchange="importAllDataJSON(event)" class="hidden">
                     </label>
                 </div>
-
                 <div class="border-t border-slate-800 pt-4 space-y-3">
-                    <h3 class="text-base font-bold text-white">Salvataggio su GitHub (opzionale)</h3>
-                    <div class="bg-rose-500/10 border border-rose-500/40 rounded-xl p-3 text-xs text-rose-100 leading-relaxed">
-                        Il repository <strong>mcitossi/paleo</strong> è pubblico. Peso, pressione e il diario non vanno mai caricati lì. Crea un repository <strong>privato</strong> chiamato <strong>paleo-dati</strong>. Poi, in GitHub, Impostazioni → Developer settings → Personal access tokens → Fine-grained token: accesso solo a quel repository, permesso <strong>Contents: Read and write</strong>. Incolla il token qui sotto. Resta solo in questo browser (localStorage), non nel codice e non nel file di backup.
+                    <h3 class="text-lg font-bold text-white">Salvataggio su GitHub</h3>
+                    <div class="bg-rose-950/50 border border-rose-400/50 rounded-xl p-4 text-sm text-rose-100 leading-relaxed">
+                        Il repository <strong>mcitossi/paleo</strong> è pubblico. Peso, pressione e il diario non vanno mai caricati lì. Crea un repository <strong>privato</strong> chiamato <strong>paleo-dati</strong>. Poi crea un token fine-grained con accesso solo a quel repository e permesso <strong>Contents: Read and write</strong>. Il token resta solo su questo iPhone.
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <label class="block text-xs text-slate-300 sm:col-span-2">Token personale
-                            <input id="gh-token" type="password" autocomplete="off" spellcheck="false" placeholder="github_pat_…" onchange="saveGithubSettingsFromForm()" class="mt-1 w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                        <label class="block text-sm text-slate-300 sm:col-span-2">Token personale
+                            <input id="gh-token" type="password" autocomplete="off" spellcheck="false" placeholder="github_pat_…" oninput="markGithubFieldDirty(event)" class="touch mt-1 w-full bg-slate-950 border border-slate-700 rounded-xl px-3 text-base text-white focus:outline-none focus:border-emerald-500">
                         </label>
-                        <label class="block text-xs text-slate-300">Owner
-                            <input id="gh-owner" type="text" autocomplete="off" onchange="saveGithubSettingsFromForm()" class="mt-1 w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                        <label class="block text-sm text-slate-300">Owner
+                            <input id="gh-owner" type="text" autocomplete="off" oninput="markGithubFieldDirty(event)" class="touch mt-1 w-full bg-slate-950 border border-slate-700 rounded-xl px-3 text-base text-white focus:outline-none focus:border-emerald-500">
                         </label>
-                        <label class="block text-xs text-slate-300">Repository privato
-                            <input id="gh-repo" type="text" autocomplete="off" onchange="saveGithubSettingsFromForm()" class="mt-1 w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                        <label class="block text-sm text-slate-300">Repository privato
+                            <input id="gh-repo" type="text" autocomplete="off" oninput="markGithubFieldDirty(event)" class="touch mt-1 w-full bg-slate-950 border border-slate-700 rounded-xl px-3 text-base text-white focus:outline-none focus:border-emerald-500">
                         </label>
-                        <label class="block text-xs text-slate-300">Branch
-                            <input id="gh-branch" type="text" autocomplete="off" onchange="saveGithubSettingsFromForm()" class="mt-1 w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                        <label class="block text-sm text-slate-300">Branch
+                            <input id="gh-branch" type="text" autocomplete="off" oninput="markGithubFieldDirty(event)" class="touch mt-1 w-full bg-slate-950 border border-slate-700 rounded-xl px-3 text-base text-white focus:outline-none focus:border-emerald-500">
                         </label>
-                        <label class="flex items-center gap-2 text-xs text-slate-200 sm:col-span-2">
-                            <input id="gh-auto" type="checkbox" onchange="saveGithubSettingsFromForm()" class="rounded accent-emerald-500">
-                            Salvataggio automatico (al primo avvio di un giorno nuovo e dopo le modifiche, al massimo una volta ogni 3 minuti)
+                        <label class="flex items-center gap-3 text-sm text-slate-200 sm:col-span-2 min-h-11">
+                            <input id="gh-auto" type="checkbox" onchange="if (event.isTrusted) saveGithubSettingsFromForm()" class="w-5 h-5 rounded accent-emerald-500">
+                            Salvataggio automatico (nuovo giorno e dopo le modifiche, al massimo ogni 3 minuti)
                         </label>
                     </div>
-                    <div class="flex flex-wrap gap-2">
-                        <button type="button" id="gh-save-btn" onclick="saveGithubSettingsFromForm(); saveToGithub({ manual: true })" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold">Salva su GitHub</button>
-                        <button type="button" id="gh-restore-btn" onclick="saveGithubSettingsFromForm(); restoreFromGithub()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-100 border border-slate-700 rounded-xl text-xs font-bold">Ripristina da GitHub</button>
-                        <button type="button" onclick="saveGithubSettingsFromForm()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 rounded-xl text-xs font-bold">Memorizza impostazioni</button>
+                    <div class="flex flex-col sm:flex-row flex-wrap gap-2">
+                        <button type="button" id="gh-save-btn" onclick="saveGithubSettingsFromForm(); saveToGithub({ manual: true })" class="touch px-4 rounded-xl bg-emerald-600 text-white text-sm font-bold">Salva su GitHub</button>
+                        <button type="button" id="gh-restore-btn" onclick="saveGithubSettingsFromForm(); restoreFromGithub()" class="touch px-4 rounded-xl bg-slate-800 text-slate-100 border border-slate-700 text-sm font-bold">Ripristina da GitHub</button>
+                        <button type="button" onclick="saveGithubSettingsFromForm()" class="touch px-4 rounded-xl bg-slate-800 text-slate-200 border border-slate-700 text-sm font-bold">Memorizza</button>
+                        <button type="button" onclick="clearGithubToken()" class="touch px-4 rounded-xl text-rose-300 text-sm font-semibold">Rimuovi token</button>
                     </div>
-                    <p id="github-sync-status" class="text-xs text-slate-400"></p>
-                    <p class="text-[11px] text-slate-500">File sul repo privato: <span class="font-mono text-slate-400">backup/paleo-backup.json</span> e uno snapshot <span class="font-mono text-slate-400">backup/AAAA-MM-GG.json</span>.</p>
+                    <p id="github-sync-status" class="text-sm text-slate-400 leading-relaxed"></p>
+                    <p id="github-token-hint" class="text-sm text-emerald-300"></p>
+                    <p class="text-xs text-slate-500">File: backup/paleo-backup.json e backup/AAAA-MM-GG.json sul repository privato.</p>
                 </div>
             </div>
         </section>
 
     </main>
 
-    <!-- Bottom Navigation Bar (Mobile Only) -->
-    <nav class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-slate-950/95 backdrop-blur-md border-t border-slate-800 grid grid-cols-6 py-1.5 px-0.5">
-        <button onclick="switchTab('pasti')" id="mob-tab-pasti" class=" flex flex-col items-center justify-center py-1 text-emerald-400">
-            <i data-lucide="utensils" class="w-4 h-4"></i>
-            <span class="text-[9px] font-bold mt-0.5">Pasti</span>
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-slate-950/95 backdrop-blur-md border-t border-slate-800 grid grid-cols-5 px-1 pb-[env(safe-area-inset-bottom)]">
+        <button onclick="switchTab('pasti')" id="mob-tab-pasti" class="flex flex-col items-center justify-center text-emerald-400">
+            <i data-lucide="sun" class="w-5 h-5"></i>
+            <span class="text-[11px] font-bold mt-0.5">Oggi</span>
         </button>
-        <button onclick="switchTab('fuoricasa')" id="mob-tab-fuoricasa" class="flex flex-col items-center justify-center py-1 text-slate-400">
-            <i data-lucide="map-pin" class="w-4 h-4"></i>
-            <span class="text-[9px] font-bold mt-0.5">Fuori</span>
+        <button onclick="switchTab('storico')" id="mob-tab-storico" class="flex flex-col items-center justify-center text-slate-400">
+            <i data-lucide="history" class="w-5 h-5"></i>
+            <span class="text-[11px] font-bold mt-0.5">Storico</span>
         </button>
-        <button onclick="switchTab('storico')" id="mob-tab-storico" class="flex flex-col items-center justify-center py-1 text-slate-400">
-            <i data-lucide="history" class="w-4 h-4"></i>
-            <span class="text-[9px] font-bold mt-0.5">Storico</span>
+        <button onclick="switchTab('spesa')" id="mob-tab-spesa" class="flex flex-col items-center justify-center text-slate-400">
+            <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+            <span class="text-[11px] font-bold mt-0.5">Spesa</span>
         </button>
-        <button onclick="switchTab('integrazione')" id="mob-tab-integrazione" class="flex flex-col items-center justify-center py-1 text-slate-400">
-            <i data-lucide="pill" class="w-4 h-4"></i>
-            <span class="text-[9px] font-bold mt-0.5">Integr.</span>
+        <button onclick="switchTab('fuoricasa')" id="mob-tab-fuoricasa" class="flex flex-col items-center justify-center text-slate-400">
+            <i data-lucide="map-pin" class="w-5 h-5"></i>
+            <span class="text-[11px] font-bold mt-0.5">Fuori</span>
         </button>
-        <button onclick="switchTab('allenamento')" id="mob-tab-allenamento" class="flex flex-col items-center justify-center py-1 text-slate-400">
-            <i data-lucide="dumbbell" class="w-4 h-4"></i>
-            <span class="text-[9px] font-bold mt-0.5">Pesi</span>
-        </button>
-        <button onclick="switchTab('tavole')" id="mob-tab-tavole" class="flex flex-col items-center justify-center py-1 text-slate-400">
-            <i data-lucide="book-open" class="w-4 h-4"></i>
-            <span class="text-[9px] font-bold mt-0.5">Tavole</span>
+        <button onclick="switchTab('impostazioni')" id="mob-tab-impostazioni" class="flex flex-col items-center justify-center text-slate-400">
+            <i data-lucide="settings" class="w-5 h-5"></i>
+            <span class="text-[11px] font-bold mt-0.5">Altro</span>
         </button>
     </nav>
 
@@ -1068,6 +1107,7 @@
             eggsExtraByWeek: {}, // uova extra inserite a mano, per settimana (chiave = lunedì)
             jollyBarId: 'pb_arancia', // ultima barretta jolly scelta
             glassMl: 250,       // ml di un bicchiere d'acqua (il volume resta in day.water, litri)
+            shopping: { checkedByWeek: {}, custom: [] },
             savedPresets: [],   // giornate tipo salvate [{ name, meals }]
             workoutHistory: []  // storico sedute [{ id, date, dayKey, dayTitle, results, notes }]
         };
@@ -1086,6 +1126,7 @@
             appState.eggsExtraByWeek = appState.eggsExtraByWeek || {};
             appState.savedPresets = appState.savedPresets || [];
             appState.workoutHistory = appState.workoutHistory || [];
+            normalizeShopping();
             if (!JOLLY_BARS.some(b => b.id === appState.jollyBarId)) appState.jollyBarId = 'pb_arancia';
             const glass = parseInt(appState.glassMl, 10);
             appState.glassMl = glass >= 50 && glass <= 1000 ? glass : 250;
@@ -1449,17 +1490,17 @@
                         </div>
                     </div>
 
-                    <div class="px-4 sm:px-6 py-3 bg-slate-950/70 border-b border-slate-800 flex flex-col lg:flex-row lg:items-center gap-2.5">
-                        <div class="flex-1 min-w-0">
-                            <div class="text-[11px] font-bold uppercase tracking-wide text-amber-300/90">Jolly barretta</div>
-                            <p class="text-[11px] leading-snug ${noteClass}">${shownBar.note} ${portionHint}</p>
-                        </div>
-                        <div class="flex flex-col sm:flex-row sm:items-center gap-2 w-full lg:w-auto">
+                    <div class="px-4 sm:px-6 py-4 bg-slate-950/70 border-b border-slate-800 flex flex-col gap-3">
+                        <details>
+                            <summary class="text-sm font-bold text-amber-200">Jolly barretta <span class="font-normal text-slate-400">— apri per la nota</span></summary>
+                            <p class="text-sm leading-relaxed mt-2 ${noteClass}">${shownBar.note} ${portionHint}</p>
+                        </details>
+                        <div class="flex flex-col sm:flex-row sm:items-center gap-2 w-full">
                             <label class="sr-only" for="jolly-pick-${mealCfg.id}">Barretta jolly per ${mealCfg.title}</label>
                             <select id="jolly-pick-${mealCfg.id}" onchange="setPreferredJolly(this.value)" class="w-full lg:w-80 bg-slate-900 text-slate-100 text-xs font-medium rounded-xl px-2.5 py-2 border border-amber-500/30 focus:outline-none focus:border-amber-400">
                                 ${jollyOptions}
                             </select>
-                            <button type="button" onclick="insertJollyBar('${mealCfg.id}', document.getElementById('jolly-pick-${mealCfg.id}').value)" class="px-3 py-2 bg-amber-500/15 hover:bg-amber-500/25 text-amber-100 border border-amber-500/40 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition shrink-0" title="${shownBar.note}">
+                            <button type="button" onclick="insertJollyBar('${mealCfg.id}', document.getElementById('jolly-pick-${mealCfg.id}').value)" class="touch px-4 py-3 bg-amber-500/15 hover:bg-amber-500/25 text-amber-100 border border-amber-500/40 rounded-xl text-sm font-bold flex items-center justify-center gap-1.5 transition shrink-0" title="${shownBar.note}">
                                 <i data-lucide="cookie" class="w-3.5 h-3.5"></i> Jolly barretta
                             </button>
                         </div>
@@ -2567,6 +2608,7 @@
             appState.eggsExtraByWeek = appState.eggsExtraByWeek || {};
             appState.savedPresets = appState.savedPresets || [];
             appState.workoutHistory = appState.workoutHistory || [];
+            normalizeShopping();
             if (!hadFlag) appState.legacyWeeklyEggsMigrated = false;
             migrateLegacyWeeklyEggs();
             ensureDayInitialized(currentDate);
@@ -2866,6 +2908,8 @@
             return { token: '', owner: 'mcitossi', repo: 'paleo-dati', branch: 'main', auto: false, lastSyncAt: null, lastSyncDay: null, lastError: '' };
         }
 
+        let fillingGithubForm = false;
+
         function loadGithubSettings() {
             const defaults = defaultGithubSettings();
             try {
@@ -2878,34 +2922,114 @@
             }
         }
 
+        function idbGithubStore() {
+            return new Promise((resolve, reject) => {
+                const req = indexedDB.open('paleo_zona_marco', 1);
+                req.onupgradeneeded = () => {
+                    if (!req.result.objectStoreNames.contains('kv')) req.result.createObjectStore('kv');
+                };
+                req.onsuccess = () => resolve(req.result);
+                req.onerror = () => reject(req.error);
+            });
+        }
+
+        async function idbPutGithub(settings) {
+            try {
+                const db = await idbGithubStore();
+                await new Promise((resolve, reject) => {
+                    const tx = db.transaction('kv', 'readwrite');
+                    tx.objectStore('kv').put(settings, 'github');
+                    tx.oncomplete = () => resolve();
+                    tx.onerror = () => reject(tx.error);
+                });
+                db.close();
+            } catch (e) { /* Safari può rifiutare IndexedDB in privato: localStorage resta la copia principale */ }
+        }
+
+        async function idbGetGithub() {
+            try {
+                const db = await idbGithubStore();
+                const value = await new Promise((resolve, reject) => {
+                    const tx = db.transaction('kv', 'readonly');
+                    const req = tx.objectStore('kv').get('github');
+                    req.onsuccess = () => resolve(req.result || null);
+                    req.onerror = () => reject(req.error);
+                });
+                db.close();
+                return value;
+            } catch (e) {
+                return null;
+            }
+        }
+
         function storeGithubSettings(next) {
             const clean = { ...defaultGithubSettings(), ...next, token: String(next.token || '') };
             localStorage.setItem(GITHUB_SETTINGS_KEY, JSON.stringify(clean));
+            idbPutGithub(clean);
             return clean;
+        }
+
+        async function hydrateGithubSettings() {
+            const local = loadGithubSettings();
+            const stored = await idbGetGithub();
+            const idb = stored && typeof stored === 'object' ? { ...defaultGithubSettings(), ...stored, token: typeof stored.token === 'string' ? stored.token : '' } : null;
+            let best = local;
+            if (idb && idb.token && !local.token) best = { ...local, ...idb, token: idb.token };
+            else if (idb && idb.token && local.token && (Date.parse(idb.lastSyncAt || '') || 0) > (Date.parse(local.lastSyncAt || '') || 0)) best = idb;
+            if (best.token !== local.token || best.owner !== local.owner || best.repo !== local.repo || best.auto !== local.auto) {
+                storeGithubSettings(best);
+            } else if (best.token) {
+                idbPutGithub(best);
+            }
+            syncGithubForm();
         }
 
         function syncGithubForm() {
             const settings = loadGithubSettings();
             const token = document.getElementById('gh-token');
             if (!token) return;
+            fillingGithubForm = true;
             token.value = settings.token;
+            token.dataset.dirty = '';
             document.getElementById('gh-owner').value = settings.owner;
             document.getElementById('gh-repo').value = settings.repo;
             document.getElementById('gh-branch').value = settings.branch;
             document.getElementById('gh-auto').checked = settings.auto;
+            fillingGithubForm = false;
+            const hint = document.getElementById('github-token-hint');
+            if (hint) hint.textContent = settings.token ? 'Token presente su questo dispositivo. Non viene riscaricato né messo nel backup.' : 'Nessun token salvato su questo dispositivo.';
             renderGithubStatus();
         }
 
+        function markGithubFieldDirty(event) {
+            if (event?.isTrusted && event.target) event.target.dataset.dirty = '1';
+        }
+
         function saveGithubSettingsFromForm() {
+            if (fillingGithubForm) return loadGithubSettings();
             const current = loadGithubSettings();
-            return storeGithubSettings({
+            const tokenInput = document.getElementById('gh-token');
+            const typed = (tokenInput?.value || '').trim();
+            const token = tokenInput?.dataset.dirty === '1' && typed ? typed : (typed || current.token);
+            if (tokenInput) tokenInput.dataset.dirty = '';
+            const saved = storeGithubSettings({
                 ...current,
-                token: document.getElementById('gh-token')?.value || '',
-                owner: (document.getElementById('gh-owner')?.value || 'mcitossi').trim(),
-                repo: (document.getElementById('gh-repo')?.value || 'paleo-dati').trim(),
-                branch: (document.getElementById('gh-branch')?.value || 'main').trim(),
+                token,
+                owner: (document.getElementById('gh-owner')?.value || current.owner || 'mcitossi').trim() || 'mcitossi',
+                repo: (document.getElementById('gh-repo')?.value || current.repo || 'paleo-dati').trim() || 'paleo-dati',
+                branch: (document.getElementById('gh-branch')?.value || current.branch || 'main').trim() || 'main',
                 auto: !!document.getElementById('gh-auto')?.checked
             });
+            syncGithubForm();
+            return saved;
+        }
+
+        function clearGithubToken() {
+            if (!window.confirm('Rimuovere il token GitHub da questo dispositivo?')) return;
+            const current = loadGithubSettings();
+            storeGithubSettings({ ...current, token: '' });
+            syncGithubForm();
+            showToast('Token rimosso da questo dispositivo.');
         }
 
         function renderGithubStatus(pending) {
@@ -2965,16 +3089,82 @@
             };
         }
 
-        async function githubErrorMessage(response) {
+        async function githubErrorMessage(response, context) {
             let detail = '';
             try {
-                const body = await response.json();
+                const source = typeof response.clone === 'function' ? response.clone() : response;
+                const body = await source.json();
                 detail = body.message || '';
             } catch (e) { /* risposta non JSON */ }
-            if (response.status === 401) return 'Token non valido o scaduto. Creane uno nuovo, solo per il repository privato.';
-            if (response.status === 403) return 'Permesso negato. Il token deve avere Contents in lettura e scrittura solo su questo repository.';
-            if (response.status === 404) return 'Repository o file non trovato. Controlla owner, nome del repo privato e il branch.';
-            return `Errore GitHub (${response.status})${detail ? `: ${detail}` : ''}`;
+            const where = context ? ` (${context})` : '';
+            if (response.status === 401) return `Token non valido o scaduto (401${where}). Generane uno nuovo, fine-grained, e incollalo di nuovo.`;
+            if (response.status === 403) return `Permesso negato (403${where}). Al token serve Contents: Read and write su questo solo repository. Se usi un’organizzazione, autorizza anche il SSO.`;
+            if (response.status === 404) return `Non trovato (404${where}). Il repository non esiste, il token non lo vede, oppure il branch indicato non c’è. Nel token fine-grained seleziona solo il repository privato.`;
+            if (response.status === 409) return `Il repository è ancora vuoto (409${where}). ${detail || 'Serve il primo commit.'}`;
+            return `Errore GitHub ${response.status}${where}${detail ? `: ${detail}` : ''}`;
+        }
+
+        async function inspectGithubRepo(settings) {
+            const root = `https://api.github.com/repos/${encodeURIComponent(settings.owner)}/${encodeURIComponent(settings.repo)}`;
+            const headers = githubHeaders(settings.token);
+            let repoRes;
+            try {
+                repoRes = await fetch(root, { headers });
+            } catch (e) {
+                throw new Error('Connessione a GitHub non riuscita. Controlla la rete e riprova.');
+            }
+            if (repoRes.status === 401) throw new Error(await githubErrorMessage(repoRes, 'repository'));
+            if (repoRes.status === 403) throw new Error(await githubErrorMessage(repoRes, 'repository'));
+            if (repoRes.status === 404) {
+                throw new Error(`Repository ${settings.owner}/${settings.repo} non trovato, oppure questo token non ha accesso (404). Nel token fine-grained aggiungi solo quel repository privato, con Contents: Read and write.`);
+            }
+            if (!repoRes.ok) throw new Error(await githubErrorMessage(repoRes, 'repository'));
+            const repo = await repoRes.json();
+            const branchRes = await fetch(`${root}/branches/${encodeURIComponent(settings.branch)}`, { headers });
+            if (branchRes.status === 200) return { empty: false, branchExists: true };
+            if (branchRes.status === 401) throw new Error(await githubErrorMessage(branchRes, 'branch'));
+            if (branchRes.status === 403) throw new Error(await githubErrorMessage(branchRes, 'branch'));
+            if (branchRes.status === 404) {
+                const empty = !repo.size;
+                return { empty, branchExists: false };
+            }
+            throw new Error(await githubErrorMessage(branchRes, 'branch'));
+        }
+
+        async function createInitialGithubCommit(settings, files, message) {
+            const root = `https://api.github.com/repos/${encodeURIComponent(settings.owner)}/${encodeURIComponent(settings.repo)}`;
+            const headers = githubHeaders(settings.token);
+            const tree = [];
+            for (const file of files) {
+                const blobRes = await fetch(`${root}/git/blobs`, {
+                    method: 'POST',
+                    headers,
+                    body: JSON.stringify({ content: file.text, encoding: 'utf-8' })
+                });
+                if (!blobRes.ok) throw new Error(await githubErrorMessage(blobRes, 'creazione file'));
+                const blob = await blobRes.json();
+                tree.push({ path: file.path, mode: '100644', type: 'blob', sha: blob.sha });
+            }
+            const treeRes = await fetch(`${root}/git/trees`, {
+                method: 'POST',
+                headers,
+                body: JSON.stringify({ tree })
+            });
+            if (!treeRes.ok) throw new Error(await githubErrorMessage(treeRes, 'creazione file'));
+            const treeData = await treeRes.json();
+            const commitRes = await fetch(`${root}/git/commits`, {
+                method: 'POST',
+                headers,
+                body: JSON.stringify({ message, tree: treeData.sha })
+            });
+            if (!commitRes.ok) throw new Error(await githubErrorMessage(commitRes, 'creazione file'));
+            const commit = await commitRes.json();
+            const refRes = await fetch(`${root}/git/refs`, {
+                method: 'POST',
+                headers,
+                body: JSON.stringify({ ref: `refs/heads/${settings.branch}`, sha: commit.sha })
+            });
+            if (!refRes.ok) throw new Error(await githubErrorMessage(refRes, 'creazione branch'));
         }
 
         async function putGithubFile(settings, path, text, message) {
@@ -2986,12 +3176,12 @@
                 const data = await getRes.json();
                 sha = data.sha || '';
             } else if (getRes.status !== 404) {
-                throw new Error(await githubErrorMessage(getRes));
+                throw new Error(await githubErrorMessage(getRes, path));
             }
             const payload = { message, content: utf8ToB64(text), branch: settings.branch };
             if (sha) payload.sha = sha;
             const putRes = await fetch(base, { method: 'PUT', headers, body: JSON.stringify(payload) });
-            if (!putRes.ok) throw new Error(await githubErrorMessage(putRes));
+            if (!putRes.ok) throw new Error(await githubErrorMessage(putRes, path));
             return putRes.json();
         }
 
@@ -3013,8 +3203,19 @@
                 const text = JSON.stringify(buildBackupObject(), null, 2);
                 if (settings.token.length > 12 && text.includes(settings.token)) throw new Error('Salvataggio annullato: il backup non deve contenere il token.');
                 const message = opts.auto ? `Backup automatico ${currentDate}` : `Backup paleo ${currentDate}`;
-                await putGithubFile(settings, 'backup/paleo-backup.json', text, message);
-                await putGithubFile(settings, `backup/${currentDate}.json`, text, message);
+                const info = await inspectGithubRepo(settings);
+                const files = [
+                    { path: 'backup/paleo-backup.json', text },
+                    { path: `backup/${currentDate}.json`, text }
+                ];
+                if (!info.branchExists && info.empty) {
+                    await createInitialGithubCommit(settings, files, message);
+                } else if (!info.branchExists) {
+                    throw new Error(`Il branch «${settings.branch}» non esiste in ${settings.owner}/${settings.repo}, e il repository non è vuoto. Indica il branch giusto (spesso main) oppure crealo su GitHub.`);
+                } else {
+                    await putGithubFile(settings, files[0].path, text, message);
+                    await putGithubFile(settings, files[1].path, text, message);
+                }
                 storeGithubSettings({ ...loadGithubSettings(), token: settings.token, lastSyncAt: new Date().toISOString(), lastSyncDay: currentDate, lastError: '' });
                 renderGithubStatus();
                 if (opts.manual) showToast('Backup salvato su GitHub.');
@@ -3042,8 +3243,8 @@
             try {
                 const url = `https://api.github.com/repos/${encodeURIComponent(settings.owner)}/${encodeURIComponent(settings.repo)}/contents/backup/paleo-backup.json?ref=${encodeURIComponent(settings.branch)}`;
                 const response = await fetch(url, { headers: githubHeaders(settings.token) });
-                if (response.status === 404) throw new Error('Nessun backup trovato su GitHub (backup/paleo-backup.json).');
-                if (!response.ok) throw new Error(await githubErrorMessage(response));
+                if (response.status === 404) throw new Error('Nessun file backup/paleo-backup.json su questo branch. Se il repository è nuovo, usa prima «Salva su GitHub».');
+                if (!response.ok) throw new Error(await githubErrorMessage(response, 'ripristino'));
                 const data = await response.json();
                 const imported = JSON.parse(b64ToUtf8(data.content));
                 const ok = window.confirm('Ripristinare il backup da GitHub? I giorni con la stessa data nel file sostituiscono quelli di questo browser. Il token resta quello già salvato qui.');
@@ -3081,40 +3282,169 @@
         // ----------------------------------------------------
         // 13. NAVIGAZIONE TAB, DATA E TOAST
         // ----------------------------------------------------
+        const SHOPPING_GROUPS = [
+            { id: 'proteine', title: 'Proteine', items: [
+                { id: 'pollo', name: 'Petto di pollo o tacchino', qty: '~1 kg' },
+                { id: 'pesce', name: 'Pesce fresco o surgelato al naturale (orata, branzino, merluzzo, salmone)', qty: '~1 kg' },
+                { id: 'carne', name: 'Carne magra (manzo, vitello, lonza)', qty: '~500 g' },
+                { id: 'uova', name: 'Uova', qty: '12' },
+                { id: 'yogurt', name: 'Yogurt greco 0%', qty: '4-5 vasetti da 150-170 g' },
+                { id: 'bresaola', name: 'Bresaola', qty: '2 confezioni' },
+                { id: 'tonno', name: 'Tonno al naturale', qty: '3-4 scatolette' }
+            ]},
+            { id: 'verdura', title: 'Verdura', note: 'Circa 6-7 kg in tutto, anche surgelata', items: [
+                { id: 'zucchine', name: 'Zucchine', qty: '' },
+                { id: 'spinaci', name: 'Spinaci', qty: '' },
+                { id: 'broccoli', name: 'Broccoli', qty: '' },
+                { id: 'insalata', name: 'Insalata o rucola', qty: '' },
+                { id: 'pomodori', name: 'Pomodori', qty: '' },
+                { id: 'peperoni', name: 'Peperoni', qty: '' },
+                { id: 'finocchi', name: 'Finocchi', qty: '' },
+                { id: 'cavolfiore', name: 'Cavolfiore', qty: '' },
+                { id: 'fagiolini', name: 'Fagiolini', qty: '' }
+            ]},
+            { id: 'frutta', title: 'Frutta', note: 'Circa 5-6 kg, anche surgelata', items: [
+                { id: 'mele', name: 'Mele', qty: '' },
+                { id: 'pere', name: 'Pere', qty: '' },
+                { id: 'arance', name: 'Arance', qty: '' },
+                { id: 'mandarini', name: 'Mandarini', qty: '' },
+                { id: 'kiwi', name: 'Kiwi', qty: '' },
+                { id: 'fragole', name: 'Fragole', qty: '' },
+                { id: 'bosco', name: 'Frutti di bosco', qty: 'anche surgelati' }
+            ]},
+            { id: 'grassi', title: 'Grassi', items: [
+                { id: 'olio', name: 'Olio extravergine di oliva', qty: '1 bottiglia' },
+                { id: 'mandorle', name: 'Mandorle al naturale', qty: '200 g' },
+                { id: 'noci', name: 'Noci', qty: '100 g' }
+            ]},
+            { id: 'fuori', title: 'Fuori casa', items: [
+                { id: 'paleobull', name: 'Barrette Paleobull Arancia e Chia', qty: '1 confezione' },
+                { id: 'snacknoir', name: 'EnerZona Snack Noir senza zuccheri', qty: '1 confezione' }
+            ]}
+        ];
+
+        function normalizeShopping() {
+            if (!appState.shopping || typeof appState.shopping !== 'object' || Array.isArray(appState.shopping)) {
+                appState.shopping = { checkedByWeek: {}, custom: [] };
+            }
+            if (!appState.shopping.checkedByWeek || typeof appState.shopping.checkedByWeek !== 'object') appState.shopping.checkedByWeek = {};
+            if (!Array.isArray(appState.shopping.custom)) appState.shopping.custom = [];
+        }
+
+        function shoppingWeekChecks() {
+            normalizeShopping();
+            const wk = weekKeyOf(currentDate);
+            if (!appState.shopping.checkedByWeek[wk]) appState.shopping.checkedByWeek[wk] = {};
+            return appState.shopping.checkedByWeek[wk];
+        }
+
+        function renderSpesa() {
+            const list = document.getElementById('spesa-list');
+            const weekEl = document.getElementById('spesa-week');
+            const groupSelect = document.getElementById('spesa-new-group');
+            if (!list) return;
+            normalizeShopping();
+            const checks = shoppingWeekChecks();
+            if (weekEl) weekEl.textContent = `Settimana dal ${formatDateIt(weekKeyOf(currentDate))}`;
+            if (groupSelect && !groupSelect.dataset.ready) {
+                groupSelect.innerHTML = SHOPPING_GROUPS.map(g => `<option value="${g.id}">${escapeHtml(g.title)}</option>`).join('');
+                groupSelect.dataset.ready = '1';
+            }
+            list.innerHTML = SHOPPING_GROUPS.map(group => {
+                const custom = appState.shopping.custom.filter(item => item.group === group.id);
+                const rows = [...group.items, ...custom].map(item => {
+                    const on = !!checks[item.id];
+                    const customBtn = item.custom || String(item.id).startsWith('c_')
+                        ? `<button type="button" onclick="event.preventDefault(); removeCustomShopItem('${item.id}')" class="touch px-3 text-rose-300 text-sm">Rimuovi</button>`
+                        : '';
+                    return `
+                        <div class="flex items-start gap-3 min-h-[52px] px-3 py-3 rounded-xl ${on ? 'bg-emerald-950/40' : ''}">
+                            <label class="flex items-start gap-3 flex-1">
+                                <input type="checkbox" ${on ? 'checked' : ''} onchange="toggleShopItem('${item.id}')" class="w-6 h-6 mt-0.5 rounded accent-emerald-500 shrink-0">
+                                <span class="flex-1">
+                                    <span class="block text-base ${on ? 'line-through text-slate-400' : 'text-white'}">${escapeHtml(item.name)}</span>
+                                    ${item.qty ? `<span class="block text-sm text-slate-400">${escapeHtml(item.qty)}</span>` : ''}
+                                </span>
+                            </label>
+                            ${customBtn}
+                        </div>`;
+                }).join('');
+                return `
+                    <section class="bg-slate-900 border border-slate-800 rounded-2xl p-3">
+                        <h3 class="px-3 pt-2 text-base font-bold text-emerald-300">${escapeHtml(group.title)}</h3>
+                        ${group.note ? `<p class="px-3 text-sm text-slate-400 mb-1">${escapeHtml(group.note)}</p>` : ''}
+                        <div class="mt-1">${rows}</div>
+                    </section>`;
+            }).join('');
+        }
+
+        function toggleShopItem(id) {
+            const checks = shoppingWeekChecks();
+            checks[id] = !checks[id];
+            saveState();
+            renderSpesa();
+        }
+
+        function resetShoppingWeek() {
+            if (!window.confirm('Azzerare le spunte di questa settimana? Gli articoli che hai aggiunto restano.')) return;
+            appState.shopping.checkedByWeek[weekKeyOf(currentDate)] = {};
+            saveState();
+            renderSpesa();
+            showToast('Spunte della settimana azzerate.');
+        }
+
+        function addCustomShopItem(event) {
+            event.preventDefault();
+            const name = document.getElementById('spesa-new-name').value.trim();
+            const qty = document.getElementById('spesa-new-qty').value.trim();
+            const group = document.getElementById('spesa-new-group').value;
+            if (!name) return;
+            normalizeShopping();
+            appState.shopping.custom.push({ id: `c_${Date.now()}`, group, name, qty, custom: true });
+            document.getElementById('spesa-new-name').value = '';
+            document.getElementById('spesa-new-qty').value = '';
+            saveState();
+            renderSpesa();
+        }
+
+        function removeCustomShopItem(id) {
+            normalizeShopping();
+            appState.shopping.custom = appState.shopping.custom.filter(item => item.id !== id);
+            saveState();
+            renderSpesa();
+        }
+
         function switchTab(tabId) {
-            ['pasti', 'fuoricasa', 'storico', 'integrazione', 'allenamento', 'tavole'].forEach(t => {
-                document.getElementById(`tab-${t}`).classList.add('hidden');
+            const tabs = ['pasti', 'fuoricasa', 'storico', 'spesa', 'impostazioni', 'integrazione', 'allenamento', 'tavole'];
+            const primary = ['pasti', 'storico', 'spesa', 'fuoricasa', 'impostazioni'].includes(tabId) ? tabId : 'impostazioni';
+            tabs.forEach(t => {
+                document.getElementById(`tab-${t}`)?.classList.add('hidden');
+            });
+            ['pasti', 'storico', 'spesa', 'fuoricasa', 'impostazioni'].forEach(t => {
+                const on = t === primary;
                 const dBtn = document.getElementById(`tab-btn-${t}`);
                 if (dBtn) {
-                    dBtn.classList.remove('border-emerald-500', 'text-emerald-400');
-                    dBtn.classList.add('border-transparent', 'text-slate-400');
+                    dBtn.classList.toggle('border-emerald-500', on);
+                    dBtn.classList.toggle('text-emerald-400', on);
+                    dBtn.classList.toggle('border-transparent', !on);
+                    dBtn.classList.toggle('text-slate-400', !on);
                 }
                 const mBtn = document.getElementById(`mob-tab-${t}`);
                 if (mBtn) {
-                    mBtn.classList.remove('text-emerald-400');
-                    mBtn.classList.add('text-slate-400');
+                    mBtn.classList.toggle('text-emerald-400', on);
+                    mBtn.classList.toggle('text-slate-400', !on);
                 }
             });
-
-            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
-            const activeDBtn = document.getElementById(`tab-btn-${tabId}`);
-            if (activeDBtn) {
-                activeDBtn.classList.remove('border-transparent', 'text-slate-400');
-                activeDBtn.classList.add('border-emerald-500', 'text-emerald-400');
-            }
-            const activeMBtn = document.getElementById(`mob-tab-${tabId}`);
-            if (activeMBtn) {
-                activeMBtn.classList.remove('text-slate-400');
-                activeMBtn.classList.add('text-emerald-400');
-            }
-
+            document.getElementById(`tab-${tabId}`)?.classList.remove('hidden');
             if (tabId === 'pasti') renderMealsPlanner();
             if (tabId === 'fuoricasa') renderFuoriCasa();
             if (tabId === 'storico') renderStorico();
+            if (tabId === 'spesa') renderSpesa();
+            if (tabId === 'impostazioni') syncGithubForm();
             if (tabId === 'integrazione') renderSupplementsAndRules();
             if (tabId === 'allenamento') renderWorkoutTab();
             if (tabId === 'tavole') renderFoodTables();
-            lucide.createIcons();
+            if (window.lucide) lucide.createIcons();
         }
 
         function renderFuoriCasa() {
@@ -3177,7 +3507,7 @@
         // 14. INIZIALIZZAZIONE AL CARICAMENTO PAGINA
         // ----------------------------------------------------
         let appReady = false;
-        window.onload = function() {
+        window.onload = async function() {
             document.getElementById('current-date-picker').value = currentDate;
             loadState();
             renderMealsPlanner();
@@ -3185,7 +3515,9 @@
             renderWorkoutTab();
             renderFoodTables();
             renderFuoriCasa();
+            renderSpesa();
             lucide.createIcons();
+            await hydrateGithubSettings();
             appReady = true;
             maybeAutoSyncNewDay();
         };
