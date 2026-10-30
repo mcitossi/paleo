@@ -6,6 +6,10 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Paleo Zona">
+    <meta name="theme-color" content="#020617">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23059669'/%3E%3Cpath d='M32 12c2 8 8 12 8 20a8 8 0 1 1-16 0c0-8 6-12 8-20z' fill='white'/%3E%3C/svg%3E">
     <title>Paleo Zona & Heavy Duty - Marco</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -67,6 +71,7 @@
         details > summary { cursor: pointer; list-style: none; }
         details > summary::-webkit-details-marker { display: none; }
         .touch { min-height: 2.75rem; }
+        .masked { -webkit-text-security: disc; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col selection:bg-emerald-500 selection:text-white pb-28 md:pb-8">
@@ -651,7 +656,7 @@
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <label class="block text-sm text-slate-300 sm:col-span-2">Token personale
-                            <input id="gh-token" type="password" autocomplete="off" spellcheck="false" placeholder="github_pat_…" oninput="markGithubFieldDirty(event)" class="touch mt-1 w-full bg-slate-950 border border-slate-700 rounded-xl px-3 text-base text-white focus:outline-none focus:border-emerald-500">
+                            <input id="gh-token" name="paleo_device_token" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" data-1p-ignore data-lpignore="true" placeholder="github_pat_…" oninput="markGithubFieldDirty(event)" class="masked touch mt-1 w-full bg-slate-950 border border-slate-700 rounded-xl px-3 text-base text-white focus:outline-none focus:border-emerald-500">
                         </label>
                         <label class="block text-sm text-slate-300">Owner
                             <input id="gh-owner" type="text" autocomplete="off" oninput="markGithubFieldDirty(event)" class="touch mt-1 w-full bg-slate-950 border border-slate-700 rounded-xl px-3 text-base text-white focus:outline-none focus:border-emerald-500">
@@ -2900,6 +2905,7 @@
         }
 
         const GITHUB_SETTINGS_KEY = 'paleo_zona_marco_github_v1';
+        const GITHUB_SETTINGS_MIRROR_KEY = 'paleo_zona_marco_github_mirror_v1';
         const GITHUB_MIN_INTERVAL_MS = 3 * 60 * 1000;
         let githubSyncTimer = null;
         let githubSyncing = false;
@@ -2965,23 +2971,40 @@
         function storeGithubSettings(next) {
             const clean = { ...defaultGithubSettings(), ...next, token: String(next.token || '') };
             localStorage.setItem(GITHUB_SETTINGS_KEY, JSON.stringify(clean));
+            // La copia si aggiorna solo se c'è un token: un salvataggio vuoto non la cancella.
+            if (clean.token) {
+                try { localStorage.setItem(GITHUB_SETTINGS_MIRROR_KEY, JSON.stringify(clean)); } catch (e) {}
+            }
             idbPutGithub(clean);
             return clean;
+        }
+
+        function readGithubMirror() {
+            try {
+                const parsed = JSON.parse(localStorage.getItem(GITHUB_SETTINGS_MIRROR_KEY) || 'null');
+                if (!parsed || typeof parsed !== 'object' || typeof parsed.token !== 'string' || !parsed.token) return null;
+                return { ...defaultGithubSettings(), ...parsed, token: parsed.token, auto: !!parsed.auto };
+            } catch (e) {
+                return null;
+            }
         }
 
         async function hydrateGithubSettings() {
             const local = loadGithubSettings();
             const stored = await idbGetGithub();
             const idb = stored && typeof stored === 'object' ? { ...defaultGithubSettings(), ...stored, token: typeof stored.token === 'string' ? stored.token : '' } : null;
+            const mirror = readGithubMirror();
             let best = local;
             if (idb && idb.token && !local.token) best = { ...local, ...idb, token: idb.token };
             else if (idb && idb.token && local.token && (Date.parse(idb.lastSyncAt || '') || 0) > (Date.parse(local.lastSyncAt || '') || 0)) best = idb;
+            if (mirror && mirror.token && !best.token) best = { ...best, ...mirror, token: mirror.token };
             if (best.token !== local.token || best.owner !== local.owner || best.repo !== local.repo || best.auto !== local.auto) {
                 storeGithubSettings(best);
             } else if (best.token) {
                 idbPutGithub(best);
             }
             syncGithubForm();
+            try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {}
         }
 
         function syncGithubForm() {
@@ -2989,15 +3012,18 @@
             const token = document.getElementById('gh-token');
             if (!token) return;
             fillingGithubForm = true;
-            token.value = settings.token;
-            token.dataset.dirty = '';
+            // Non rimettere il token in un campo: su iPhone Safari un campo password viene svuotato al reload e il change riscriveva la chiave vuota.
+            if (document.activeElement !== token && token.dataset.dirty !== '1') {
+                token.value = '';
+                token.placeholder = settings.token ? 'Già salvato: incolla per cambiarlo' : 'github_pat_…';
+            }
             document.getElementById('gh-owner').value = settings.owner;
             document.getElementById('gh-repo').value = settings.repo;
             document.getElementById('gh-branch').value = settings.branch;
             document.getElementById('gh-auto').checked = settings.auto;
             fillingGithubForm = false;
             const hint = document.getElementById('github-token-hint');
-            if (hint) hint.textContent = settings.token ? 'Token presente su questo dispositivo. Non viene riscaricato né messo nel backup.' : 'Nessun token salvato su questo dispositivo.';
+            if (hint) hint.textContent = settings.token ? 'Token presente su questo dispositivo. Resta dopo la chiusura e il reload. Non è nel backup.' : 'Nessun token salvato su questo dispositivo.';
             renderGithubStatus();
         }
 
@@ -3028,6 +3054,8 @@
             if (!window.confirm('Rimuovere il token GitHub da questo dispositivo?')) return;
             const current = loadGithubSettings();
             storeGithubSettings({ ...current, token: '' });
+            try { localStorage.removeItem(GITHUB_SETTINGS_MIRROR_KEY); } catch (e) {}
+            idbPutGithub({ ...current, token: '' });
             syncGithubForm();
             showToast('Token rimosso da questo dispositivo.');
         }
@@ -3507,6 +3535,13 @@
         // 14. INIZIALIZZAZIONE AL CARICAMENTO PAGINA
         // ----------------------------------------------------
         let appReady = false;
+        window.addEventListener('pagehide', () => {
+            try {
+                const current = loadGithubSettings();
+                localStorage.setItem(GITHUB_SETTINGS_KEY, JSON.stringify(current));
+                if (current.token) localStorage.setItem(GITHUB_SETTINGS_MIRROR_KEY, JSON.stringify(current));
+            } catch (e) {}
+        });
         window.onload = async function() {
             document.getElementById('current-date-picker').value = currentDate;
             loadState();
