@@ -773,6 +773,9 @@
             { id: 'p_uovo_intero', name: 'Uovo completo (max 2-3/sett.)', macro: 'P', category: 'Uova', amount: 1, unit: ' uovo' },
             { id: 'p_albume', name: 'Chiara (albume)', macro: 'P', category: 'Uova', amount: 50, unit: 'ml' },
 
+            // PROTEINE IN POLVERE (selezionabile in tutti i pasti, spuntini compresi; non usata dal suggerimento automatico)
+            { id: 'p_whey_optipep', name: 'Whey Optipep 90 Pro (Quality for Life)', macro: 'P', category: 'Proteine in polvere', amount: 8, unit: 'g', noSuggest: true, note: 'circa 1 cucchiaio raso; misurino da 34 g ≈ 4 blocchi. Contiene latte e soia. Valori standard, da confermare con Enrico' },
+
             // CARBOIDRATI - VERDURE
             { id: 'c_asparagi_campo', name: 'Asparagi di campo', macro: 'C', category: 'Verdura', amount: 270, unit: 'g' },
             { id: 'c_asparagi_serra', name: 'Asparagi di serra', macro: 'C', category: 'Verdura', amount: 300, unit: 'g' },
@@ -1800,7 +1803,7 @@
 
         function suggestSingleMeal(mealId, silent = false) {
             const mealCfg = MEALS_CONFIG.find(m => m.id === mealId);
-            const proteins = FOODS_DB.filter(f => f.macro === 'P' && f.id !== 'p_uovo_intero' && !f.jolly);
+            const proteins = FOODS_DB.filter(f => f.macro === 'P' && f.id !== 'p_uovo_intero' && !f.jolly && !f.noSuggest);
             const fruits = FOODS_DB.filter(f => f.macro === 'C' && f.category === 'Frutta');
             const veggies = FOODS_DB.filter(f => f.macro === 'C' && f.category === 'Verdura' && f.amount <= MAX_VEG_BLOCK_G);
             const nuts = FOODS_DB.filter(f => f.macro === 'G' && f.category === 'Frutta Secca' && f.id !== 'g_noci_brasiliane');
@@ -3316,7 +3319,7 @@
                 { id: 'pesce', name: 'Pesce fresco o surgelato al naturale (orata, branzino, merluzzo, salmone)', qty: '~1 kg' },
                 { id: 'carne', name: 'Carne magra (manzo, vitello, lonza)', qty: '~500 g' },
                 { id: 'uova', name: 'Uova', qty: '12' },
-                { id: 'yogurt', name: 'Yogurt greco 0%', qty: '4-5 vasetti da 150-170 g' },
+                { id: 'albumi', name: 'Albumi in brick', qty: '1 confezione' },
                 { id: 'bresaola', name: 'Bresaola', qty: '2 confezioni' },
                 { id: 'tonno', name: 'Tonno al naturale', qty: '3-4 scatolette' }
             ]},
