@@ -128,9 +128,12 @@
                     <input type="date" id="current-date-picker" onchange="changeDate(this.value)" class="bg-transparent text-xs sm:text-sm font-semibold text-white focus:outline-none cursor-pointer">
                 </div>
 
-                <button onclick="openDailySummaryModal()" class="px-3 py-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 text-xs sm:text-sm font-semibold flex items-center gap-1.5 transition" title="Riepilogo Giornaliero e Lista della Spesa">
+                <button onclick="openDailySummaryModal()" class="min-h-11 min-w-11 px-3 py-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 text-xs sm:text-sm font-semibold flex items-center justify-center gap-1.5 transition" title="Riepilogo del giorno">
                     <i data-lucide="shopping-bag" class="w-4 h-4"></i>
                     <span class="hidden sm:inline">Riepilogo</span>
+                </button>
+                <button type="button" onclick="switchTab('impostazioni')" id="gear-settings" class="min-h-11 min-w-11 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 flex items-center justify-center" title="Impostazioni" aria-label="Impostazioni">
+                    <i data-lucide="settings" class="w-5 h-5"></i>
                 </button>
             </div>
         </div>
@@ -149,8 +152,8 @@
             <button onclick="switchTab('fuoricasa')" id="tab-btn-fuoricasa" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2 transition">
                 <i data-lucide="map-pin" class="w-4 h-4"></i> Fuori casa
             </button>
-            <button onclick="switchTab('impostazioni')" id="tab-btn-impostazioni" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2 transition">
-                <i data-lucide="settings" class="w-4 h-4"></i> Impostazioni
+            <button onclick="switchTab('allenamento')" id="tab-btn-allenamento" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2 transition">
+                <i data-lucide="dumbbell" class="w-4 h-4"></i> Allenamento
             </button>
         </div>
     </header>
@@ -338,81 +341,49 @@
         <!-- ==========================================
              TAB 3: ALLENAMENTO HEAVY DUTY
              ========================================== -->
-        <section id="tab-allenamento" class="hidden space-y-6">
-            <button type="button" onclick="switchTab('impostazioni')" class="touch text-sm font-semibold text-emerald-300">← Impostazioni</button>
-            <!-- Linee Guida Heavy Duty -->
-            <div class="bg-gradient-to-r from-slate-900 via-slate-900 to-emerald-950/40 border border-slate-800 rounded-2xl p-5 shadow-xl">
-                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div class="space-y-1">
-                        <div class="flex items-center gap-2">
-                            <span class="px-2.5 py-0.5 text-[11px] font-extrabold uppercase tracking-wider bg-rose-500/20 text-rose-400 border border-rose-500/30 rounded-full">High Intensity Training</span>
-                            <h2 class="text-lg font-extrabold text-white">Programma Heavy Duty — Enrico Dell'Olio</h2>
-                        </div>
-                        <p class="text-xs text-slate-300 max-w-3xl">
-                            Strutturato per mantenere il massimo della massa muscolare in definizione. Frequenza: <strong class="text-emerald-400">1 seduta ogni 3 giorni</strong> (es. Lun - Gio - Dom - Mer). Sforzati sempre di arrivare al <strong class="text-rose-400">momentaneo cedimento muscolare</strong>.
-                        </p>
-                    </div>
-                    <div class="bg-slate-950/90 border border-slate-800 rounded-xl p-3 shrink-0 flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-lg bg-sky-500/10 border border-sky-500/30 flex items-center justify-center text-sky-400">
-                            <i data-lucide="footprints" class="w-5 h-5"></i>
-                        </div>
-                        <div class="text-xs">
-                            <div class="font-bold text-white">Cardio Giorni OFF (2x / settimana)</div>
-                            <div class="text-slate-400">40 min camminata passo rapido (senza fiatone)</div>
-                        </div>
-                    </div>
+        <section id="tab-allenamento" class="hidden space-y-5">
+            <div class="bg-slate-900 border border-rose-500/30 rounded-2xl p-5 shadow-xl space-y-3">
+                <div class="flex items-center gap-2">
+                    <span class="px-2.5 py-0.5 text-[11px] font-extrabold uppercase tracking-wider bg-rose-500/20 text-rose-300 border border-rose-500/30 rounded-full">Heavy Duty</span>
+                    <h2 class="text-lg font-extrabold text-white">Allenamento</h2>
                 </div>
+                <p class="text-sm text-slate-300 leading-relaxed">Programma di Enrico Dell'Olio. Tre schede a rotazione, <strong class="text-white">una seduta ogni 3 giorni</strong>. Nei giorni senza pesi, due camminate da 40 minuti a passo rapido.</p>
+                <div id="workout-next"></div>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                <!-- Colonna Sinistra (7 col): Registra Seduta / Schede dei 3 Giorni -->
-                <div class="lg:col-span-7 bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-5">
-                    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-4">
-                        <h3 class="text-base font-bold text-white flex items-center gap-2">
-                            <i data-lucide="dumbbell" class="w-5 h-5 text-emerald-400"></i>
-                            Scheda & Registrazione Diario
-                        </h3>
-                        <!-- Selettore Giorno 1 / 2 / 3 / Cardio -->
-                        <div class="flex bg-slate-950 p-1 rounded-xl border border-slate-800">
-                            <button onclick="selectWorkoutDay('giorno1')" id="wo-tab-giorno1" class="wo-day-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 text-white transition">Giorno 1</button>
-                            <button onclick="selectWorkoutDay('giorno2')" id="wo-tab-giorno2" class="wo-day-btn px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition">Giorno 2</button>
-                            <button onclick="selectWorkoutDay('giorno3')" id="wo-tab-giorno3" class="wo-day-btn px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition">Giorno 3</button>
-                            <button onclick="selectWorkoutDay('cardio')" id="wo-tab-cardio" class="wo-day-btn px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition">Cardio 40'</button>
-                        </div>
-                    </div>
+            <details class="bg-slate-900 border border-slate-800 rounded-2xl">
+                <summary class="px-4 py-3 text-sm font-bold text-white">Regole Heavy Duty</summary>
+                <ul class="px-4 pb-4 space-y-2 text-sm text-slate-300 leading-relaxed list-disc pl-8">
+                    <li>Le serie indicate sono solo le serie allenanti.</li>
+                    <li>Prima del primo esercizio fai 1-2 serie di riscaldamento leggere da 10-12 ripetizioni: non contano.</li>
+                    <li>Ogni serie allenante va al cedimento muscolare momentaneo, eccetto stacco e squat: fermati una ripetizione prima.</li>
+                    <li>Movimento lento: circa 2 secondi su, pausa, 3-4 secondi giù. Niente slanci.</li>
+                    <li>Recupero 2-3 minuti.</li>
+                    <li>Quando raggiungi il massimo delle ripetizioni, la volta dopo aumenta di circa il 5%.</li>
+                    <li>Tieni sempre il diario. Il primo giorno usa carichi prudenti.</li>
+                </ul>
+            </details>
 
-                    <!-- Form Esercizi del Giorno Selezionato -->
-                    <div id="workout-form-container" class="space-y-4">
-                        <!-- Injected via JS -->
-                    </div>
+            <div id="workout-walks"></div>
 
-                    <div class="pt-2 border-t border-slate-800 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-                        <input type="text" id="workout-general-notes" placeholder="Note sulla seduta (es. energia, cedimento raggiunto, sensazioni...)" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500">
-                        <button onclick="saveWorkoutSession()" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 transition shadow-lg shadow-emerald-950/60 shrink-0">
-                            <i data-lucide="save" class="w-4 h-4"></i> Salva nel Diario
-                        </button>
-                    </div>
+            <div class="grid grid-cols-3 gap-2">
+                <button type="button" onclick="selectWorkoutDay('giorno1')" id="wo-tab-giorno1" class="wo-day-btn min-h-11 rounded-xl text-sm font-bold px-2 py-2 border border-slate-700 bg-slate-900 text-slate-300">Giorno 1 <span class="block text-[10px] font-semibold text-rose-300">A</span></button>
+                <button type="button" onclick="selectWorkoutDay('giorno2')" id="wo-tab-giorno2" class="wo-day-btn min-h-11 rounded-xl text-sm font-bold px-2 py-2 border border-slate-700 bg-slate-900 text-slate-300">Giorno 2 <span class="block text-[10px] font-semibold text-rose-300">B</span></button>
+                <button type="button" onclick="selectWorkoutDay('giorno3')" id="wo-tab-giorno3" class="wo-day-btn min-h-11 rounded-xl text-sm font-bold px-2 py-2 border border-slate-700 bg-slate-900 text-slate-300">Giorno 3 <span class="block text-[10px] font-semibold text-rose-300">C</span></button>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-4">
+                <div id="workout-form-container" class="space-y-4"></div>
+                <input type="text" id="workout-general-notes" placeholder="Note sulla seduta" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-3 text-base text-white focus:outline-none focus:border-rose-400">
+                <button type="button" onclick="saveWorkoutSession()" class="w-full min-h-11 px-4 py-3 bg-rose-600 hover:bg-rose-500 text-white font-bold rounded-xl text-sm flex items-center justify-center gap-2">Salva seduta</button>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3">
+                <div class="flex items-center justify-between gap-3">
+                    <h3 class="text-base font-bold text-white">Diario</h3>
+                    <button type="button" onclick="exportWorkoutCSV()" class="min-h-11 px-3 rounded-xl bg-slate-800 border border-slate-700 text-sm font-semibold text-slate-200">CSV</button>
                 </div>
-
-                <!-- Colonna Destra (5 col): Storico Diario Allenamenti -->
-                <div class="lg:col-span-5 bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col max-h-[750px]">
-                    <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-4">
-                        <div>
-                            <h3 class="text-base font-bold text-white flex items-center gap-2">
-                                <i data-lucide="history" class="w-5 h-5 text-amber-400"></i>
-                                Diario Storico Sedute
-                            </h3>
-                            <p class="text-xs text-slate-400">Tieni traccia della progressione dei carichi</p>
-                        </div>
-                        <button onclick="exportWorkoutCSV()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition">
-                            <i data-lucide="download" class="w-3.5 h-3.5"></i> CSV
-                        </button>
-                    </div>
-
-                    <div id="workout-history-list" class="flex-1 overflow-y-auto space-y-3 pr-1">
-                        <!-- Injected via JS -->
-                    </div>
-                </div>
+                <div id="workout-history-list" class="space-y-3"></div>
             </div>
         </section>
 
@@ -620,16 +591,12 @@
         <section id="tab-impostazioni" class="hidden space-y-5">
             <div>
                 <h2 class="text-xl font-bold text-white">Impostazioni</h2>
-                <p class="text-sm text-slate-400 mt-1">Backup, integratori, allenamento e tavole. Il resto della giornata sta in Oggi.</p>
+                <p class="text-sm text-slate-400 mt-1">Backup, integratori e tavole. L’allenamento ha una sezione sua.</p>
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <button type="button" onclick="switchTab('integrazione')" class="touch text-left rounded-2xl bg-slate-900 border border-slate-800 px-4 py-4">
                     <div class="font-bold text-white">Integrazione <span id="supp-badge-desktop" class="text-emerald-300 font-mono text-sm">0/8</span></div>
                     <div class="text-sm text-slate-400 mt-1">Spunte, uova e acqua</div>
-                </button>
-                <button type="button" onclick="switchTab('allenamento')" class="touch text-left rounded-2xl bg-slate-900 border border-slate-800 px-4 py-4">
-                    <div class="font-bold text-white">Allenamento</div>
-                    <div class="text-sm text-slate-400 mt-1">Scheda Heavy Duty</div>
                 </button>
                 <button type="button" onclick="switchTab('tavole')" class="touch text-left rounded-2xl bg-slate-900 border border-slate-800 px-4 py-4">
                     <div class="font-bold text-white">Tavole alimenti</div>
@@ -704,9 +671,9 @@
             <i data-lucide="map-pin" class="w-5 h-5"></i>
             <span class="text-[11px] font-bold mt-0.5">Fuori</span>
         </button>
-        <button onclick="switchTab('impostazioni')" id="mob-tab-impostazioni" class="flex flex-col items-center justify-center text-slate-400">
-            <i data-lucide="settings" class="w-5 h-5"></i>
-            <span class="text-[11px] font-bold mt-0.5">Altro</span>
+        <button onclick="switchTab('allenamento')" id="mob-tab-allenamento" class="flex flex-col items-center justify-center text-slate-400">
+            <i data-lucide="dumbbell" class="w-5 h-5"></i>
+            <span class="text-[10px] font-bold mt-0.5 leading-tight text-center">Allenamento</span>
         </button>
     </nav>
 
@@ -1045,40 +1012,43 @@
         // ----------------------------------------------------
         // 4. SCHEDA ALLENAMENTO HEAVY DUTY
         // ----------------------------------------------------
+        const WORKOUT_ROTATION = ['giorno1', 'giorno2', 'giorno3'];
+        const WORKOUT_LETTER = { giorno1: 'A', giorno2: 'B', giorno3: 'C' };
+        const FIRST_WORKOUT_DATE = '2026-11-03';
         const WORKOUT_DAYS = {
             giorno1: {
-                title: 'Primo Giorno (Petto / Dorso / Stacchi)',
+                title: 'Giorno 1 (Petto e schiena)',
                 exercises: [
-                    { id: 'g1_chest_orizz', name: 'Chest Press orizzontale', sets: 2, targetReps: '8 - 12 rip.' },
-                    { id: 'g1_chest_incl', name: 'Chest Press inclinata', sets: 1, targetReps: '6 - 10 rip.' },
-                    { id: 'g1_lat_inv', name: 'Tirate al Lat-machine impugnatura stretta inversa', sets: 2, targetReps: '6 - 10 rip.' },
-                    { id: 'g1_pulley', name: 'Lat pulley basso', sets: 2, targetReps: '6 - 10 rip.' },
-                    { id: 'g1_stacchi', name: 'Stacchi da terra con bilanciere', sets: 1, targetReps: '6 - 10 rip.' }
+                    { id: 'g1_chest_orizz', name: 'Chest press orizzontale', sets: 2, repMin: 8, repMax: 12, guide: 'Sedile con maniglie all’altezza del petto; spingi senza bloccare i gomiti, torna lento fino a sentire l’allungamento del petto; scapole strette contro lo schienale.' },
+                    { id: 'g1_chest_incl', name: 'Chest press inclinata', sets: 1, repMin: 6, repMax: 10, guide: 'Stesso movimento ma spinta in alto e avanti, lavora il petto alto.' },
+                    { id: 'g1_lat_inv', name: 'Lat machine presa stretta inversa', sets: 2, repMin: 6, repMax: 10, guide: 'Palmi verso di te, mani larghezza spalle; tira al mento/petto alto portando i gomiti verso i fianchi; risali lento a braccia quasi tese; non dondolare.' },
+                    { id: 'g1_pulley', name: 'Pulley basso', sets: 2, repMin: 6, repMax: 10, guide: 'Schiena dritta, petto in fuori; tira verso l’ombelico stringendo le scapole, ritorno lento; busto fermo.' },
+                    { id: 'g1_stacchi', name: 'Stacco da terra con bilanciere', sets: 1, repMin: 6, repMax: 10, guide: 'Piedi sotto il bilanciere vicino agli stinchi, schiena dritta, petto fuori; spingi con le gambe tenendo il bilanciere vicino al corpo; scendi controllato. NON andare a cedimento: fermati una ripetizione prima o appena la schiena tende a curvarsi.' }
                 ]
             },
             giorno2: {
-                title: 'Secondo Giorno (Spalle / Trapezi / Gambe / Addome)',
+                title: 'Giorno 2 (Spalle, trapezi, gambe, addome)',
                 exercises: [
-                    { id: 'g2_shoulder', name: 'Shoulder Press', sets: 2, targetReps: '6 - 10 rip.' },
-                    { id: 'g2_scrollate', name: 'Scrollate con Bilanciere', sets: 1, targetReps: '6 - 10 rip.' },
-                    { id: 'g2_squat', name: 'Squat con bilanciere libero al Power Rack', sets: 2, targetReps: '8 - 12 rip.' },
-                    { id: 'g2_calf', name: 'Calf in piedi', sets: 2, targetReps: '12 - 20 rip.' },
-                    { id: 'g2_crunch', name: 'Crunch alla macchina', sets: 2, targetReps: '12 - 20 rip.' }
+                    { id: 'g2_shoulder', name: 'Shoulder press', sets: 2, repMin: 6, repMax: 10, guide: 'Seduto, spingi sopra la testa e scendi fino all’altezza delle orecchie.' },
+                    { id: 'g2_scrollate', name: 'Scrollate con bilanciere', sets: 1, repMin: 6, repMax: 10, guide: 'Braccia tese, alza le spalle verso le orecchie, tieni 1 s, scendi; braccia non si piegano.' },
+                    { id: 'g2_squat', name: 'Squat con bilanciere al power rack', sets: 2, repMin: 8, repMax: 12, guide: 'Bilanciere sui trapezi, piedi larghezza spalle; scendi almeno a cosce parallele, risali spingendo coi talloni; sicure del rack appena sotto il punto più basso. Fermati una ripetizione prima del cedimento.' },
+                    { id: 'g2_calf', name: 'Calf in piedi', sets: 2, repMin: 12, repMax: 20, guide: 'Sali sulle punte più in alto possibile, tieni 1 s, scendi in allungamento.' },
+                    { id: 'g2_crunch', name: 'Crunch alla macchina', sets: 2, repMin: 12, repMax: 20, guide: 'Arrotola il busto portando le costole verso il bacino, senza tirare con le braccia.' }
                 ]
             },
             giorno3: {
-                title: 'Terzo Giorno (Deltoidi / Tricipiti / Bicipiti)',
+                title: 'Giorno 3 (Deltoidi, tricipiti, bicipiti)',
                 exercises: [
-                    { id: 'g3_alzate_lat', name: 'Alzate laterali alla lateral-machine o in piedi con manubri', sets: 2, targetReps: '6 - 10 rip.' },
-                    { id: 'g3_cavi_90', name: 'Tirate laterali ai cavi ad 1 braccio per deltoidi busto flesso 90°', sets: 2, targetReps: '6 - 10 rip.' },
-                    { id: 'g3_pushdown', name: 'Push Down ai cavi (Tricipiti)', sets: 2, targetReps: '6 - 10 rip.' },
-                    { id: 'g3_curl_bil', name: 'Curl con bilanciere dritto in piedi (Bicipiti)', sets: 2, targetReps: '6 - 10 rip.' }
+                    { id: 'g3_alzate_lat', name: 'Alzate laterali (lateral machine o manubri)', sets: 2, repMin: 6, repMax: 10, guide: 'Braccia di lato fino all’altezza delle spalle, gomiti leggermente piegati.' },
+                    { id: 'g3_cavi_90', name: 'Tirate laterali al cavo a 1 braccio, busto flesso 90°', sets: 2, repMin: 6, repMax: 10, guide: 'Busto a 90°, tira il cavo di lato e indietro a braccio quasi teso; lavora il deltoide posteriore.' },
+                    { id: 'g3_pushdown', name: 'Push down ai cavi', sets: 2, repMin: 6, repMax: 10, guide: 'Gomiti fermi ai fianchi, distendi le braccia verso il basso, risali lento.' },
+                    { id: 'g3_curl_bil', name: 'Curl con bilanciere in piedi', sets: 2, repMin: 6, repMax: 10, guide: 'Gomiti fermi ai fianchi, piega fino in alto senza oscillare con la schiena.' }
                 ]
             },
             cardio: {
-                title: 'Sessione Cardio (Giorni OFF pesi - 2x a settimana)',
+                title: 'Camminata (registro precedente)',
                 exercises: [
-                    { id: 'cardio_walk', name: 'Camminata a passo rapido (senza fiatone)', sets: 1, targetReps: '40 minuti' }
+                    { id: 'cardio_walk', name: 'Camminata a passo rapido (senza fiatone)', sets: 1, repMin: 0, repMax: 0, guide: '' }
                 ]
             }
         };
@@ -1117,7 +1087,8 @@
             glassMl: 250,       // ml di un bicchiere d'acqua (il volume resta in day.water, litri)
             shopping: { checkedByWeek: {}, custom: [] },
             savedPresets: [],   // giornate tipo salvate [{ name, meals }]
-            workoutHistory: []  // storico sedute [{ id, date, dayKey, dayTitle, results, notes }]
+            workoutHistory: [], // storico sedute [{ id, date, dayKey, dayTitle, results, notes }]
+            walksByWeek: {}     // { lunedì: { a: bool, b: bool } } due camminate da 40 min
         };
 
         function loadState() {
@@ -1134,6 +1105,7 @@
             appState.eggsExtraByWeek = appState.eggsExtraByWeek || {};
             appState.savedPresets = appState.savedPresets || [];
             appState.workoutHistory = appState.workoutHistory || [];
+            if (!appState.walksByWeek || typeof appState.walksByWeek !== 'object' || Array.isArray(appState.walksByWeek)) appState.walksByWeek = {};
             normalizeShopping();
             if (!JOLLY_BARS.some(b => b.id === appState.jollyBarId)) appState.jollyBarId = 'pb_arancia';
             const glass = parseInt(appState.glassMl, 10);
@@ -2259,73 +2231,213 @@
         // ----------------------------------------------------
         // 11. RENDERING TAB 3: ALLENAMENTO HEAVY DUTY
         // ----------------------------------------------------
-        function selectWorkoutDay(dayKey) {
-            selectedWorkoutDay = dayKey;
-            document.querySelectorAll('.wo-day-btn').forEach(btn => {
-                btn.className = 'wo-day-btn px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition';
+        let workoutDayTouched = false;
+
+        function addDaysIso(iso, days) {
+            const [y, m, d] = String(iso || '').split('-').map(Number);
+            const dt = new Date(y, (m || 1) - 1, d || 1);
+            dt.setDate(dt.getDate() + days);
+            return localDateStr(dt);
+        }
+
+        function formatDateLongIt(iso) {
+            const [y, m, d] = String(iso || '').split('-').map(Number);
+            if (!y || !m || !d) return iso || '';
+            return new Date(y, m - 1, d).toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+        }
+
+        function lastWeightSession() {
+            const list = appState.workoutHistory || [];
+            let best = null;
+            let bestIdx = Infinity;
+            list.forEach((session, index) => {
+                if (!WORKOUT_ROTATION.includes(session.dayKey) || !session.date) return;
+                if (!best || session.date > best.date || (session.date === best.date && index < bestIdx)) {
+                    best = session;
+                    bestIdx = index;
+                }
             });
-            const activeBtn = document.getElementById(`wo-tab-${dayKey}`);
-            if (activeBtn) {
-                activeBtn.className = 'wo-day-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 text-white transition';
-            }
+            return best;
+        }
+
+        function lastSessionFor(dayKey) {
+            const list = appState.workoutHistory || [];
+            let best = null;
+            let bestIdx = Infinity;
+            list.forEach((session, index) => {
+                if (session.dayKey !== dayKey) return;
+                const date = session.date || '';
+                if (!best || date > (best.date || '') || (date === (best.date || '') && index < bestIdx)) {
+                    best = session;
+                    bestIdx = index;
+                }
+            });
+            return best;
+        }
+
+        function nextWorkoutPlan() {
+            const last = lastWeightSession();
+            if (!last) return { dayKey: 'giorno1', date: FIRST_WORKOUT_DATE, letter: 'A', last: null };
+            const idx = WORKOUT_ROTATION.indexOf(last.dayKey);
+            const dayKey = WORKOUT_ROTATION[(idx + 1) % WORKOUT_ROTATION.length];
+            return { dayKey, date: addDaysIso(last.date, 3), letter: WORKOUT_LETTER[dayKey], last };
+        }
+
+        function loggedValue(value) {
+            const text = String(value ?? '').trim();
+            return text && text !== '-' ? text : '';
+        }
+
+        function repsHitTop(value, max) {
+            const n = parseInt(value, 10);
+            return Number.isFinite(n) && max > 0 && n >= max;
+        }
+
+        function paintWorkoutDayButtons() {
+            const plan = nextWorkoutPlan();
+            WORKOUT_ROTATION.forEach(key => {
+                const btn = document.getElementById(`wo-tab-${key}`);
+                if (!btn) return;
+                const on = key === selectedWorkoutDay;
+                btn.className = `wo-day-btn min-h-11 rounded-xl text-sm font-bold px-2 py-2 border ${on ? 'bg-rose-600 border-rose-500 text-white' : 'bg-slate-900 border-slate-700 text-slate-300'}`;
+                const nextMark = key === plan.dayKey ? ' · prossima' : '';
+                btn.innerHTML = `Giorno ${key.slice(-1)}<span class="block text-[10px] font-semibold ${on ? 'text-rose-100' : 'text-rose-300'}">${WORKOUT_LETTER[key]}${nextMark}</span>`;
+            });
+        }
+
+        function renderWorkoutNext() {
+            const host = document.getElementById('workout-next');
+            if (!host) return;
+            const plan = nextWorkoutPlan();
+            const day = WORKOUT_DAYS[plan.dayKey];
+            const when = plan.date === currentDate ? 'Oggi' : (plan.date < currentDate ? 'Data consigliata già passata' : 'Data consigliata');
+            host.innerHTML = `
+                <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 space-y-2">
+                    <div class="text-[11px] font-bold uppercase tracking-wider text-rose-300">Prossima seduta</div>
+                    <div class="text-base font-bold text-white">${escapeHtml(day.title)} · ${plan.letter}</div>
+                    <p class="text-sm text-slate-300">${when}: <strong class="text-white">${formatDateLongIt(plan.date)}</strong></p>
+                    <p class="text-xs text-slate-500">${plan.last ? `Ultima seduta ${formatDateIt(plan.last.date)}, poi 3 giorni.` : 'Prima seduta fissata: martedì 3 novembre 2026, Giorno 1.'}</p>
+                    <button type="button" onclick="openSuggestedWorkout()" class="min-h-11 px-3 rounded-xl bg-rose-600 text-white text-sm font-bold">Apri Giorno ${plan.dayKey.slice(-1)} e usa questa data</button>
+                </div>`;
+        }
+
+        function renderWalks() {
+            const host = document.getElementById('workout-walks');
+            if (!host) return;
+            const wk = weekKeyOf(currentDate);
+            const saved = (appState.walksByWeek || {})[wk] || {};
+            const box = (key, label) => `
+                <label class="flex items-center gap-3 min-h-11 px-3 py-2 rounded-xl border ${saved[key] ? 'bg-sky-950/40 border-sky-500/40' : 'bg-slate-950 border-slate-800'}">
+                    <input type="checkbox" ${saved[key] ? 'checked' : ''} onchange="toggleWalk('${key}')" class="w-6 h-6 rounded accent-sky-500">
+                    <span class="text-sm ${saved[key] ? 'text-slate-300 line-through' : 'text-white'}">${label}</span>
+                </label>`;
+            host.innerHTML = `
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
+                    <h3 class="text-base font-bold text-white">Camminate della settimana</h3>
+                    <p class="text-sm text-slate-400">Due da 40 minuti a passo rapido, senza fiatone, nei giorni senza pesi. Settimana dal ${formatDateIt(wk)}.</p>
+                    ${box('a', 'Camminata 1 · 40 min')}
+                    ${box('b', 'Camminata 2 · 40 min')}
+                </div>`;
+        }
+
+        function toggleWalk(key) {
+            const wk = weekKeyOf(currentDate);
+            appState.walksByWeek = appState.walksByWeek || {};
+            const cur = appState.walksByWeek[wk] && typeof appState.walksByWeek[wk] === 'object' ? appState.walksByWeek[wk] : {};
+            appState.walksByWeek[wk] = { a: !!cur.a, b: !!cur.b, [key]: !cur[key] };
+            saveState();
+            renderWalks();
+        }
+
+        function openSuggestedWorkout() {
+            const plan = nextWorkoutPlan();
+            const picker = document.getElementById('current-date-picker');
+            if (picker) picker.value = plan.date;
+            currentDate = plan.date;
+            ensureDayInitialized(currentDate);
+            renderMealsPlanner();
+            renderSupplementsAndRules();
+            renderStoricoIfVisible();
+            workoutDayTouched = true;
+            selectedWorkoutDay = plan.dayKey;
             renderWorkoutTab();
         }
 
+        function selectWorkoutDay(dayKey) {
+            if (!WORKOUT_ROTATION.includes(dayKey)) return;
+            workoutDayTouched = true;
+            selectedWorkoutDay = dayKey;
+            renderWorkoutTab();
+        }
+
+        function refreshWorkoutHint(exId) {
+            const day = WORKOUT_DAYS[selectedWorkoutDay];
+            const ex = day?.exercises?.find(item => item.id === exId);
+            const hint = document.getElementById(`wo-hint-${exId}`);
+            if (!ex || !hint) return;
+            const last = lastSessionFor(selectedWorkoutDay);
+            let hit = false;
+            for (let s = 1; s <= ex.sets; s++) {
+                const typed = document.getElementById(`wo-reps-${exId}-${s}`)?.value;
+                const prev = last?.results?.[exId]?.[s - 1]?.reps;
+                if (repsHitTop(typed, ex.repMax) || repsHitTop(prev, ex.repMax)) hit = true;
+            }
+            hint.classList.toggle('hidden', !hit);
+        }
+
         function renderWorkoutTab() {
+            if (!workoutDayTouched || !WORKOUT_ROTATION.includes(selectedWorkoutDay)) {
+                selectedWorkoutDay = nextWorkoutPlan().dayKey;
+            }
             const dayConfig = WORKOUT_DAYS[selectedWorkoutDay];
             const formContainer = document.getElementById('workout-form-container');
-
-            // Find previous session of same dayKey to show reference weights
-            const lastSession = appState.workoutHistory.find(s => s.dayKey === selectedWorkoutDay);
-
+            if (!formContainer || !dayConfig) return;
+            const lastSession = lastSessionFor(selectedWorkoutDay);
             const exercisesHtml = dayConfig.exercises.map((ex, idx) => {
                 let setsInputsHtml = '';
+                let previousHit = false;
                 for (let s = 1; s <= ex.sets; s++) {
                     const prevSet = lastSession?.results?.[ex.id]?.[s - 1];
-                    const prevPlaceholderKg = prevSet?.kg ? `Prec: ${prevSet.kg}kg` : 'Kg';
-                    const prevPlaceholderReps = prevSet?.reps ? `Prec: ${prevSet.reps}` : 'Rip.';
-
+                    const prevKg = loggedValue(prevSet?.kg);
+                    const prevReps = loggedValue(prevSet?.reps);
+                    if (repsHitTop(prevReps, ex.repMax)) previousHit = true;
+                    const prevLine = prevKg || prevReps
+                        ? `<p class="text-xs text-slate-400">Precedente: ${escapeHtml(prevKg || '—')} kg × ${escapeHtml(prevReps || '—')}</p>`
+                        : '';
                     setsInputsHtml += `
-                        <div class="flex items-center gap-2 bg-slate-900 p-2 rounded-xl border border-slate-800">
-                            <span class="text-xs font-bold text-slate-400 w-14">Serie ${s}:</span>
-                            <div class="flex items-center gap-1.5 flex-1">
-                                <input type="number" step="0.5" id="wo-kg-${ex.id}-${s}" placeholder="${prevPlaceholderKg}" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-emerald-500">
-                                <span class="text-xs text-slate-500">kg</span>
+                        <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 space-y-2">
+                            <div class="text-xs font-bold text-slate-400">Serie ${s}</div>
+                            ${prevLine}
+                            <div class="grid grid-cols-2 gap-2">
+                                <label class="text-xs text-slate-400">Kg
+                                    <input type="number" inputmode="decimal" step="0.5" min="0" id="wo-kg-${ex.id}-${s}" placeholder="kg" class="mt-1 w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-base text-white font-mono focus:outline-none focus:border-rose-400">
+                                </label>
+                                <label class="text-xs text-slate-400">Ripetizioni
+                                    <input type="number" inputmode="numeric" min="0" id="wo-reps-${ex.id}-${s}" placeholder="rip." oninput="refreshWorkoutHint('${ex.id}')" class="mt-1 w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-base text-white font-mono focus:outline-none focus:border-rose-400">
+                                </label>
                             </div>
-                            <span class="text-slate-600">×</span>
-                            <div class="flex items-center gap-1.5 flex-1">
-                                <input type="number" id="wo-reps-${ex.id}-${s}" placeholder="${prevPlaceholderReps}" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-emerald-500">
-                                <span class="text-xs text-slate-500">rip</span>
-                            </div>
-                        </div>
-                    `;
+                        </div>`;
                 }
-
                 return `
-                    <div class="bg-slate-950 border border-slate-800/90 rounded-xl p-4 space-y-3">
-                        <div class="flex flex-wrap items-center justify-between gap-2">
-                            <div class="flex items-center gap-2">
-                                <span class="w-6 h-6 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-extrabold flex items-center justify-center">${idx + 1}</span>
-                                <h4 class="text-sm font-bold text-white">${ex.name}</h4>
-                            </div>
-                            <span class="text-xs font-mono font-semibold px-2.5 py-0.5 rounded-full bg-slate-900 text-emerald-400 border border-slate-800">
-                                ${ex.sets} serie × ${ex.targetReps}
-                            </span>
+                    <article class="bg-slate-950 border border-slate-800 rounded-xl p-4 space-y-3">
+                        <div class="flex items-start justify-between gap-3">
+                            <h4 class="text-base font-bold text-white">${idx + 1}. ${escapeHtml(ex.name)}</h4>
+                            <span class="shrink-0 text-xs font-mono font-semibold px-2 py-1 rounded-full bg-slate-900 text-rose-200 border border-slate-800">${ex.sets}×${ex.repMin}-${ex.repMax}</span>
                         </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                            ${setsInputsHtml}
-                        </div>
-                    </div>
-                `;
+                        <p id="wo-hint-${ex.id}" class="${previousHit ? '' : 'hidden '}text-sm font-semibold text-amber-200">prossima volta +5% circa</p>
+                        <details class="bg-slate-900 border border-slate-800 rounded-xl">
+                            <summary class="px-3 py-3 text-sm font-semibold text-slate-200">Come eseguirlo</summary>
+                            <p class="px-3 pb-3 text-sm text-slate-300 leading-relaxed">${escapeHtml(ex.guide)}</p>
+                        </details>
+                        <div class="space-y-2">${setsInputsHtml}</div>
+                    </article>`;
             }).join('');
-
-            formContainer.innerHTML = `
-                <div class="text-xs font-bold uppercase tracking-wider text-emerald-400">${dayConfig.title}</div>
-                ${exercisesHtml}
-            `;
-
+            formContainer.innerHTML = `<div class="text-sm font-bold text-rose-200">${escapeHtml(dayConfig.title)} · ${WORKOUT_LETTER[selectedWorkoutDay]}</div>${exercisesHtml}`;
+            renderWorkoutNext();
+            renderWalks();
+            paintWorkoutDayButtons();
             renderWorkoutHistory();
-            lucide.createIcons();
+            if (window.lucide) lucide.createIcons();
         }
 
         function saveWorkoutSession() {
@@ -2370,7 +2482,10 @@
         function deleteWorkoutSession(sessionId) {
             appState.workoutHistory = appState.workoutHistory.filter(s => s.id !== sessionId);
             saveState();
+            renderWorkoutNext();
+            paintWorkoutDayButtons();
             renderWorkoutHistory();
+            if (window.lucide) lucide.createIcons();
             showToast('Voce rimossa dal diario.');
         }
 
@@ -2603,7 +2718,8 @@
                 days,
                 eggsExtraByWeek: { ...(appState.eggsExtraByWeek || {}), ...incomingEggs },
                 savedPresets: mergeRecords(appState.savedPresets, imported.savedPresets, item => `${item?.name}|${item?.createdAt}`),
-                workoutHistory: mergeRecords(appState.workoutHistory, imported.workoutHistory, item => item?.id)
+                workoutHistory: mergeRecords(appState.workoutHistory, imported.workoutHistory, item => item?.id),
+                walksByWeek: { ...(appState.walksByWeek || {}), ...(imported.walksByWeek && typeof imported.walksByWeek === 'object' ? imported.walksByWeek : {}) }
             };
             delete next.githubToken;
             delete next.githubSettings;
@@ -2616,6 +2732,7 @@
             appState.eggsExtraByWeek = appState.eggsExtraByWeek || {};
             appState.savedPresets = appState.savedPresets || [];
             appState.workoutHistory = appState.workoutHistory || [];
+            if (!appState.walksByWeek || typeof appState.walksByWeek !== 'object' || Array.isArray(appState.walksByWeek)) appState.walksByWeek = {};
             normalizeShopping();
             if (!hadFlag) appState.legacyWeeklyEggsMigrated = false;
             migrateLegacyWeeklyEggs();
@@ -3447,12 +3564,12 @@
 
         function switchTab(tabId) {
             const tabs = ['pasti', 'fuoricasa', 'storico', 'spesa', 'impostazioni', 'integrazione', 'allenamento', 'tavole'];
-            const primary = ['pasti', 'storico', 'spesa', 'fuoricasa', 'impostazioni'].includes(tabId) ? tabId : 'impostazioni';
+            const nav = ['pasti', 'storico', 'spesa', 'fuoricasa', 'allenamento'];
             tabs.forEach(t => {
                 document.getElementById(`tab-${t}`)?.classList.add('hidden');
             });
-            ['pasti', 'storico', 'spesa', 'fuoricasa', 'impostazioni'].forEach(t => {
-                const on = t === primary;
+            nav.forEach(t => {
+                const on = t === tabId;
                 const dBtn = document.getElementById(`tab-btn-${t}`);
                 if (dBtn) {
                     dBtn.classList.toggle('border-emerald-500', on);
@@ -3466,6 +3583,15 @@
                     mBtn.classList.toggle('text-slate-400', !on);
                 }
             });
+            const gear = document.getElementById('gear-settings');
+            if (gear) {
+                const on = ['impostazioni', 'integrazione', 'tavole'].includes(tabId);
+                gear.classList.toggle('text-emerald-300', on);
+                gear.classList.toggle('bg-emerald-500/15', on);
+                gear.classList.toggle('border-emerald-500/40', on);
+                gear.classList.toggle('text-slate-300', !on);
+                gear.classList.toggle('bg-slate-900', !on);
+            }
             document.getElementById(`tab-${tabId}`)?.classList.remove('hidden');
             if (tabId === 'pasti') renderMealsPlanner();
             if (tabId === 'fuoricasa') renderFuoriCasa();
@@ -3518,6 +3644,8 @@
             renderMealsPlanner();
             renderSupplementsAndRules();
             renderStoricoIfVisible();
+            renderWorkoutNext();
+            renderWalks();
             showToast(`Giornata selezionata: ${currentDate}`);
         }
 
