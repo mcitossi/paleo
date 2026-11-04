@@ -6,11 +6,11 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Paleo Zona">
+    <meta name="apple-mobile-web-app-title" content="Pasti">
     <meta name="theme-color" content="#020617">
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23059669'/%3E%3Cpath d='M32 12c2 8 8 12 8 20a8 8 0 1 1-16 0c0-8 6-12 8-20z' fill='white'/%3E%3C/svg%3E">
-    <title>Paleo Zona & Heavy Duty - Marco</title>
+    <title>Pasti e allenamento - Marco</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons -->
@@ -72,6 +72,32 @@
         details > summary::-webkit-details-marker { display: none; }
         .touch { min-height: 2.75rem; }
         .masked { -webkit-text-security: disc; }
+        .ex-stage {
+            position: relative;
+            width: 100%;
+            max-width: 28rem;
+            aspect-ratio: 4 / 3;
+            border-radius: 1rem;
+            overflow: hidden;
+            background: #0b1220;
+        }
+        .ex-stage img {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: #111827;
+        }
+        .ex-stage .ex-b { animation: ex-swap 1.8s steps(1, end) infinite; }
+        @keyframes ex-swap {
+            0%, 45% { opacity: 0; }
+            50%, 100% { opacity: 1; }
+        }
+        .ex-off { display: none; }
+        @media (prefers-reduced-motion: reduce) {
+            .ex-stage .ex-b { display: none; }
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col selection:bg-emerald-500 selection:text-white pb-28 md:pb-8">
@@ -114,10 +140,10 @@
                 </div>
                 <div>
                     <div class="flex items-center gap-2">
-                        <h1 class="text-lg sm:text-xl font-extrabold tracking-tight text-white">PALEO ZONA <span class="text-emerald-400">&</span> HEAVY DUTY</h1>
+                        <h1 class="text-lg sm:text-xl font-extrabold tracking-tight text-white">Pasti e allenamento</h1>
                         <span class="hidden sm:inline-block text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-slate-800 text-emerald-400 border border-slate-700">Marco</span>
                     </div>
-                    <p class="text-xs text-slate-400">H.I.T.A. Program • Enrico Dell'Olio • Totale Giornaliero: <strong class="text-slate-200">12P / 11C / 17G</strong></p>
+                    <p class="text-xs text-slate-400">ON circa 1.850 kcal · OFF circa 1.600 kcal</p>
                 </div>
             </div>
 
@@ -128,10 +154,6 @@
                     <input type="date" id="current-date-picker" onchange="changeDate(this.value)" class="bg-transparent text-xs sm:text-sm font-semibold text-white focus:outline-none cursor-pointer">
                 </div>
 
-                <button onclick="openDailySummaryModal()" class="min-h-11 min-w-11 px-3 py-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 text-xs sm:text-sm font-semibold flex items-center justify-center gap-1.5 transition" title="Riepilogo del giorno">
-                    <i data-lucide="shopping-bag" class="w-4 h-4"></i>
-                    <span class="hidden sm:inline">Riepilogo</span>
-                </button>
                 <button type="button" onclick="switchTab('impostazioni')" id="gear-settings" class="min-h-11 min-w-11 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 flex items-center justify-center" title="Impostazioni" aria-label="Impostazioni">
                     <i data-lucide="settings" class="w-5 h-5"></i>
                 </button>
@@ -141,7 +163,7 @@
         <!-- Navigation Tabs (Desktop) -->
         <div class="max-w-7xl mx-auto px-4 sm:px-6 hidden md:flex flex-wrap items-center gap-1 pt-1">
             <button onclick="switchTab('pasti')" id="tab-btn-pasti" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-emerald-500 text-emerald-400 flex items-center gap-2 transition">
-                <i data-lucide="sun" class="w-4 h-4"></i> Oggi
+                <i data-lucide="sun" class="w-4 h-4"></i> Pasti
             </button>
             <button onclick="switchTab('storico')" id="tab-btn-storico" class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2 transition">
                 <i data-lucide="history" class="w-4 h-4"></i> Storico
@@ -165,69 +187,8 @@
              TAB 1: PIANIFICATORE PASTI & CALCOLATORE
              ========================================== -->
         <section id="tab-pasti" class="space-y-6">
-            <!-- Global Daily Progress Banner -->
-            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl">
-                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-4">
-                    <div>
-                        <h2 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
-                            <i data-lucide="pie-chart" class="w-5 h-5 text-emerald-400"></i>
-                            Bilancio Blocchetti della Giornata
-                        </h2>
-                        <p class="text-sm text-slate-400 mt-1">Pesa a crudo. Tra un pasto e l’altro: 2–5 ore.</p>
-                        <details class="mt-2 max-w-3xl">
-                            <summary class="text-sm text-amber-200/90">Nota sulla barretta jolly</summary>
-                            <p class="text-sm text-slate-300 mt-2 leading-relaxed">Fuori casa puoi inserire una <button type="button" onclick="switchTab('fuoricasa')" class="underline font-semibold text-amber-100">barretta jolly</button> nel pasto. Scelta paleo: Paleobull. EnerZona 40-30-30 solo in emergenza (proteine della soia e zuccheri, non è paleo).</p>
-                        </details>
-                    </div>
-                    <div class="flex flex-wrap items-center gap-2">
-                        <button onclick="autoFillEntireDay()" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 transition shadow-lg shadow-emerald-950/50">
-                            <i data-lucide="wand-2" class="w-4 h-4"></i> Auto-Compila Giornata
-                        </button>
-                        <button onclick="openPresetsModal()" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition">
-                            <i data-lucide="bookmark" class="w-4 h-4 text-amber-400"></i> Giornate Salvate
-                        </button>
-                        <button onclick="clearCurrentDayMeals()" class="px-3 py-2 bg-rose-950/40 hover:bg-rose-900/50 text-rose-300 border border-rose-800/50 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition">
-                            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Svuota
-                        </button>
-                    </div>
-                </div>
-
-                <!-- 3 Macro Progress Bars -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
-                    <!-- Proteine -->
-                    <div class="bg-slate-950/80 border border-slate-800/80 rounded-xl p-3.5">
-                        <div class="flex justify-between items-center text-xs font-semibold mb-1.5">
-                            <span class="text-rose-400 flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block"></span> PROTEINE TOTALE</span>
-                            <span id="global-p-text" class="text-slate-200 font-mono">0 / 12 bl.</span>
-                        </div>
-                        <div class="w-full h-2.5 bg-slate-800 rounded-full overflow-hidden">
-                            <div id="global-p-bar" class="h-full bg-rose-500 transition-all duration-300" style="width: 0%"></div>
-                        </div>
-                    </div>
-                    <!-- Carboidrati -->
-                    <div class="bg-slate-950/80 border border-slate-800/80 rounded-xl p-3.5">
-                        <div class="flex justify-between items-center text-xs font-semibold mb-1.5">
-                            <span class="text-emerald-400 flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span> CARBOIDRATI TOTALE</span>
-                            <span id="global-c-text" class="text-slate-200 font-mono">0 / 11 bl.</span>
-                        </div>
-                        <div class="w-full h-2.5 bg-slate-800 rounded-full overflow-hidden">
-                            <div id="global-c-bar" class="h-full bg-emerald-500 transition-all duration-300" style="width: 0%"></div>
-                        </div>
-                    </div>
-                    <!-- Grassi -->
-                    <div class="bg-slate-950/80 border border-slate-800/80 rounded-xl p-3.5">
-                        <div class="flex justify-between items-center text-xs font-semibold mb-1.5">
-                            <span class="text-amber-400 flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span> GRASSI TOTALE</span>
-                            <span id="global-g-text" class="text-slate-200 font-mono">0 / 17 bl.</span>
-                        </div>
-                        <div class="w-full h-2.5 bg-slate-800 rounded-full overflow-hidden">
-                            <div id="global-g-bar" class="h-full bg-amber-500 transition-all duration-300" style="width: 0%"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <div id="day-log-card"></div>
+            <div id="daily-total-card"></div>
 
             <!-- Meals Grid Container -->
             <div id="meals-container" class="space-y-6">
@@ -248,9 +209,9 @@
                         <div>
                             <h2 class="text-lg font-bold text-white flex items-center gap-2">
                                 <i data-lucide="check-square" class="w-5 h-5 text-emerald-400"></i>
-                                Checklist Integrazione Giornaliera
+                                Lista personale
                             </h2>
-                            <p class="text-xs text-slate-400 mt-0.5">Spunta gli integratori man mano che li assumi durante la giornata</p>
+                            <p class="text-sm text-slate-300 mt-1 leading-relaxed">La modifichi tu. Non è una prescrizione: togli, rinomina o aggiungi quello che usi davvero.</p>
                         </div>
                         <button onclick="resetSupplementsToday()" class="text-xs text-slate-400 hover:text-white px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 transition">
                             Azzera spunte
@@ -273,7 +234,7 @@
                             </h3>
                             <span id="water-text" class="text-sm font-bold font-mono text-sky-400">0.0 / 2.5 L</span>
                         </div>
-                        <p class="text-xs text-slate-400 mb-4">Obiettivo: bere tra i <strong class="text-slate-200">2 e i 3 litri</strong> di acqua al giorno.</p>
+                        <p class="text-sm text-slate-300 mb-4 leading-relaxed">Obiettivo: <strong class="text-slate-100">2,5 litri</strong> di acqua al giorno.</p>
                         <div id="water-glasses" class="grid grid-cols-6 gap-2 mb-4">
                             <!-- 12 glasses of 250ml = 3L -->
                         </div>
@@ -292,7 +253,7 @@
                             </h3>
                             <span id="eggs-count-badge" class="text-sm font-bold font-mono text-amber-400">0 / 3</span>
                         </div>
-                        <p class="text-xs text-slate-400 mb-4">Regola H.I.T.A.: utilizzare <strong class="text-slate-200">2/3 uova intere a settimana</strong> (gli albumi sono liberi). Il conteggio somma da solo le uova intere segnate nei pasti da lunedì a domenica. I pulsanti +/− aggiungono solo uova extra non presenti nei pasti.</p>
+                        <p class="text-sm text-slate-300 mb-4 leading-relaxed">Conteggio della settimana, da lunedì. I pulsanti aggiungono solo uova segnate a mano. Non è un tetto: a pranzo 3 uova sono uno scambio possibile.</p>
                         <div class="flex items-center justify-between bg-slate-950 p-3 rounded-xl border border-slate-800">
                             <div id="eggs-visual" class="flex items-center gap-2">
                                 <!-- Eggs icons -->
@@ -304,34 +265,9 @@
                         </div>
                     </div>
 
-                    <!-- Regole d'Oro Paleo Zona -->
                     <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-3">
-                        <h3 class="text-base font-bold text-white flex items-center gap-2">
-                            <i data-lucide="shield-check" class="w-5 h-5 text-emerald-400"></i>
-                            Regole Generali H.I.T.A.
-                        </h3>
-                        <ul class="space-y-2.5 text-xs text-slate-300">
-                            <li class="flex items-start gap-2.5">
-                                <i data-lucide="scale" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>
-                                <span><strong>Peso a crudo:</strong> Tutti gli alimenti vanno pesati crudi considerando solo la parte edibile.</span>
-                            </li>
-                            <li class="flex items-start gap-2.5">
-                                <i data-lucide="clock" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>
-                                <span><strong>Timing dei pasti:</strong> Tra un pasto e il successivo far passare da un <strong>minimo di 2 ore</strong> a un <strong>massimo di 5 ore</strong>.</span>
-                            </li>
-                            <li class="flex items-start gap-2.5">
-                                <i data-lucide="apple" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>
-                                <span><strong>Carboidrati:</strong> A colazione e negli spuntini solo da Frutta. A pranzo e cena 1 blocchetto da Frutta + 2 blocchetti da Verdura.</span>
-                            </li>
-                            <li class="flex items-start gap-2.5">
-                                <i data-lucide="droplet" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>
-                                <span><strong>Grassi:</strong> A colazione e spuntini tutti da Frutta Secca. A pranzo (6 bl. = 18g = 2 cucchiai) e cena (3 bl. = 9g = 1 cucchiaio) tutti da Olio EVO.</span>
-                            </li>
-                            <li class="flex items-start gap-2.5">
-                                <i data-lucide="sparkles" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>
-                                <span><strong>Condimenti e Dolcificanti:</strong> Spezie e aromatizzatori senza restrizioni. Sale rosa moderatamente. Dolcificare solo con Stevia o Xylitolo.</span>
-                            </li>
-                        </ul>
+                        <h3 class="text-base font-bold text-white">Pasti</h3>
+                        <p class="text-sm text-slate-300 leading-relaxed">Le porzioni e le regole brevi stanno nella scheda Pasti. Qui restano la lista degli integratori, l’acqua e il conteggio delle uova.</p>
                     </div>
                 </div>
 
@@ -347,29 +283,28 @@
                     <span class="px-2.5 py-0.5 text-[11px] font-extrabold uppercase tracking-wider bg-rose-500/20 text-rose-300 border border-rose-500/30 rounded-full">Heavy Duty</span>
                     <h2 class="text-lg font-extrabold text-white">Allenamento</h2>
                 </div>
-                <p class="text-sm text-slate-300 leading-relaxed">Programma di Enrico Dell'Olio. Tre schede a rotazione, <strong class="text-white">una seduta ogni 3 giorni</strong>. Nei giorni senza pesi, due camminate da 40 minuti a passo rapido.</p>
+                <p class="text-sm text-slate-300 leading-relaxed">Solo pesi liberi. La lat machine e i cavi del functional trainer sono fuori uso. Tre schede a rotazione, <strong class="text-white">una seduta ogni 2-3 giorni</strong>. Nei giorni senza pesi, due camminate da 40 minuti.</p>
                 <div id="workout-next"></div>
             </div>
 
             <details class="bg-slate-900 border border-slate-800 rounded-2xl">
                 <summary class="px-4 py-3 text-sm font-bold text-white">Regole Heavy Duty</summary>
                 <ul class="px-4 pb-4 space-y-2 text-sm text-slate-300 leading-relaxed list-disc pl-8">
-                    <li>Le serie indicate sono solo le serie allenanti.</li>
-                    <li>Prima del primo esercizio fai 1-2 serie di riscaldamento leggere da 10-12 ripetizioni: non contano.</li>
-                    <li>Ogni serie allenante va al cedimento muscolare momentaneo, eccetto stacco e squat: fermati una ripetizione prima.</li>
-                    <li>Movimento lento: circa 2 secondi su, pausa, 3-4 secondi giù. Niente slanci.</li>
-                    <li>Recupero 2-3 minuti.</li>
-                    <li>Quando raggiungi il massimo delle ripetizioni, la volta dopo aumenta di circa il 5%.</li>
-                    <li>Tieni sempre il diario. Il primo giorno usa carichi prudenti.</li>
+                    <li>1 serie di riscaldamento leggera, poi 2 serie allenanti.</li>
+                    <li>Le serie allenanti arrivano al cedimento tecnico. Squat e stacco rumeno: fermati una ripetizione prima.</li>
+                    <li>Cadenza: circa 2 secondi su, 3-4 secondi giù.</li>
+                    <li>Recupero 2 minuti.</li>
+                    <li>Quando chiudi il massimo delle ripetizioni, la volta dopo alza il peso.</li>
+                    <li>La seduta dura circa 40 minuti.</li>
                 </ul>
             </details>
 
             <div id="workout-walks"></div>
 
             <div class="grid grid-cols-3 gap-2">
-                <button type="button" onclick="selectWorkoutDay('giorno1')" id="wo-tab-giorno1" class="wo-day-btn min-h-11 rounded-xl text-sm font-bold px-2 py-2 border border-slate-700 bg-slate-900 text-slate-300">Giorno 1 <span class="block text-[10px] font-semibold text-rose-300">A</span></button>
-                <button type="button" onclick="selectWorkoutDay('giorno2')" id="wo-tab-giorno2" class="wo-day-btn min-h-11 rounded-xl text-sm font-bold px-2 py-2 border border-slate-700 bg-slate-900 text-slate-300">Giorno 2 <span class="block text-[10px] font-semibold text-rose-300">B</span></button>
-                <button type="button" onclick="selectWorkoutDay('giorno3')" id="wo-tab-giorno3" class="wo-day-btn min-h-11 rounded-xl text-sm font-bold px-2 py-2 border border-slate-700 bg-slate-900 text-slate-300">Giorno 3 <span class="block text-[10px] font-semibold text-rose-300">C</span></button>
+                <button type="button" onclick="selectWorkoutDay('giorno1')" id="wo-tab-giorno1" class="wo-day-btn min-h-11 rounded-xl text-sm font-bold px-2 py-2 border border-slate-700 bg-slate-900 text-slate-300">A <span class="block text-[10px] font-semibold text-rose-300">Petto</span></button>
+                <button type="button" onclick="selectWorkoutDay('giorno2')" id="wo-tab-giorno2" class="wo-day-btn min-h-11 rounded-xl text-sm font-bold px-2 py-2 border border-slate-700 bg-slate-900 text-slate-300">B <span class="block text-[10px] font-semibold text-rose-300">Gambe</span></button>
+                <button type="button" onclick="selectWorkoutDay('giorno3')" id="wo-tab-giorno3" class="wo-day-btn min-h-11 rounded-xl text-sm font-bold px-2 py-2 border border-slate-700 bg-slate-900 text-slate-300">C <span class="block text-[10px] font-semibold text-rose-300">Spalle</span></button>
             </div>
 
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-4">
@@ -392,48 +327,9 @@
              ========================================== -->
         <section id="tab-tavole" class="hidden space-y-6">
             <button type="button" onclick="switchTab('impostazioni')" class="touch text-sm font-semibold text-emerald-300">← Impostazioni</button>
-            <!-- Barra di Ricerca e Filtri Tavole H.I.T.A. -->
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
-                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div>
-                        <h2 class="text-lg font-bold text-white flex items-center gap-2">
-                            <i data-lucide="book-open" class="w-5 h-5 text-emerald-400"></i>
-                            Tavole Ufficiali Alimenti H.I.T.A. (1 Blocchetto)
-                        </h2>
-                        <p class="text-xs text-slate-400">Ogni quantità indicata corrisponde esattamente a <strong class="text-white">1 Blocchetto</strong> pesato a crudo (parte edibile).</p>
-                    </div>
-
-                    <!-- Calcolatore Rapido Volante -->
-                    <div class="flex items-center gap-2 bg-slate-950 border border-slate-800 px-3 py-2 rounded-xl">
-                        <span class="text-xs text-slate-400 font-medium">Moltiplica tavola per:</span>
-                        <select id="table-multiplier" onchange="renderFoodTables()" class="bg-slate-800 text-emerald-400 font-bold text-xs rounded-lg px-2.5 py-1 border border-slate-700 focus:outline-none">
-                            <option value="1">1 Blocchetto</option>
-                            <option value="2">2 Blocchetti</option>
-                            <option value="3">3 Blocchetti</option>
-                            <option value="4">4 Blocchetti</option>
-                            <option value="5">5 Blocchetti</option>
-                            <option value="6">6 Blocchetti</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="flex flex-col sm:flex-row gap-3">
-                    <div class="relative flex-1">
-                        <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
-                        <input type="text" id="food-search-input" oninput="renderFoodTables()" placeholder="Cerca alimento (es. pollo, salmone, broccoli, mandorle...)" class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500">
-                    </div>
-                    <div class="flex gap-1.5 overflow-x-auto pb-1 sm:pb-0">
-                        <button onclick="setFoodTableFilter('ALL')" id="ft-filter-ALL" class="ft-filter-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-600 text-white shrink-0">Tutti</button>
-                        <button onclick="setFoodTableFilter('P')" id="ft-filter-P" class="ft-filter-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-800 text-rose-400 hover:bg-slate-700 shrink-0">Proteine</button>
-                        <button onclick="setFoodTableFilter('C')" id="ft-filter-C" class="ft-filter-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-800 text-emerald-400 hover:bg-slate-700 shrink-0">Carboidrati</button>
-                        <button onclick="setFoodTableFilter('G')" id="ft-filter-G" class="ft-filter-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-800 text-amber-400 hover:bg-slate-700 shrink-0">Grassi</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Griglia Tavole Alimenti -->
-            <div id="food-tables-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Populated by JS -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5">
+                <h2 class="text-lg font-bold text-white">Archivio</h2>
+                <p class="text-sm text-slate-300 mt-2 leading-relaxed">Le porzioni di adesso sono nella scheda Pasti. Il backup del diario è qui sotto e anche in Impostazioni.</p>
             </div>
 
             <!-- Sezione Backup & Esportazione Dati (Per GitHub / Dispositivi) -->
@@ -470,68 +366,44 @@
                             <i data-lucide="map-pin" class="w-5 h-5 text-amber-300"></i>
                             Fuori casa
                         </h2>
-                        <p class="text-sm text-slate-300 mt-1 max-w-3xl">Quando non puoi pesare. Una scelta semplice vale più di un pasto saltato o di un piatto a caso. Le quantità sono a occhio, da affinare con la media della settimana.</p>
+                        <p class="text-base text-slate-300 mt-2 max-w-3xl leading-relaxed">Quando non puoi pesare. Una scelta semplice vale più di un pasto saltato. Le quantità sono a occhio.</p>
                     </div>
-                    <button type="button" onclick="switchTab('pasti')" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold shrink-0">Torna ai pasti</button>
+                    <button type="button" onclick="switchTab('pasti')" class="min-h-11 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-sm font-semibold shrink-0">Torna ai pasti</button>
                 </div>
             </div>
 
-            <div>
-                <h3 class="text-sm font-extrabold uppercase tracking-wider text-slate-400 mb-3">Regole a occhio</h3>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4">
-                        <div class="text-xs font-bold text-rose-300 mb-1">Proteine = palmo della mano</div>
-                        <p class="text-sm text-slate-300">Pesce o carne, un palmo spesso circa un dito: <strong class="text-white">160-180 g crudi per 4 blocchi</strong>.</p>
-                    </div>
-                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4">
-                        <div class="text-xs font-bold text-emerald-300 mb-1">Frutta = un pugno</div>
-                        <p class="text-sm text-slate-300">1 frutto medio è circa <strong class="text-white">1 blocco</strong>: una mela, un’arancia, oppure 2 mandarini.</p>
-                    </div>
-                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4">
-                        <div class="text-xs font-bold text-emerald-300 mb-1">Verdure = un contorno normale</div>
-                        <p class="text-sm text-slate-300">Un contorno normale copre <strong class="text-white">2 blocchi</strong>. Niente patate, pane o pasta.</p>
-                    </div>
-                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4">
-                        <div class="text-xs font-bold text-amber-300 mb-1">Grassi = olio a crudo, a cucchiaini</div>
-                        <p class="text-sm text-slate-300">Chiedi sempre il <strong class="text-white">condimento a parte</strong> e aggiungi l’olio tu, a crudo.</p>
-                    </div>
-                </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <article class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-2">
+                    <h3 class="text-base font-bold text-rose-300">Proteine</h3>
+                    <p class="text-base text-slate-200 leading-relaxed">Un palmo di carne o pesce, oppure 3 uova. Chiedi la cottura semplice, senza panatura.</p>
+                </article>
+                <article class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-2">
+                    <h3 class="text-base font-bold text-emerald-300">Carboidrati</h3>
+                    <p class="text-base text-slate-200 leading-relaxed">Un pugno di riso, cous cous o farro già cotti. A cena, se non c’è il cereale, due fette di Wasa oppure una porzione di ceci o fagioli.</p>
+                </article>
+                <article class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-2">
+                    <h3 class="text-base font-bold text-emerald-300">Verdure</h3>
+                    <p class="text-base text-slate-200 leading-relaxed">Un contorno abbondante. Meglio cotte. Sale poco.</p>
+                </article>
+                <article class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-2">
+                    <h3 class="text-base font-bold text-amber-300">Olio</h3>
+                    <p class="text-base text-slate-200 leading-relaxed">Condimento a parte. Aggiungi tu circa un cucchiaino, a crudo.</p>
+                </article>
             </div>
 
-            <div>
-                <h3 class="text-sm font-extrabold uppercase tracking-wider text-slate-400 mb-3">Schemi rapidi</h3>
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-3">
-                    <article class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-2">
-                        <div class="flex items-center justify-between gap-2">
-                            <h4 class="font-bold text-white">Cena fuori</h4>
-                            <span class="text-[11px] font-mono font-bold px-2 py-0.5 rounded-full bg-slate-950 border border-slate-700 text-slate-200">4P / 3C / 3G</span>
-                        </div>
-                        <p class="text-sm text-slate-300">Pesce alla griglia, palmo grande <strong class="text-white">160-180 g</strong> + contorno di verdure + 1 frutto + <strong class="text-white">1 cucchiaino</strong> di olio.</p>
-                    </article>
-                    <article class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-2">
-                        <div class="flex items-center justify-between gap-2">
-                            <h4 class="font-bold text-white">Pranzo fuori</h4>
-                            <span class="text-[11px] font-mono font-bold px-2 py-0.5 rounded-full bg-slate-950 border border-slate-700 text-slate-200">3P / 3C / 6G</span>
-                        </div>
-                        <p class="text-sm text-slate-300"><strong class="text-white">120-130 g</strong> di pesce, carne bianca o bresaola + verdure + 1 frutto + <strong class="text-white">2 cucchiaini</strong> di olio, oppure 1 cucchiaino + olive.</p>
-                    </article>
-                    <article class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-2">
-                        <div class="flex items-center justify-between gap-2">
-                            <h4 class="font-bold text-white">Spuntino fuori</h4>
-                            <span class="text-[11px] font-mono font-bold px-2 py-0.5 rounded-full bg-slate-950 border border-slate-700 text-slate-200">1P / 1C / 1G</span>
-                        </div>
-                        <p class="text-sm text-slate-300"><strong class="text-white">½ barretta Paleobull</strong>, oppure 30 g di bresaola + ½ frutto + 3 mandorle.</p>
-                    </article>
-                </div>
-            </div>
-
-            <div>
-                <h3 class="text-sm font-extrabold uppercase tracking-wider text-slate-400 mb-3">Barrette consigliate</h3>
-                <div id="fuori-bars" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
-            </div>
-
-            <div class="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4">
-                <p class="text-sm text-amber-100"><strong>Nota.</strong> Al ristorante il grasso extra è il rischio principale. Conta la media della settimana, non il grammo.</p>
+            <div class="space-y-4">
+                <article class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-2">
+                    <h3 class="text-lg font-bold text-white">Pranzo fuori</h3>
+                    <p class="text-base text-slate-200 leading-relaxed">Carne o pesce alla griglia, riso o cous cous o farro, verdure, un filo d’olio a parte. Nei giorni di allenamento la porzione di cereale è un po’ più grande.</p>
+                </article>
+                <article class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-2">
+                    <h3 class="text-lg font-bold text-white">Cena fuori</h3>
+                    <p class="text-base text-slate-200 leading-relaxed">Pesce, verdure cotte, poco cous cous oppure Wasa, ceci o fagioli. Olio a parte, circa un cucchiaino.</p>
+                </article>
+                <article class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-2">
+                    <h3 class="text-lg font-bold text-white">Spuntino</h3>
+                    <p class="text-base text-slate-200 leading-relaxed">Yogurt greco 0% e un frutto. Nei giorni di allenamento, a metà mattina, aggiungi la whey se ce l’hai con te.</p>
+                </article>
             </div>
         </section>
 
@@ -549,7 +421,7 @@
             <div id="storico-charts" class="grid grid-cols-1 lg:grid-cols-3 gap-3"></div>
             <div class="bg-slate-900 border border-slate-800 rounded-2xl shadow-xl overflow-hidden">
                 <div class="overflow-x-auto">
-                    <table class="w-full text-sm text-left min-w-[640px]">
+                    <table class="w-full text-sm text-left min-w-[520px]">
                         <thead class="bg-slate-950 text-[11px] uppercase tracking-wider text-slate-400">
                             <tr>
                                 <th class="px-3 py-3 font-bold">Data</th>
@@ -557,7 +429,6 @@
                                 <th class="px-3 py-3 font-bold">Pressione</th>
                                 <th class="px-3 py-3 font-bold">Acqua</th>
                                 <th class="px-3 py-3 font-bold">Caffè</th>
-                                <th class="px-3 py-3 font-bold">Pasti</th>
                             </tr>
                         </thead>
                         <tbody id="storico-table" class="divide-y divide-slate-800"></tbody>
@@ -576,7 +447,7 @@
                     </div>
                     <button type="button" onclick="resetShoppingWeek()" class="touch shrink-0 px-3 rounded-xl bg-slate-800 text-slate-200 text-sm font-semibold">Azzera spunte</button>
                 </div>
-                <p class="text-sm text-slate-300 leading-relaxed">Quantità indicative per una settimana tipo, da adattare. Solo alimenti facili da trovare al supermercato.</p>
+                <p class="text-base text-slate-300 leading-relaxed">Quantità per una settimana, con 2 o 3 giorni di allenamento. C’è lo yogurt greco 0%. Solo cose del supermercato.</p>
             </div>
             <div id="spesa-list" class="space-y-4"></div>
             <form id="spesa-add-form" onsubmit="addCustomShopItem(event)" class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
@@ -591,18 +462,12 @@
         <section id="tab-impostazioni" class="hidden space-y-5">
             <div>
                 <h2 class="text-xl font-bold text-white">Impostazioni</h2>
-                <p class="text-sm text-slate-400 mt-1">Backup, integratori e tavole. L’allenamento ha una sezione sua.</p>
+                <p class="text-sm text-slate-400 mt-1">Backup e lista integratori. L’allenamento ha una sezione sua.</p>
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <button type="button" onclick="switchTab('integrazione')" class="touch text-left rounded-2xl bg-slate-900 border border-slate-800 px-4 py-4">
-                    <div class="font-bold text-white">Integrazione <span id="supp-badge-desktop" class="text-emerald-300 font-mono text-sm">0/8</span></div>
-                    <div class="text-sm text-slate-400 mt-1">Spunte, uova e acqua</div>
-                </button>
-                <button type="button" onclick="switchTab('tavole')" class="touch text-left rounded-2xl bg-slate-900 border border-slate-800 px-4 py-4">
-                    <div class="font-bold text-white">Tavole alimenti</div>
-                    <div class="text-sm text-slate-400 mt-1">Blocchetti e ricerca</div>
-                </button>
-            </div>
+            <button type="button" onclick="switchTab('integrazione')" class="touch text-left rounded-2xl bg-slate-900 border border-slate-800 px-4 py-4">
+                    <div class="font-bold text-white">Integrazione <span id="supp-badge-desktop" class="text-emerald-300 font-mono text-sm">0/6</span></div>
+                <div class="text-sm text-slate-400 mt-1">Lista personale, uova e acqua</div>
+            </button>
 
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
                 <div>
@@ -657,7 +522,7 @@
     <nav class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-slate-950/95 backdrop-blur-md border-t border-slate-800 grid grid-cols-5 px-1 pb-[env(safe-area-inset-bottom)]">
         <button onclick="switchTab('pasti')" id="mob-tab-pasti" class="flex flex-col items-center justify-center text-emerald-400">
             <i data-lucide="sun" class="w-5 h-5"></i>
-            <span class="text-[11px] font-bold mt-0.5">Oggi</span>
+            <span class="text-[11px] font-bold mt-0.5">Pasti</span>
         </button>
         <button onclick="switchTab('storico')" id="mob-tab-storico" class="flex flex-col items-center justify-center text-slate-400">
             <i data-lucide="history" class="w-5 h-5"></i>
@@ -999,14 +864,12 @@
         // 3. INTEGRATORI GIORNALIERI
         // ----------------------------------------------------
         const SUPPLEMENTS_CONFIG = [
-            { id: 'col_omega3', timing: 'Dopo Colazione', name: 'Omega 3 (Biotech USA)', dose: '1 gellula da 1g' },
-            { id: 'col_vitc', timing: 'Dopo Colazione', name: 'Vitamina C (Biotech USA)', dose: '1 g' },
-            { id: 'col_superburn', timing: 'Dopo Colazione', name: 'Super Burn (Biotech USA)', dose: '1 capsula' },
-            { id: 'pra_superburn', timing: 'Dopo Pranzo', name: 'Super Burn (Biotech USA)', dose: '1 capsula' },
-            { id: 'cen_omega3', timing: 'Dopo Cena', name: 'Omega 3 (Biotech USA)', dose: '1 gellula da 1g' },
-            { id: 'cen_vitc', timing: 'Dopo Cena', name: 'Vitamina C (Biotech USA)', dose: '1 g' },
-            { id: 'cen_superburn', timing: 'Dopo Cena', name: 'Super Burn (Biotech USA)', dose: '1 capsula' },
-            { id: 'nan_magnesio', timing: 'Prima di Coricarsi', name: 'Magnesio bisglicinato + tisana (camomilla/valeriana)', dose: 'dose da etichetta' }
+            { id: 'mat_omega3', timing: 'Mattina', name: 'Omega 3', dose: '3 g' },
+            { id: 'mat_multi', timing: 'Mattina', name: 'Multivitaminico', dose: '1 dose' },
+            { id: 'pra_vitc', timing: 'Pranzo', name: 'Vitamina C', dose: '1 g' },
+            { id: 'cen_vitc', timing: 'Cena', name: 'Vitamina C', dose: '1 g' },
+            { id: 'day_creatina', timing: 'Durante il giorno', name: 'Creatina monoidrato', dose: '4 g' },
+            { id: 'nan_magnesio', timing: 'Prima di dormire', name: 'Magnesio bisglicinato', dose: '1 capsula, 40 minuti prima' }
         ];
 
         // ----------------------------------------------------
@@ -1014,35 +877,34 @@
         // ----------------------------------------------------
         const WORKOUT_ROTATION = ['giorno1', 'giorno2', 'giorno3'];
         const WORKOUT_LETTER = { giorno1: 'A', giorno2: 'B', giorno3: 'C' };
-        const FIRST_WORKOUT_DATE = '2026-11-03';
+        const WORKOUT_SHORT = { giorno1: 'Petto', giorno2: 'Gambe', giorno3: 'Spalle' };
+        const FIRST_WORKOUT_DATE = '2026-11-06';
         const WORKOUT_DAYS = {
             giorno1: {
-                title: 'Giorno 1 (Petto e schiena)',
+                title: 'A · Petto e schiena',
                 exercises: [
-                    { id: 'g1_chest_orizz', name: 'Chest press orizzontale', sets: 2, repMin: 8, repMax: 12, guide: 'Sedile con maniglie all’altezza del petto; spingi senza bloccare i gomiti, torna lento fino a sentire l’allungamento del petto; scapole strette contro lo schienale.' },
-                    { id: 'g1_chest_incl', name: 'Chest press inclinata', sets: 1, repMin: 6, repMax: 10, guide: 'Stesso movimento ma spinta in alto e avanti, lavora il petto alto.' },
-                    { id: 'g1_lat_inv', name: 'Lat machine presa stretta inversa', sets: 2, repMin: 6, repMax: 10, guide: 'Palmi verso di te, mani larghezza spalle; tira al mento/petto alto portando i gomiti verso i fianchi; risali lento a braccia quasi tese; non dondolare.' },
-                    { id: 'g1_pulley', name: 'Pulley basso', sets: 2, repMin: 6, repMax: 10, guide: 'Schiena dritta, petto in fuori; tira verso l’ombelico stringendo le scapole, ritorno lento; busto fermo.' },
-                    { id: 'g1_stacchi', name: 'Stacco da terra con bilanciere', sets: 1, repMin: 6, repMax: 10, guide: 'Piedi sotto il bilanciere vicino agli stinchi, schiena dritta, petto fuori; spingi con le gambe tenendo il bilanciere vicino al corpo; scendi controllato. NON andare a cedimento: fermati una ripetizione prima o appena la schiena tende a curvarsi.' }
+                    { id: 'a_panca', name: 'Panca piana con bilanciere al rack', sets: 2, repMin: 6, repMax: 10, image: 'Barbell_Bench_Press_-_Medium_Grip', imageAlt: 'Panca piana con bilanciere, sdraiato sul rack', guide: 'Sdraiati sulla panca del rack, piedi a terra e scapole ferme. Stacca il bilanciere, scendi in 3-4 secondi fino al petto e risali in circa 2 secondi, senza rimbalzare. Se il bilanciere non è libero, fai la chest press Toorx con lo stesso tempo.' },
+                    { id: 'a_inclinata', name: 'Panca inclinata con manubri, circa 30°', sets: 2, repMin: 6, repMax: 10, image: 'Incline_Dumbbell_Press', imageAlt: 'Panca inclinata con due manubri', guide: 'Panca inclinata di circa 30 gradi. Manubri all’altezza del petto, gomiti un po’ sotto le spalle. Scendi lento e spingi in alto senza chiudere di scatto i gomiti.' },
+                    { id: 'a_rematore', name: 'Rematore con manubrio, un braccio', sets: 2, repMin: 6, repMax: 10, image: 'One-Arm_Dumbbell_Row', imageAlt: 'Rematore a un braccio, un ginocchio sulla panca', guide: 'Un ginocchio e la mano dello stesso lato sulla panca, schiena piatta. Tira il manubrio verso il fianco, gomito vicino al corpo, poi lascialo scendere lento. Fai entrambe le braccia.' },
+                    { id: 'a_trazioni', name: 'Trazioni o negative alla sbarra del rack', sets: 2, repMin: 4, repMax: 8, image: 'Chin-Up', imageAlt: 'Trazione alla sbarra del rack, presa supina', guide: 'Presa supina, mani vicine, alla sbarra del rack. Petto verso la sbarra, discesa lenta. Se non chiudi le ripetizioni, aiutati a salire e fai solo la discesa, lenta: sono le negative. La foto mostra la presa supina.' }
                 ]
             },
             giorno2: {
-                title: 'Giorno 2 (Spalle, trapezi, gambe, addome)',
+                title: 'B · Gambe e addome',
                 exercises: [
-                    { id: 'g2_shoulder', name: 'Shoulder press', sets: 2, repMin: 6, repMax: 10, guide: 'Seduto, spingi sopra la testa e scendi fino all’altezza delle orecchie.' },
-                    { id: 'g2_scrollate', name: 'Scrollate con bilanciere', sets: 1, repMin: 6, repMax: 10, guide: 'Braccia tese, alza le spalle verso le orecchie, tieni 1 s, scendi; braccia non si piegano.' },
-                    { id: 'g2_squat', name: 'Squat con bilanciere al power rack', sets: 2, repMin: 8, repMax: 12, guide: 'Bilanciere sui trapezi, piedi larghezza spalle; scendi almeno a cosce parallele, risali spingendo coi talloni; sicure del rack appena sotto il punto più basso. Fermati una ripetizione prima del cedimento.' },
-                    { id: 'g2_calf', name: 'Calf in piedi', sets: 2, repMin: 12, repMax: 20, guide: 'Sali sulle punte più in alto possibile, tieni 1 s, scendi in allungamento.' },
-                    { id: 'g2_crunch', name: 'Crunch alla macchina', sets: 2, repMin: 12, repMax: 20, guide: 'Arrotola il busto portando le costole verso il bacino, senza tirare con le braccia.' }
+                    { id: 'b_squat', name: 'Squat al rack', sets: 2, repMin: 6, repMax: 10, stopEarly: true, image: 'Barbell_Squat', imageAlt: 'Squat con bilanciere dentro il rack', guide: 'Bilanciere sul rack, all’altezza delle spalle, appoggiato sui trapezi. Piedi circa alla larghezza delle spalle. Scendi fino a cosce circa parallele, ginocchia verso le punte, e risali spingendo sui talloni. Fermati una ripetizione prima del cedimento. Le sicure del rack stanno appena sotto il punto più basso.' },
+                    { id: 'b_rdl', name: 'Stacco rumeno con bilanciere', sets: 2, repMin: 6, repMax: 10, stopEarly: true, image: 'Romanian_Deadlift', imageAlt: 'Stacco rumeno, busto inclinato e bilanciere lungo le gambe', guide: 'In piedi, bilanciere davanti alle cosce, ginocchia morbide e schiena dritta. Spingi il bacino indietro e fai scendere il bilanciere lungo le gambe, poi risali. Fermati una ripetizione prima, o appena la schiena tende ad arrotondarsi.' },
+                    { id: 'b_calf', name: 'Calf in piedi con manubrio', sets: 2, repMin: 12, repMax: 20, image: 'Standing_Dumbbell_Calf_Raise', imageAlt: 'Polpacci in piedi, manubri lungo i fianchi', guide: 'In piedi, un manubrio per mano. Se hai un gradino stabile, metti l’avampiede sul bordo. Sali sulle punte e scendi lento, fino a sentire il polpaccio.' },
+                    { id: 'b_crunch', name: 'Crunch a terra o sulla panca', sets: 2, repMin: 12, repMax: 20, image: 'Crunches', imageAlt: 'Crunch a terra, ginocchia piegate', guide: 'A terra o sulla panca, ginocchia piegate. Arrotola solo il busto, mento staccato dal petto, e torna giù lento. Non tirare la testa con le mani.' }
                 ]
             },
             giorno3: {
-                title: 'Giorno 3 (Deltoidi, tricipiti, bicipiti)',
+                title: 'C · Spalle e braccia',
                 exercises: [
-                    { id: 'g3_alzate_lat', name: 'Alzate laterali (lateral machine o manubri)', sets: 2, repMin: 6, repMax: 10, guide: 'Braccia di lato fino all’altezza delle spalle, gomiti leggermente piegati.' },
-                    { id: 'g3_cavi_90', name: 'Tirate laterali al cavo a 1 braccio, busto flesso 90°', sets: 2, repMin: 6, repMax: 10, guide: 'Busto a 90°, tira il cavo di lato e indietro a braccio quasi teso; lavora il deltoide posteriore.' },
-                    { id: 'g3_pushdown', name: 'Push down ai cavi', sets: 2, repMin: 6, repMax: 10, guide: 'Gomiti fermi ai fianchi, distendi le braccia verso il basso, risali lento.' },
-                    { id: 'g3_curl_bil', name: 'Curl con bilanciere in piedi', sets: 2, repMin: 6, repMax: 10, guide: 'Gomiti fermi ai fianchi, piega fino in alto senza oscillare con la schiena.' }
+                    { id: 'c_lento', name: 'Lento avanti con manubri, seduto', sets: 2, repMin: 6, repMax: 10, image: 'Seated_Dumbbell_Press', imageAlt: 'Lento con manubri, seduto e braccia in alto', guide: 'Seduto, schiena appoggiata. Manubri all’altezza delle spalle, palmi in avanti. Spingi in alto senza chiudere di scatto i gomiti e scendi fino circa alle orecchie.' },
+                    { id: 'c_laterali', name: 'Alzate laterali con manubri', sets: 2, repMin: 8, repMax: 12, image: 'Side_Lateral_Raise', imageAlt: 'Alzate laterali in piedi con manubri', guide: 'In piedi, manubri ai fianchi, gomiti leggermente piegati. Alza di lato fino all’altezza delle spalle e scendi in 3-4 secondi. Niente slancio del busto.' },
+                    { id: 'c_curl', name: 'Curl con bilanciere', sets: 2, repMin: 6, repMax: 10, image: 'Barbell_Curl', imageAlt: 'Curl in piedi con bilanciere', guide: 'In piedi, bilanciere a presa supina, gomiti fermi vicino ai fianchi. Sali in circa 2 secondi e scendi in 3-4. Non dondolare il busto per aiutare la salita.' },
+                    { id: 'c_dip', name: 'Dip alla stazione, o french press con manubrio', sets: 2, repMin: 6, repMax: 10, image: 'Dips_-_Triceps_Version', imageAlt: 'Dip alla stazione, busto tra le parallele', guide: 'Alle parallele della stazione, busto quasi verticale e gomiti indietro. Scendi finché le braccia sono circa a 90 gradi e risali. In alternativa, french press: un manubrio tenuto con due mani dietro la testa, gomiti stretti, stendi le braccia e torna lento.' }
                 ]
             },
             cardio: {
@@ -1051,6 +913,23 @@
                     { id: 'cardio_walk', name: 'Camminata a passo rapido (senza fiatone)', sets: 1, repMin: 0, repMax: 0, guide: '' }
                 ]
             }
+        };
+        const LEGACY_EXERCISE_NAMES = {
+            g1_chest_orizz: 'Chest press orizzontale',
+            g1_chest_incl: 'Chest press inclinata',
+            g1_lat_inv: 'Lat machine presa stretta inversa',
+            g1_pulley: 'Pulley basso',
+            g1_stacchi: 'Stacco da terra con bilanciere',
+            g2_shoulder: 'Shoulder press',
+            g2_scrollate: 'Scrollate con bilanciere',
+            g2_squat: 'Squat con bilanciere al power rack',
+            g2_calf: 'Calf in piedi',
+            g2_crunch: 'Crunch alla macchina',
+            g3_alzate_lat: 'Alzate laterali',
+            g3_cavi_90: 'Tirate laterali al cavo',
+            g3_pushdown: 'Push down ai cavi',
+            g3_curl_bil: 'Curl con bilanciere',
+            cardio_walk: 'Camminata a passo rapido'
         };
 
         // ----------------------------------------------------
@@ -1088,7 +967,8 @@
             shopping: { checkedByWeek: {}, custom: [] },
             savedPresets: [],   // giornate tipo salvate [{ name, meals }]
             workoutHistory: [], // storico sedute [{ id, date, dayKey, dayTitle, results, notes }]
-            walksByWeek: {}     // { lunedì: { a: bool, b: bool } } due camminate da 40 min
+            walksByWeek: {},    // { lunedì: { a: bool, b: bool } } due camminate da 40 min
+            dietModeByDate: {}  // { 'YYYY-MM-DD': 'on' | 'off' } scelta manuale del giorno di allenamento
         };
 
         function loadState() {
@@ -1106,6 +986,7 @@
             appState.savedPresets = appState.savedPresets || [];
             appState.workoutHistory = appState.workoutHistory || [];
             if (!appState.walksByWeek || typeof appState.walksByWeek !== 'object' || Array.isArray(appState.walksByWeek)) appState.walksByWeek = {};
+            if (!appState.dietModeByDate || typeof appState.dietModeByDate !== 'object' || Array.isArray(appState.dietModeByDate)) appState.dietModeByDate = {};
             normalizeShopping();
             if (!JOLLY_BARS.some(b => b.id === appState.jollyBarId)) appState.jollyBarId = 'pb_arancia';
             const glass = parseInt(appState.glassMl, 10);
@@ -1186,12 +1067,15 @@
         function ensureDayInitialized(dateStr) {
             if (!appState.days[dateStr]) {
                 appState.days[dateStr] = {
-                    meals: createDefaultDayMeals(),
+                    meals: {},
                     supplements: {},
                     water: 0
                 };
                 saveState();
             }
+            const day = appState.days[dateStr];
+            if (!day.meals || typeof day.meals !== 'object' || Array.isArray(day.meals)) day.meals = {};
+            if (!day.supplements || typeof day.supplements !== 'object' || Array.isArray(day.supplements)) day.supplements = {};
         }
 
         // ----------------------------------------------------
@@ -1393,7 +1277,434 @@
         // ----------------------------------------------------
         // 7. RENDERING TAB 1: PIANIFICATORE PASTI
         // ----------------------------------------------------
+        function portion(name, amount, nut, grams, extra) {
+            extra = extra || {};
+            const per = nut.per || 100;
+            const f = grams / per;
+            const food = {
+                name,
+                amount,
+                p: Math.round(nut.p * f),
+                c: Math.round(nut.c * f),
+                g: Math.round(nut.g * f),
+                kcal: Math.round(nut.kcal * f),
+                grams: extra.grams != null ? extra.grams : grams,
+                kind: extra.kind || ''
+            };
+            if (extra.note) food.note = extra.note;
+            return food;
+        }
+
+        const NUT = {
+            yogurt: { p: 10, c: 3.53, g: 0, kcal: 55.9 },
+            secca: { p: 20, c: 10, g: 55, kcal: 625 },
+            mandorle: { p: 21, c: 10, g: 50, kcal: 580 },
+            noci: { p: 15, c: 7, g: 65, kcal: 654 },
+            bosco: { p: 1, c: 8, g: 0, kcal: 45 },
+            mirtilli: { p: 0.7, c: 14, g: 0.3, kcal: 57 },
+            more: { p: 1.4, c: 10, g: 0.4, kcal: 43 },
+            albicocche: { p: 1.4, c: 11, g: 0.4, kcal: 48 },
+            pesche: { p: 0.9, c: 9.5, g: 0.3, kcal: 39 },
+            ciliegie: { p: 1, c: 16, g: 0.2, kcal: 63 },
+            melone: { p: 0.8, c: 8, g: 0.2, kcal: 34 },
+            fragole: { p: 0.7, c: 7.7, g: 0.3, kcal: 32 },
+            whey: { p: 89.1, c: 0, g: 3.5, kcal: 388 },
+            basmati: { p: 7.1, c: 78, g: 0.5, kcal: 350 },
+            integrale: { p: 7.5, c: 76, g: 2.2, kcal: 357 },
+            cous: { p: 12.8, c: 72.5, g: 1.4, kcal: 357 },
+            farro: { p: 15, c: 67, g: 2.5, kcal: 335 },
+            pollo: { p: 23, c: 0, g: 1.5, kcal: 110 },
+            tacchino: { p: 24, c: 0, g: 1, kcal: 108 },
+            roast: { p: 29, c: 0.4, g: 4, kcal: 155 },
+            tonno: { p: 25.5, c: 0, g: 1, kcal: 110 },
+            uovo: { p: 6.3, c: 0.4, g: 5, kcal: 72, per: 1 },
+            sgombro: { p: 19, c: 0, g: 12, kcal: 190 },
+            salmone: { p: 20, c: 0, g: 13.3, kcal: 200 },
+            verdura: { p: 1.5, c: 4, g: 0, kcal: 25 },
+            olio: { p: 0, c: 0, g: 100, kcal: 900 },
+            wasa: { p: 11, c: 62, g: 7, kcal: 360 },
+            ceci: { p: 7, c: 16, g: 2, kcal: 120 },
+            fagioli: { p: 6.7, c: 13.5, g: 0.5, kcal: 90 },
+            merluzzo: { p: 17, c: 0, g: 0.7, kcal: 82 },
+            orata: { p: 19, c: 0, g: 6, kcal: 135 },
+            albume: { p: 10.8, c: 0.7, g: 0.15, kcal: 48 },
+            cioccolato: { p: 10, c: 14, g: 55, kcal: 592 }
+        };
+        const WHEY_NOTE = 'Etichetta Optipep 90 Pro: 89,1 g di proteine, 0 g di carboidrati e 3,5 g di grassi per 100 g.';
+        const DIET_DEFAULTS = {
+            colazioneFrutta: 'bosco100',
+            mattinaFrutta: 'pesche150',
+            mattinaGrassi: 'mandorle10',
+            pranzoCarb: 'basmati',
+            pranzoPro: 'pollo200',
+            pranzoOlio: '10',
+            pomeFrutta: 'fragole100',
+            pomeExtra: 'mandorle10',
+            cenaCarb: 'cous40',
+            cenaPro: 'merluzzo200',
+            seraNoci: false
+        };
+        const DIET_OPTIONS = {
+            colazioneFrutta: ['bosco100', 'frutto100'],
+            mattinaFrutta: ['pesche150', 'mirtilli150', 'more150', 'albicocche150', 'ciliegie150', 'melone150'],
+            mattinaGrassi: ['mandorle10', 'noci2'],
+            pranzoCarb: ['basmati', 'integrale', 'cous', 'farro'],
+            pranzoPro: ['pollo200', 'tacchino200', 'roast180', 'tonno150', 'uova3', 'sgombro150', 'salmone150'],
+            pranzoOlio: ['10', '15'],
+            pomeFrutta: ['fragole100', 'more100', 'mirtilli100', 'ciliegie100'],
+            pomeExtra: ['mandorle10', 'noci2', 'cioccolato10'],
+            cenaCarb: ['cous40', 'wasa40', 'ceci100', 'fagioli120'],
+            cenaPro: ['merluzzo200', 'orata200', 'pollo200', 'salmone150', 'albume250', 'sgombro80']
+        };
+
+        function foodById(id, mode) {
+            const on = mode === 'on';
+            const lunchGrams = { basmati: on ? 80 : 60, integrale: on ? 80 : 60, cous: on ? 85 : 60, farro: on ? 80 : 60 };
+            const lunchNames = { basmati: 'Riso basmati', integrale: 'Riso integrale', cous: 'Cous cous', farro: 'Farro' };
+            if (lunchGrams[id] != null) {
+                const grams = lunchGrams[id];
+                const nutKey = id === 'cous' ? 'cous' : id;
+                return portion(lunchNames[id], grams + ' g crudo', NUT[nutKey], grams);
+            }
+            const fixed = {
+                yogurt170: portion('Yogurt greco 0%', '170 g', NUT.yogurt, 170),
+                yogurt150: portion('Yogurt greco 0%', '150 g', NUT.yogurt, 150),
+                bosco100: portion('Frutti di bosco', '100 g', NUT.bosco, 100),
+                frutto100: portion('Un frutto', '100 g', NUT.bosco, 100),
+                secca20: portion('Frutta secca, noci o mandorle', '20 g', NUT.secca, 20),
+                secca15: portion('Frutta secca, noci o mandorle', '15 g', NUT.secca, 15),
+                mandorle10: portion('Mandorle', '10 g', NUT.mandorle, 10),
+                noci2: portion('Noci', '2 noci, circa 10 g', NUT.noci, 10),
+                pesche150: portion('Pesche', '150 g', NUT.pesche, 150),
+                mirtilli150: portion('Mirtilli', '150 g', NUT.mirtilli, 150),
+                more150: portion('More', '150 g', NUT.more, 150),
+                albicocche150: portion('Albicocche', '150 g', NUT.albicocche, 150),
+                ciliegie150: portion('Ciliegie', '150 g', NUT.ciliegie, 150),
+                melone150: portion('Melone', '150 g', NUT.melone, 150),
+                fragole100: portion('Fragole', '100 g', NUT.fragole, 100),
+                more100: portion('More', '100 g', NUT.more, 100),
+                mirtilli100: portion('Mirtilli', '100 g', NUT.mirtilli, 100),
+                ciliegie100: portion('Ciliegie', '100 g', NUT.ciliegie, 100),
+                whey20: portion('Whey Optipep 90 Pro', '20 g', NUT.whey, 20, { note: WHEY_NOTE }),
+                whey30: portion('Whey Optipep 90 Pro', '30 g', NUT.whey, 30, { note: WHEY_NOTE }),
+                pollo200: portion('Petto di pollo', '200 g', NUT.pollo, 200),
+                tacchino200: portion('Petto di tacchino', '200 g', NUT.tacchino, 200),
+                roast180: portion('Roast beef', '180 g', NUT.roast, 180),
+                tonno150: portion('Tonno al naturale, sgocciolato', '150 g', NUT.tonno, 150),
+                uova3: portion('Uova intere', '3 uova', NUT.uovo, 3, { note: 'Tre uova hanno meno proteine e più grassi di 200 g di petto di pollo.' }),
+                sgombro150: portion('Sgombro al naturale', '150 g', NUT.sgombro, 150),
+                sgombro80: portion('Sgombro al naturale', '80 g', NUT.sgombro, 80),
+                salmone150: portion('Salmone', '150 g', NUT.salmone, 150),
+                verdura200: portion('Verdura, cotta o cruda', '200 g', NUT.verdura, 200, { kind: 'veg', note: 'A pranzo puoi stare tra 150 e 200 g. Meglio cotta se gonfia.' }),
+                olio10: portion('Olio extravergine', '10 g', NUT.olio, 10, { kind: 'oil' }),
+                olio15: portion('Olio extravergine', '15 g', NUT.olio, 15, { kind: 'oil' }),
+                cous40: portion('Cous cous', '40 g crudo', NUT.cous, 40),
+                wasa40: portion('Wasa integrali', '40 g, 2 fette', NUT.wasa, 40),
+                ceci100: portion('Ceci in scatola, scolati', '100 g', NUT.ceci, 100),
+                fagioli120: portion('Fagioli in scatola, scolati', '120 g', NUT.fagioli, 120),
+                merluzzo200: portion('Merluzzo', '200 g', NUT.merluzzo, 200),
+                orata200: portion('Orata', '200 g', NUT.orata, 200),
+                albume250: portion('Albumi', '250 g', NUT.albume, 250, { note: 'Circa 7-8 albumi.' }),
+                cioccolato10: portion('Cioccolato 90%', '10 g', NUT.cioccolato, 10)
+            };
+            return fixed[id] || fixed.pollo200;
+        }
+
+        function dietChoices() {
+            const saved = appState.mealPlanChoices && typeof appState.mealPlanChoices === 'object' ? appState.mealPlanChoices : {};
+            const out = { ...DIET_DEFAULTS };
+            Object.keys(DIET_DEFAULTS).forEach(key => {
+                if (key === 'seraNoci') {
+                    out[key] = saved[key] === true;
+                    return;
+                }
+                const allowed = DIET_OPTIONS[key] || [];
+                out[key] = allowed.includes(saved[key]) ? saved[key] : DIET_DEFAULTS[key];
+            });
+            return out;
+        }
+
+        function sumFoods(list) {
+            return list.reduce((acc, food) => ({
+                p: acc.p + food.p,
+                c: acc.c + food.c,
+                g: acc.g + food.g,
+                kcal: acc.kcal + food.kcal
+            }), { p: 0, c: 0, g: 0, kcal: 0 });
+        }
+
+        function formatKcal(n) {
+            return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        }
+
+        function macroLine(food) {
+            return `P ${food.p} g · C ${food.c} g · G ${food.g} g · ${formatKcal(food.kcal)} kcal`;
+        }
+
+        function setDietChoice(key, value) {
+            const current = dietChoices();
+            if (key === 'seraNoci') current.seraNoci = value === true || value === 'true';
+            else if ((DIET_OPTIONS[key] || []).includes(value)) current[key] = value;
+            appState.mealPlanChoices = current;
+            saveState();
+            renderMealPlan();
+        }
+
+        function isScheduledTrainingDay(dateStr) {
+            const history = appState.workoutHistory || [];
+            if (history.some(session => session && session.date === dateStr && WORKOUT_ROTATION.includes(session.dayKey))) return true;
+            let cursor = nextWorkoutPlan().date;
+            for (let i = 0; i < 24; i++) {
+                if (cursor === dateStr) return true;
+                if (cursor > dateStr) return false;
+                cursor = addDaysIso(cursor, 3);
+            }
+            return false;
+        }
+
+        function dietModeManual() {
+            const saved = appState.dietModeByDate && appState.dietModeByDate[currentDate];
+            return saved === 'on' || saved === 'off' ? saved : '';
+        }
+
+        function dietMode() {
+            return dietModeManual() || (isScheduledTrainingDay(currentDate) ? 'on' : 'off');
+        }
+
+        function setDietMode(mode) {
+            if (mode !== 'on' && mode !== 'off') return;
+            appState.dietModeByDate = appState.dietModeByDate || {};
+            appState.dietModeByDate[currentDate] = mode;
+            saveState();
+            renderMealPlan();
+        }
+
+        function clearDietMode() {
+            if (appState.dietModeByDate) delete appState.dietModeByDate[currentDate];
+            saveState();
+            renderMealPlan();
+        }
+
+        function choiceFood(key, id, mode) {
+            if (key === 'pranzoOlio') return foodById(id === '15' ? 'olio15' : 'olio10', mode);
+            return foodById(id, mode);
+        }
+
+        function choiceSelect(label, key, selected, mode) {
+            const ids = DIET_OPTIONS[key] || [];
+            const options = ids.map(id => {
+                const food = choiceFood(key, id, mode);
+                const picked = id === selected ? 'selected' : '';
+                return `<option value="${id}" ${picked}>${escapeHtml(food.name)} · ${escapeHtml(food.amount)}</option>`;
+            }).join('');
+            const list = ids.map(id => {
+                const food = choiceFood(key, id, mode);
+                const on = id === selected;
+                return `<li class="leading-relaxed ${on ? 'text-white font-semibold' : 'text-slate-300'}">${escapeHtml(food.name)}, ${escapeHtml(food.amount)} — P ${food.p} g · C ${food.c} g · G ${food.g} g · ${food.kcal} kcal</li>`;
+            }).join('');
+            return `
+                <div class="space-y-2">
+                    <label class="block text-base text-slate-200">${escapeHtml(label)}
+                        <select onchange="setDietChoice('${key}', this.value)" class="touch mt-2 w-full bg-slate-900 text-white text-base rounded-xl px-3 border border-slate-700 focus:outline-none focus:border-emerald-500">${options}</select>
+                    </label>
+                    <ul class="space-y-1.5 text-base">${list}</ul>
+                </div>`;
+        }
+
+        function foodBlock(food, extraHtml) {
+            return `
+                <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 space-y-2">
+                    <div class="text-lg font-semibold text-white">${escapeHtml(food.name)}</div>
+                    <div class="text-base text-slate-300">${escapeHtml(food.amount)}</div>
+                    <p class="text-base text-slate-100">${macroLine(food)}</p>
+                    ${food.note ? `<p class="text-sm text-slate-400 leading-relaxed">${escapeHtml(food.note)}</p>` : ''}
+                    ${extraHtml || ''}
+                </div>`;
+        }
+
+        function dayMeals(mode, choice) {
+            const on = mode === 'on';
+            const oil = on && choice.pranzoOlio === '15' ? foodById('olio15', mode) : foodById('olio10', mode);
+            const meals = [
+                {
+                    title: 'Colazione',
+                    note: 'Sempre, sia ON sia OFF.',
+                    foods: [
+                        { food: foodById('yogurt170', mode) },
+                        { food: foodById('secca20', mode) },
+                        { food: foodById(choice.colazioneFrutta, mode), extra: choiceSelect('Frutta', 'colazioneFrutta', choice.colazioneFrutta, mode) }
+                    ]
+                }
+            ];
+            if (on) {
+                meals.push({
+                    title: 'Spuntino di metà mattina',
+                    note: 'Solo nei giorni di allenamento.',
+                    foods: [
+                        { food: foodById(choice.mattinaFrutta, mode), extra: choiceSelect('Frutta, 150 g', 'mattinaFrutta', choice.mattinaFrutta, mode) },
+                        { food: foodById('whey20', mode) },
+                        { food: foodById(choice.mattinaGrassi, mode), extra: choiceSelect('Frutta secca', 'mattinaGrassi', choice.mattinaGrassi, mode) }
+                    ]
+                });
+            } else {
+                meals.push({
+                    title: 'Spuntino di metà mattina',
+                    note: 'Solo nei giorni ON: 150 g di frutta, 20 g di whey e 10 g di mandorle oppure 2 noci. Oggi è OFF, quindi non entra nel totale.',
+                    foods: [],
+                    skip: true
+                });
+            }
+            meals.push({
+                title: 'Pranzo',
+                note: on ? 'Nei giorni ON il cereale è 80 g, il cous cous 85 g. L’olio può arrivare a 15 g.' : 'Nei giorni OFF il cereale è 60 g. Olio 10 g.',
+                foods: [
+                    { food: foodById(choice.pranzoCarb, mode), extra: choiceSelect('Un carboidrato', 'pranzoCarb', choice.pranzoCarb, mode) },
+                    { food: foodById(choice.pranzoPro, mode), extra: choiceSelect('Una proteina', 'pranzoPro', choice.pranzoPro, mode) },
+                    { food: foodById('verdura200', mode) },
+                    { food: oil, extra: on ? choiceSelect('Olio', 'pranzoOlio', choice.pranzoOlio, mode) : '' }
+                ]
+            });
+            const pome = [
+                { food: foodById('yogurt150', mode) },
+                { food: foodById(choice.pomeFrutta, mode), extra: choiceSelect('Frutta, 100 g', 'pomeFrutta', choice.pomeFrutta, mode) }
+            ];
+            if (on) pome.push({ food: foodById(choice.pomeExtra, mode), extra: choiceSelect('Aggiunta del giorno ON', 'pomeExtra', choice.pomeExtra, mode) });
+            meals.push({
+                title: 'Spuntino del pomeriggio',
+                note: on ? 'Nei giorni ON si aggiunge mandorle, noci o cioccolato 90%.' : 'Nei giorni OFF restano yogurt e frutta.',
+                foods: pome
+            });
+            meals.push({
+                title: 'Cena',
+                note: 'Una fonte di carboidrati e una di proteine.',
+                foods: [
+                    { food: foodById(choice.cenaCarb, mode), extra: choiceSelect('Un carboidrato', 'cenaCarb', choice.cenaCarb, mode) },
+                    { food: foodById(choice.cenaPro, mode), extra: choiceSelect('Una proteina', 'cenaPro', choice.cenaPro, mode) },
+                    { food: foodById('verdura200', mode) },
+                    { food: foodById('olio10', mode) }
+                ]
+            });
+            const night = [{ food: foodById('whey30', mode) }];
+            if (choice.seraNoci) night.push({ food: foodById('secca15', mode) });
+            meals.push({
+                title: 'Prima di dormire',
+                note: 'La frutta secca è facoltativa.',
+                foods: night,
+                trailing: `
+                    <label class="flex items-start gap-3 bg-slate-950 border border-slate-800 rounded-xl p-4">
+                        <input type="checkbox" ${choice.seraNoci ? 'checked' : ''} onchange="setDietChoice('seraNoci', this.checked)" class="w-6 h-6 mt-0.5 rounded accent-emerald-500 shrink-0">
+                        <span>
+                            <span class="block text-base font-semibold text-white">Aggiungi 15 g di frutta secca</span>
+                            <span class="block text-sm text-slate-400 mt-1">${macroLine(foodById('secca15', mode))}</span>
+                        </span>
+                    </label>`
+            });
+            return meals;
+        }
+
+        function renderMealPlan() {
+            const host = document.getElementById('meals-container');
+            const totalHost = document.getElementById('daily-total-card');
+            if (!host || !totalHost) return;
+            const choice = dietChoices();
+            const mode = dietMode();
+            const scheduled = isScheduledTrainingDay(currentDate);
+            const manual = dietModeManual();
+            const meals = dayMeals(mode, choice);
+            const foods = meals.flatMap(meal => meal.foods.map(item => item.food));
+            const total = sumFoods(foods);
+            const otherMode = mode === 'on' ? 'off' : 'on';
+            const otherMeals = dayMeals(otherMode, choice);
+            const other = sumFoods(otherMeals.flatMap(meal => meal.foods.map(item => item.food)));
+            const oilG = foods.filter(food => food.kind === 'oil').reduce((sum, food) => sum + food.grams, 0);
+            const vegG = foods.filter(food => food.kind === 'veg').reduce((sum, food) => sum + food.grams, 0);
+            const button = (value, title, subtitle) => {
+                const active = mode === value;
+                return `<button type="button" onclick="setDietMode('${value}')" class="min-h-[4.5rem] rounded-2xl px-3 py-3 text-left border ${active ? 'bg-emerald-600 border-emerald-400 text-white' : 'bg-slate-950 border-slate-700 text-slate-200'}">
+                    <span class="block text-base font-bold">${title}</span>
+                    <span class="block text-sm mt-0.5 ${active ? 'text-emerald-50' : 'text-slate-400'}">${subtitle}</span>
+                </button>`;
+            };
+            totalHost.innerHTML = `
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-white">Giorno ${mode === 'on' ? 'ON' : 'OFF'}</h2>
+                        <p class="text-base text-slate-300 mt-2 leading-relaxed">${scheduled ? 'In scheda questo giorno è un allenamento.' : 'In scheda questo giorno è un riposo.'} ${manual ? 'Hai cambiato la scelta a mano.' : 'La scelta segue la scheda. Puoi cambiarla.'}</p>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        ${button('on', 'Giorno ON', 'Allenamento')}
+                        ${button('off', 'Giorno OFF', 'Riposo')}
+                    </div>
+                    ${manual && manual !== (scheduled ? 'on' : 'off') ? '<button type="button" onclick="clearDietMode()" class="text-base font-semibold text-emerald-300 min-h-11">Torna al giorno previsto</button>' : ''}
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-slate-950 border border-slate-800 rounded-xl p-4">
+                            <div class="text-sm text-rose-300">Proteine</div>
+                            <div class="text-3xl font-bold text-white mt-1">${total.p} g</div>
+                        </div>
+                        <div class="bg-slate-950 border border-slate-800 rounded-xl p-4">
+                            <div class="text-sm text-emerald-300">Carboidrati</div>
+                            <div class="text-3xl font-bold text-white mt-1">${total.c} g</div>
+                        </div>
+                        <div class="bg-slate-950 border border-slate-800 rounded-xl p-4">
+                            <div class="text-sm text-amber-300">Grassi</div>
+                            <div class="text-3xl font-bold text-white mt-1">${total.g} g</div>
+                        </div>
+                        <div class="bg-slate-950 border border-slate-800 rounded-xl p-4">
+                            <div class="text-sm text-slate-300">Energia</div>
+                            <div class="text-3xl font-bold text-white mt-1">${formatKcal(total.kcal)}</div>
+                            <div class="text-sm text-slate-400">kcal</div>
+                        </div>
+                    </div>
+                    <p class="text-base text-slate-200 leading-relaxed">Con le stesse scelte, il giorno ${otherMode === 'on' ? 'ON' : 'OFF'} farebbe ${other.p} g di proteine e ${formatKcal(other.kcal)} kcal.</p>
+                    <p class="text-base text-slate-300 leading-relaxed">Olio extravergine oggi: ${oilG} g, massimo 20-30 g. Verdura oggi: ${vegG} g, massimo 500 g.</p>
+                    <p class="text-sm text-slate-400 leading-relaxed">Il riferimento del piano è circa 1.850 kcal e 170 g di proteine nei giorni ON, circa 1.600 kcal e 150 g nei giorni OFF. I numeri grandi sono la somma delle porzioni scelte, da tabelle standard e arrotondate.</p>
+                </div>`;
+            host.innerHTML = meals.map(meal => {
+                if (meal.skip) {
+                    return `
+                    <article class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-2">
+                        <h3 class="text-xl font-bold text-white">${escapeHtml(meal.title)}</h3>
+                        <p class="text-base text-slate-300 leading-relaxed">${escapeHtml(meal.note)}</p>
+                    </article>`;
+                }
+                const mealTotal = sumFoods(meal.foods.map(item => item.food));
+                return `
+                    <article class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
+                        <header class="space-y-2">
+                            <h3 class="text-xl font-bold text-white">${escapeHtml(meal.title)}</h3>
+                            ${meal.note ? `<p class="text-base text-slate-300 leading-relaxed">${escapeHtml(meal.note)}</p>` : ''}
+                            <p class="text-base text-emerald-200">Totale pasto · ${macroLine(mealTotal)}</p>
+                        </header>
+                        <div class="space-y-3">
+                            ${meal.foods.map(item => foodBlock(item.food, item.extra)).join('')}
+                            ${meal.trailing || ''}
+                        </div>
+                    </article>`;
+            }).join('') + `
+                <article class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-3">
+                    <h3 class="text-xl font-bold text-white">Regole</h3>
+                    <ul class="space-y-3 text-base text-slate-200 leading-relaxed list-disc pl-5">
+                        <li>Un pasto libero a settimana. Se è pizza, margherita o marinara, tieni meno carboidrati nel resto della giornata.</li>
+                        <li>Olio extravergine: massimo 20-30 g al giorno.</li>
+                        <li>Verdure: massimo 500 g al giorno. Meglio cotte se gonfiano.</li>
+                        <li>Niente insaccati, burro e bevande zuccherate.</li>
+                        <li>Massimo un bicchiere di vino rosso.</li>
+                        <li>Cotture semplici: forno, griglia, vapore o friggitrice ad aria.</li>
+                        <li>Pesare a crudo.</li>
+                        <li>2,5 litri d’acqua.</li>
+                        <li>Poco sale: la pressione è da tenere d’occhio.</li>
+                    </ul>
+                </article>`;
+        }
+
         function renderMealsPlanner() {
+            ensureDayInitialized(currentDate);
+            renderMealPlan();
+            renderDayLog();
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function renderMealsPlannerLegacyUnused() {
             ensureDayInitialized(currentDate);
             const dayData = appState.days[currentDate];
             const container = document.getElementById('meals-container');
@@ -2048,16 +2359,51 @@
         // ----------------------------------------------------
         // 10. RENDERING TAB 2: INTEGRAZIONE, ACQUA, UOVA
         // ----------------------------------------------------
+        let supplementEditorOpen = false;
+
+        function supplementCatalog() {
+            if (Array.isArray(appState.supplementCatalog)) return appState.supplementCatalog.map(item => ({ ...item }));
+            return SUPPLEMENTS_CONFIG.map(item => ({ ...item }));
+        }
+
+        function updateSupplementField(id, field, value) {
+            const clean = String(value || '').trim().slice(0, 80);
+            appState.supplementCatalog = supplementCatalog().map(item => item.id === id ? { ...item, [field]: clean } : item);
+            saveState();
+            renderSupplementsAndRules();
+        }
+
+        function removeSupplementItem(id) {
+            appState.supplementCatalog = supplementCatalog().filter(item => item.id !== id);
+            saveState();
+            renderSupplementsAndRules();
+        }
+
+        function addSupplementItem(event) {
+            event.preventDefault();
+            const name = document.getElementById('supp-new-name').value.trim();
+            if (!name) return;
+            const dose = document.getElementById('supp-new-dose').value.trim() || 'dose da etichetta';
+            const timing = document.getElementById('supp-new-timing').value.trim() || 'Quando vuoi';
+            const list = supplementCatalog();
+            list.push({ id: 'sup_' + Date.now(), name: name.slice(0, 80), dose: dose.slice(0, 80), timing: timing.slice(0, 80) });
+            appState.supplementCatalog = list;
+            supplementEditorOpen = true;
+            saveState();
+            renderSupplementsAndRules();
+        }
+
         function renderSupplementsAndRules() {
             ensureDayInitialized(currentDate);
             const dayData = appState.days[currentDate];
             const suppContainer = document.getElementById('supplements-checklist');
 
-            // Group supplements by timing
+            const catalog = supplementCatalog();
             const groups = {};
-            SUPPLEMENTS_CONFIG.forEach(s => {
-                if (!groups[s.timing]) groups[s.timing] = [];
-                groups[s.timing].push(s);
+            catalog.forEach(s => {
+                const timing = s.timing || 'Quando vuoi';
+                if (!groups[timing]) groups[timing] = [];
+                groups[timing].push(s);
             });
 
             let checkedCount = 0;
@@ -2066,33 +2412,51 @@
                     const isChecked = !!dayData.supplements[item.id];
                     if (isChecked) checkedCount++;
                     return `
-                        <label class="flex items-center justify-between p-3 rounded-xl border ${isChecked ? 'bg-emerald-950/30 border-emerald-500/40' : 'bg-slate-950 border-slate-800'} cursor-pointer hover:border-slate-700 transition">
-                            <div class="flex items-center gap-3">
-                                <input type="checkbox" ${isChecked ? 'checked' : ''} onchange="toggleSupplement('${item.id}')" class="w-4 h-4 rounded accent-emerald-500">
-                                <div>
-                                    <div class="text-sm font-semibold ${isChecked ? 'line-through text-slate-400' : 'text-white'}">${item.name}</div>
-                                    <div class="text-xs text-slate-400">Dose: <strong class="text-slate-300">${item.dose}</strong></div>
-                                </div>
-                            </div>
-                            <span class="text-[11px] font-bold px-2 py-0.5 rounded ${isChecked ? 'bg-emerald-500/20 text-emerald-300' : 'bg-slate-800 text-slate-400'}">
-                                ${isChecked ? 'Assunto' : 'Da assumere'}
+                        <label class="flex items-center gap-3 p-4 rounded-xl border ${isChecked ? 'bg-emerald-950/30 border-emerald-500/40' : 'bg-slate-950 border-slate-800'} cursor-pointer">
+                            <input type="checkbox" ${isChecked ? 'checked' : ''} onchange="toggleSupplement('${item.id}')" class="w-6 h-6 rounded accent-emerald-500 shrink-0">
+                            <span>
+                                <span class="block text-base font-semibold ${isChecked ? 'line-through text-slate-400' : 'text-white'}">${escapeHtml(item.name)}</span>
+                                <span class="block text-sm text-slate-400 mt-0.5">${escapeHtml(item.dose || '')}</span>
                             </span>
                         </label>
                     `;
                 }).join('');
 
                 return `
-                    <div class="space-y-2">
-                        <h4 class="text-xs font-extrabold uppercase tracking-wider text-emerald-400">${timing}</h4>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <div class="space-y-3">
+                        <h4 class="text-sm font-bold uppercase tracking-wider text-emerald-300">${escapeHtml(timing)}</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             ${itemsHtml}
                         </div>
                     </div>
                 `;
             }).join('');
 
-            suppContainer.innerHTML = html;
-            document.getElementById('supp-badge-desktop').textContent = `${checkedCount}/${SUPPLEMENTS_CONFIG.length}`;
+            const editorRows = catalog.map(item => `
+                <div class="bg-slate-950 border border-slate-800 rounded-xl p-3 space-y-2">
+                    <input value="${escapeHtml(item.name)}" onchange="updateSupplementField('${item.id}', 'name', this.value)" class="touch w-full bg-slate-900 border border-slate-700 rounded-xl px-3 text-base text-white" aria-label="Nome">
+                    <input value="${escapeHtml(item.dose || '')}" onchange="updateSupplementField('${item.id}', 'dose', this.value)" class="touch w-full bg-slate-900 border border-slate-700 rounded-xl px-3 text-base text-white" aria-label="Dose">
+                    <input value="${escapeHtml(item.timing || '')}" onchange="updateSupplementField('${item.id}', 'timing', this.value)" class="touch w-full bg-slate-900 border border-slate-700 rounded-xl px-3 text-base text-white" aria-label="Momento">
+                    <button type="button" onclick="removeSupplementItem('${item.id}')" class="text-sm font-semibold text-rose-300 min-h-11">Togli dalla lista</button>
+                </div>
+            `).join('');
+
+            suppContainer.innerHTML = (html || '<p class="text-base text-slate-300">La lista è vuota. Aggiungi solo quello che vuoi ricordare.</p>') + `
+                <details ${supplementEditorOpen ? 'open' : ''} ontoggle="supplementEditorOpen = this.open" class="bg-slate-950 border border-slate-800 rounded-xl">
+                    <summary class="px-4 py-3 text-base font-semibold text-white">Modifica la lista</summary>
+                    <div class="px-4 pb-4 space-y-3">
+                        <p class="text-sm text-slate-400 leading-relaxed">Nome, dose e momento sono tuoi. Le spunte dei giorni già salvati restano nel diario, anche se togli una voce.</p>
+                        ${editorRows}
+                        <form onsubmit="addSupplementItem(event)" class="space-y-2 pt-2">
+                            <input id="supp-new-name" required placeholder="Nome" class="touch w-full bg-slate-900 border border-slate-700 rounded-xl px-3 text-base text-white">
+                            <input id="supp-new-dose" placeholder="Dose, se ti serve" class="touch w-full bg-slate-900 border border-slate-700 rounded-xl px-3 text-base text-white">
+                            <input id="supp-new-timing" placeholder="Momento, per esempio dopo pranzo" class="touch w-full bg-slate-900 border border-slate-700 rounded-xl px-3 text-base text-white">
+                            <button type="submit" class="touch w-full rounded-xl bg-emerald-600 text-white font-bold">Aggiungi</button>
+                        </form>
+                    </div>
+                </details>`;
+            const badge = document.getElementById('supp-badge-desktop');
+            if (badge) badge.textContent = `${checkedCount}/${catalog.length}`;
 
             // Render Water Tracker (stesso volume del diario: day.water in litri)
             const waterLiters = +((dayData.water || 0)).toFixed(2);
@@ -2118,9 +2482,10 @@
 
             // Render Weekly Eggs Tracker
             const eggs = countWeeklyEggs(currentDate);
-            document.getElementById('eggs-count-badge').textContent = `${eggs} / 3 uova`;
+            document.getElementById('eggs-count-badge').textContent = `${eggs} uova`;
             let eggsHtml = '';
-            for (let i = 1; i <= 3; i++) {
+            const eggIcons = Math.max(1, Math.min(eggs, 6));
+            for (let i = 1; i <= eggIcons; i++) {
                 const used = i <= eggs;
                 eggsHtml += `
                     <div class="w-9 h-9 rounded-xl border flex items-center justify-center ${used ? 'bg-amber-500/20 border-amber-400 text-amber-300' : 'bg-slate-900 border-slate-800 text-slate-600'}">
@@ -2128,8 +2493,8 @@
                     </div>
                 `;
             }
-            if (eggs > 3) {
-                eggsHtml += `<span class="text-xs font-bold text-rose-400 ml-1">+${eggs - 3} extra!</span>`;
+            if (eggs > 6) {
+                eggsHtml += `<span class="text-sm font-bold text-amber-200 ml-1">+${eggs - 6}</span>`;
             }
             document.getElementById('eggs-visual').innerHTML = eggsHtml;
 
@@ -2280,7 +2645,9 @@
             if (!last) return { dayKey: 'giorno1', date: FIRST_WORKOUT_DATE, letter: 'A', last: null };
             const idx = WORKOUT_ROTATION.indexOf(last.dayKey);
             const dayKey = WORKOUT_ROTATION[(idx + 1) % WORKOUT_ROTATION.length];
-            return { dayKey, date: addDaysIso(last.date, 3), letter: WORKOUT_LETTER[dayKey], last };
+            let date = addDaysIso(last.date, 3);
+            if (date < FIRST_WORKOUT_DATE) date = FIRST_WORKOUT_DATE;
+            return { dayKey, date, letter: WORKOUT_LETTER[dayKey], last };
         }
 
         function loggedValue(value) {
@@ -2301,7 +2668,7 @@
                 const on = key === selectedWorkoutDay;
                 btn.className = `wo-day-btn min-h-11 rounded-xl text-sm font-bold px-2 py-2 border ${on ? 'bg-rose-600 border-rose-500 text-white' : 'bg-slate-900 border-slate-700 text-slate-300'}`;
                 const nextMark = key === plan.dayKey ? ' · prossima' : '';
-                btn.innerHTML = `Giorno ${key.slice(-1)}<span class="block text-[10px] font-semibold ${on ? 'text-rose-100' : 'text-rose-300'}">${WORKOUT_LETTER[key]}${nextMark}</span>`;
+                btn.innerHTML = `${WORKOUT_LETTER[key]}<span class="block text-[10px] font-semibold ${on ? 'text-rose-100' : 'text-rose-300'}">${WORKOUT_SHORT[key]}${nextMark}</span>`;
             });
         }
 
@@ -2314,10 +2681,10 @@
             host.innerHTML = `
                 <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 space-y-2">
                     <div class="text-[11px] font-bold uppercase tracking-wider text-rose-300">Prossima seduta</div>
-                    <div class="text-base font-bold text-white">${escapeHtml(day.title)} · ${plan.letter}</div>
+                    <div class="text-base font-bold text-white">${escapeHtml(day.title)}</div>
                     <p class="text-sm text-slate-300">${when}: <strong class="text-white">${formatDateLongIt(plan.date)}</strong></p>
-                    <p class="text-xs text-slate-500">${plan.last ? `Ultima seduta ${formatDateIt(plan.last.date)}, poi 3 giorni.` : 'Prima seduta fissata: martedì 3 novembre 2026, Giorno 1.'}</p>
-                    <button type="button" onclick="openSuggestedWorkout()" class="min-h-11 px-3 rounded-xl bg-rose-600 text-white text-sm font-bold">Apri Giorno ${plan.dayKey.slice(-1)} e usa questa data</button>
+                    <p class="text-sm text-slate-400 leading-relaxed">${plan.last ? `Ultima seduta ${formatDateIt(plan.last.date)}. La successiva è ogni 2-3 giorni: qui è fissata a 3 giorni, e comunque non prima del 6 novembre.` : 'Prima seduta di questa scheda: giovedì 6 novembre 2026, scheda A. È il primo allenamento dopo oggi.'}</p>
+                    <button type="button" onclick="openSuggestedWorkout()" class="min-h-11 px-3 rounded-xl bg-rose-600 text-white text-sm font-bold">Apri scheda ${plan.letter} e usa questa data</button>
                 </div>`;
         }
 
@@ -2424,15 +2791,24 @@
                             <h4 class="text-base font-bold text-white">${idx + 1}. ${escapeHtml(ex.name)}</h4>
                             <span class="shrink-0 text-xs font-mono font-semibold px-2 py-1 rounded-full bg-slate-900 text-rose-200 border border-slate-800">${ex.sets}×${ex.repMin}-${ex.repMax}</span>
                         </div>
-                        <p id="wo-hint-${ex.id}" class="${previousHit ? '' : 'hidden '}text-sm font-semibold text-amber-200">prossima volta +5% circa</p>
+                        <p id="wo-hint-${ex.id}" class="${previousHit ? '' : 'hidden '}text-base font-semibold text-amber-200">Hai chiuso il massimo delle ripetizioni: la prossima volta +peso.</p>
+                        ${ex.stopEarly ? '<p class="text-sm text-amber-100/90">Squat e stacco: fermati una ripetizione prima.</p>' : ''}
+                        ${ex.image ? `
+                        <figure class="space-y-2">
+                            <div class="ex-stage">
+                                <img src="img/ex/${ex.image}-0.jpg" alt="${escapeHtml(ex.imageAlt || ex.name)}" class="ex-a" onerror="this.closest('figure').classList.add('ex-off')">
+                                <img src="img/ex/${ex.image}-1.jpg" alt="" class="ex-b" onerror="this.remove()">
+                            </div>
+                            <figcaption class="text-sm text-slate-400 leading-relaxed">Due fotogrammi, si alternano. Se non si vedono, la guida scritta basta. Fonte: Free Exercise DB, pubblico dominio.</figcaption>
+                        </figure>` : ''}
                         <details class="bg-slate-900 border border-slate-800 rounded-xl">
-                            <summary class="px-3 py-3 text-sm font-semibold text-slate-200">Come eseguirlo</summary>
-                            <p class="px-3 pb-3 text-sm text-slate-300 leading-relaxed">${escapeHtml(ex.guide)}</p>
+                            <summary class="px-3 py-3 text-base font-semibold text-slate-100">Come eseguirlo</summary>
+                            <p class="px-3 pb-4 text-base text-slate-200 leading-relaxed">${escapeHtml(ex.guide)}</p>
                         </details>
                         <div class="space-y-2">${setsInputsHtml}</div>
                     </article>`;
             }).join('');
-            formContainer.innerHTML = `<div class="text-sm font-bold text-rose-200">${escapeHtml(dayConfig.title)} · ${WORKOUT_LETTER[selectedWorkoutDay]}</div>${exercisesHtml}`;
+            formContainer.innerHTML = `<div class="text-base font-bold text-rose-200">${escapeHtml(dayConfig.title)}</div>${exercisesHtml}<p class="text-sm text-slate-500 leading-relaxed">Immagini da <a class="underline" href="https://github.com/yuhonas/free-exercise-db" target="_blank" rel="noopener noreferrer">Free Exercise DB</a> di yuhonas, pubblico dominio (Unlicense). Restano nel sito, così si vedono anche se il telefono è offline dopo la prima apertura.</p>`;
             renderWorkoutNext();
             renderWalks();
             paintWorkoutDayButtons();
@@ -2489,6 +2865,16 @@
             showToast('Voce rimossa dal diario.');
         }
 
+        function sessionResultRows(session) {
+            const results = session.results || {};
+            const planned = WORKOUT_DAYS[session.dayKey]?.exercises || [];
+            const usedPlanned = planned.filter(ex => Array.isArray(results[ex.id]) && results[ex.id].some(set => loggedValue(set.kg) || loggedValue(set.reps) || set.kg === '-' || set.reps));
+            const source = usedPlanned.length
+                ? usedPlanned.map(ex => ({ name: ex.name, sets: results[ex.id] || [] }))
+                : Object.keys(results).map(id => ({ name: LEGACY_EXERCISE_NAMES[id] || 'Esercizio precedente', sets: results[id] || [] }));
+            return source.filter(row => Array.isArray(row.sets) && row.sets.length);
+        }
+
         function renderWorkoutHistory() {
             const listEl = document.getElementById('workout-history-list');
             if (!appState.workoutHistory || appState.workoutHistory.length === 0) {
@@ -2502,11 +2888,9 @@
             }
 
             listEl.innerHTML = appState.workoutHistory.map(session => {
-                const dayCfg = WORKOUT_DAYS[session.dayKey];
-                const exLines = (dayCfg?.exercises || []).map(ex => {
-                    const setsArr = session.results?.[ex.id] || [];
-                    const setsStr = setsArr.map((st, idx) => `S${idx + 1}: <strong>${st.kg}kg × ${st.reps}</strong>`).join(' | ');
-                    return `<div class="text-xs text-slate-300 flex flex-col sm:flex-row sm:justify-between border-b border-slate-800/60 py-1"><span class="text-slate-400">${ex.name}</span><span class="font-mono text-[11px] text-emerald-300">${setsStr}</span></div>`;
+                const exLines = sessionResultRows(session).map(row => {
+                    const setsStr = row.sets.map((st, idx) => `S${idx + 1}: <strong>${escapeHtml(st.kg)}kg × ${escapeHtml(st.reps)}</strong>`).join(' | ');
+                    return `<div class="text-sm text-slate-300 flex flex-col sm:flex-row sm:justify-between border-b border-slate-800/60 py-1.5 gap-1"><span class="text-slate-200">${escapeHtml(row.name)}</span><span class="font-mono text-sm text-emerald-300">${setsStr}</span></div>`;
                 }).join('');
 
                 return `
@@ -2536,12 +2920,12 @@
             }
             let csv = 'Data,Scheda,Esercizio,Serie,Kg,Ripetizioni,Note\n';
             appState.workoutHistory.forEach(s => {
-                const dayCfg = WORKOUT_DAYS[s.dayKey];
-                (dayCfg?.exercises || []).forEach(ex => {
-                    const sets = s.results?.[ex.id] || [];
-                    sets.forEach((st, idx) => {
+                sessionResultRows(s).forEach(row => {
+                    row.sets.forEach((st, idx) => {
                         const cleanNotes = (s.notes || '').replace(/"/g, '""');
-                        csv += `"${s.date}","${s.dayTitle}","${ex.name}",${idx + 1},"${st.kg}","${st.reps}","${cleanNotes}"\n`;
+                        const cleanName = String(row.name).replace(/"/g, '""');
+                        const cleanTitle = String(s.dayTitle || '').replace(/"/g, '""');
+                        csv += `"${s.date}","${cleanTitle}","${cleanName}",${idx + 1},"${st.kg}","${st.reps}","${cleanNotes}"\n`;
                     });
                 });
             });
@@ -2574,9 +2958,10 @@
         }
 
         function renderFoodTables() {
+            const container = document.getElementById('food-tables-container');
+            if (!container) return;
             const query = (document.getElementById('food-search-input')?.value || '').toLowerCase().trim();
             const mult = parseFloat(document.getElementById('table-multiplier')?.value) || 1;
-            const container = document.getElementById('food-tables-container');
 
             const filtered = FOODS_DB.filter(f => {
                 if (currentFoodTableFilter !== 'ALL' && f.macro !== currentFoodTableFilter) return false;
@@ -2733,6 +3118,7 @@
             appState.savedPresets = appState.savedPresets || [];
             appState.workoutHistory = appState.workoutHistory || [];
             if (!appState.walksByWeek || typeof appState.walksByWeek !== 'object' || Array.isArray(appState.walksByWeek)) appState.walksByWeek = {};
+            if (!appState.dietModeByDate || typeof appState.dietModeByDate !== 'object' || Array.isArray(appState.dietModeByDate)) appState.dietModeByDate = {};
             normalizeShopping();
             if (!hadFlag) appState.legacyWeeklyEggsMigrated = false;
             migrateLegacyWeeklyEggs();
@@ -2997,8 +3383,6 @@
                 const day = appState.days[date] || {};
                 const liters = +((day.water || 0)).toFixed(2);
                 const glasses = Math.round(liters / (ml / 1000));
-                const progress = dayProgress(date);
-                const meals = progress ? `${progress.mealsOk}/${progress.mealsTotal} · ${progress.blockPct}% blocchi` : '—';
                 return `
                     <tr class="hover:bg-slate-800/60 cursor-pointer" onclick="openHistoryDay('${date}')">
                         <td class="px-3 py-2.5 font-semibold text-white whitespace-nowrap">${formatDateIt(date)}</td>
@@ -3006,9 +3390,8 @@
                         <td class="px-3 py-2.5 text-slate-200">${escapeHtml(bpSummary(day))}</td>
                         <td class="px-3 py-2.5 text-slate-200">${liters ? `${glasses} bic. · ${formatItNumber(liters, 2)} L` : '—'}</td>
                         <td class="px-3 py-2.5 text-slate-200">${day.coffee || '—'}</td>
-                        <td class="px-3 py-2.5 text-slate-300">${meals}</td>
                     </tr>`;
-            }).join('') || `<tr><td colspan="6" class="px-3 py-6 text-center text-slate-500">Nessun giorno registrato.</td></tr>`;
+            }).join('') || `<tr><td colspan="5" class="px-3 py-6 text-center text-slate-500">Nessun giorno registrato.</td></tr>`;
             syncGithubForm();
         }
 
@@ -3432,42 +3815,48 @@
         // ----------------------------------------------------
         const SHOPPING_GROUPS = [
             { id: 'proteine', title: 'Proteine', items: [
-                { id: 'pollo', name: 'Petto di pollo o tacchino', qty: '~1 kg' },
-                { id: 'pesce', name: 'Pesce fresco o surgelato al naturale (orata, branzino, merluzzo, salmone)', qty: '~1 kg' },
-                { id: 'carne', name: 'Carne magra (manzo, vitello, lonza)', qty: '~500 g' },
-                { id: 'uova', name: 'Uova', qty: '12' },
-                { id: 'albumi', name: 'Albumi in brick', qty: '1 confezione' },
-                { id: 'bresaola', name: 'Bresaola', qty: '2 confezioni' },
-                { id: 'tonno', name: 'Tonno al naturale', qty: '3-4 scatolette' }
+                { id: 'pollo', name: 'Petto di pollo', qty: 'circa 1,2 kg' },
+                { id: 'tacchino', name: 'Petto di tacchino', qty: 'circa 400 g' },
+                { id: 'roast', name: 'Roast beef', qty: 'circa 200 g' },
+                { id: 'tonno', name: 'Tonno al naturale', qty: '3 scatolette' },
+                { id: 'uova', name: 'Uova', qty: '10' },
+                { id: 'sgombro', name: 'Sgombro al naturale, in vetro', qty: '2 vasetti' },
+                { id: 'salmone', name: 'Salmone', qty: 'circa 400 g' },
+                { id: 'merluzzo', name: 'Merluzzo', qty: 'circa 600 g' },
+                { id: 'orata', name: 'Orata', qty: 'circa 400 g' },
+                { id: 'albumi', name: 'Albumi', qty: 'circa 500 g' },
+                { id: 'whey', name: 'Whey Optipep 90 Pro', qty: 'circa 300 g' }
             ]},
-            { id: 'verdura', title: 'Verdura', note: 'Circa 6-7 kg in tutto, anche surgelata', items: [
+            { id: 'latticini', title: 'Yogurt', items: [
+                { id: 'yogurt', name: 'Yogurt greco 0%', qty: 'circa 2,2 kg, vasetti da 150 o 170 g' }
+            ]},
+            { id: 'cereali', title: 'Cereali, pane e legumi', items: [
+                { id: 'riso', name: 'Riso basmati', qty: 'circa 500 g' },
+                { id: 'integrale', name: 'Riso integrale', qty: 'circa 400 g' },
+                { id: 'cous', name: 'Cous cous', qty: 'circa 500 g' },
+                { id: 'farro', name: 'Farro', qty: 'circa 400 g' },
+                { id: 'wasa', name: 'Wasa integrali', qty: '1 confezione' },
+                { id: 'ceci', name: 'Ceci in scatola', qty: '2 scatole' },
+                { id: 'fagioli', name: 'Fagioli in scatola', qty: '2 scatole' }
+            ]},
+            { id: 'verdura', title: 'Verdura', note: 'Circa 3 kg, anche surgelata. Massimo 500 g al giorno, meglio cotta se gonfia.', items: [
                 { id: 'zucchine', name: 'Zucchine', qty: '' },
                 { id: 'spinaci', name: 'Spinaci', qty: '' },
                 { id: 'broccoli', name: 'Broccoli', qty: '' },
-                { id: 'insalata', name: 'Insalata o rucola', qty: '' },
-                { id: 'pomodori', name: 'Pomodori', qty: '' },
-                { id: 'peperoni', name: 'Peperoni', qty: '' },
-                { id: 'finocchi', name: 'Finocchi', qty: '' },
+                { id: 'fagiolini', name: 'Fagiolini', qty: '' },
                 { id: 'cavolfiore', name: 'Cavolfiore', qty: '' },
-                { id: 'fagiolini', name: 'Fagiolini', qty: '' }
+                { id: 'carote', name: 'Carote', qty: '' }
             ]},
-            { id: 'frutta', title: 'Frutta', note: 'Circa 5-6 kg, anche surgelata', items: [
-                { id: 'mele', name: 'Mele', qty: '' },
-                { id: 'pere', name: 'Pere', qty: '' },
-                { id: 'arance', name: 'Arance', qty: '' },
-                { id: 'mandarini', name: 'Mandarini', qty: '' },
-                { id: 'kiwi', name: 'Kiwi', qty: '' },
-                { id: 'fragole', name: 'Fragole', qty: '' },
-                { id: 'bosco', name: 'Frutti di bosco', qty: 'anche surgelati' }
+            { id: 'frutta', title: 'Frutta', items: [
+                { id: 'bosco', name: 'Frutti di bosco', qty: 'circa 700 g, anche surgelati' },
+                { id: 'fragole', name: 'Fragole, mirtilli o more', qty: 'circa 1 kg' },
+                { id: 'pesche', name: 'Pesche, albicocche, ciliegie o melone', qty: 'circa 1 kg' }
             ]},
-            { id: 'grassi', title: 'Grassi', items: [
-                { id: 'olio', name: 'Olio extravergine di oliva', qty: '1 bottiglia' },
+            { id: 'grassi', title: 'Olio, frutta secca e cioccolato', items: [
+                { id: 'olio', name: 'Olio extravergine di oliva', qty: 'la bottiglia che hai già' },
                 { id: 'mandorle', name: 'Mandorle al naturale', qty: '200 g' },
-                { id: 'noci', name: 'Noci', qty: '100 g' }
-            ]},
-            { id: 'fuori', title: 'Fuori casa', items: [
-                { id: 'paleobull', name: 'Barrette Paleobull Arancia e Chia', qty: '1 confezione' },
-                { id: 'snacknoir', name: 'EnerZona Snack Noir senza zuccheri', qty: '1 confezione' }
+                { id: 'noci', name: 'Noci', qty: '150 g' },
+                { id: 'cioccolato', name: 'Cioccolato 90%', qty: '1 tavoletta' }
             ]}
         ];
 
@@ -3498,8 +3887,13 @@
                 groupSelect.innerHTML = SHOPPING_GROUPS.map(g => `<option value="${g.id}">${escapeHtml(g.title)}</option>`).join('');
                 groupSelect.dataset.ready = '1';
             }
-            list.innerHTML = SHOPPING_GROUPS.map(group => {
-                const custom = appState.shopping.custom.filter(item => item.group === group.id);
+            const knownGroups = new Set(SHOPPING_GROUPS.map(group => group.id));
+            const orphanCustom = appState.shopping.custom.filter(item => !knownGroups.has(item.group));
+            const groupsForList = orphanCustom.length
+                ? [...SHOPPING_GROUPS, { id: 'altro', title: 'Già aggiunti', items: orphanCustom }]
+                : SHOPPING_GROUPS;
+            list.innerHTML = groupsForList.map(group => {
+                const custom = group.id === 'altro' ? [] : appState.shopping.custom.filter(item => item.group === group.id);
                 const rows = [...group.items, ...custom].map(item => {
                     const on = !!checks[item.id];
                     const customBtn = item.custom || String(item.id).startsWith('c_')
