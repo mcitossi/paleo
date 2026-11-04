@@ -95,6 +95,7 @@
             50%, 100% { opacity: 1; }
         }
         .ex-off { display: none; }
+        #storico-measures { scroll-margin-top: 8.5rem; }
         @media (prefers-reduced-motion: reduce) {
             .ex-stage .ex-b { display: none; }
         }
@@ -416,8 +417,9 @@
                     <i data-lucide="history" class="w-5 h-5 text-emerald-400"></i>
                     Storico
                 </h2>
-                <p class="text-sm text-slate-300 mt-1">Peso, pressione, acqua e caffè giorno per giorno. Tocca una riga per aprire quella data.</p>
+                <p class="text-base text-slate-300 mt-2 leading-relaxed">Peso, pressione, acqua e caffè giorno per giorno. Le circonferenze sono facoltative: circa una volta a settimana. Tocca una riga per aprire quella data.</p>
             </div>
+            <div id="storico-measures"></div>
             <div id="storico-charts" class="grid grid-cols-1 lg:grid-cols-3 gap-3"></div>
             <div class="bg-slate-900 border border-slate-800 rounded-2xl shadow-xl overflow-hidden">
                 <div class="overflow-x-auto">
@@ -426,6 +428,7 @@
                             <tr>
                                 <th class="px-3 py-3 font-bold">Data</th>
                                 <th class="px-3 py-3 font-bold">Peso</th>
+                                <th class="px-3 py-3 font-bold">Vita</th>
                                 <th class="px-3 py-3 font-bold">Pressione</th>
                                 <th class="px-3 py-3 font-bold">Acqua</th>
                                 <th class="px-3 py-3 font-bold">Caffè</th>
@@ -3316,7 +3319,163 @@
             lucide.createIcons();
         }
 
-        function svgChart(title, series) {
+        const BODY_MEASURES = [
+            {
+                key: 'waistCm',
+                label: 'Giro vita',
+                place: 'all’ombelico',
+                min: 40,
+                max: 200,
+                hint: 'In piedi, al mattino e a digiuno. Il metro passa sull’ombelico, parallelo al pavimento, appoggiato ma non stretto. Espira normalmente e leggi il numero a fine espirazione. Tieni la stessa posizione ogni volta.'
+            },
+            {
+                key: 'hipsCm',
+                label: 'Fianchi',
+                place: 'punto più largo',
+                min: 40,
+                max: 200,
+                hint: 'In piedi, piedi vicini. Il metro passa nel punto più largo dei glutei, parallelo al pavimento, senza stringere.'
+            },
+            {
+                key: 'bicepsRestCm',
+                label: 'Bicipite a riposo',
+                place: 'braccio rilassato',
+                min: 15,
+                max: 70,
+                hint: 'Braccio lungo il fianco, rilassato, palmo in avanti. Il metro sta nel punto più largo del bicipite, senza stringere.'
+            },
+            {
+                key: 'bicepsFlexCm',
+                label: 'Bicipite contratto',
+                place: 'braccio piegato',
+                min: 15,
+                max: 70,
+                hint: 'Alza il braccio e piega il gomito, contrai il bicipite. Il metro sta nel punto più largo, senza schiacciare il muscolo.'
+            }
+        ];
+
+        function measureCm(day, key) {
+            if (!day || typeof day !== 'object') return null;
+            const n = Number(day[key]);
+            return Number.isFinite(n) && n > 0 ? Math.round(n * 10) / 10 : null;
+        }
+
+        function measureHistory(key) {
+            return Object.keys(appState.days || {})
+                .filter(date => /^\d{4}-\d{2}-\d{2}$/.test(date) && measureCm(appState.days[date], key) != null)
+                .sort()
+                .map(date => ({ date, value: measureCm(appState.days[date], key) }));
+        }
+
+        function formatDeltaCm(delta) {
+            if (delta == null || !Number.isFinite(delta)) return '';
+            const rounded = Math.round(delta * 10) / 10;
+            if (rounded === 0) return '0 cm';
+            const sign = rounded > 0 ? '+' : '−';
+            return `${sign}${formatItNumber(Math.abs(rounded), 1)} cm`;
+        }
+
+        function measureSummary(key) {
+            const series = measureHistory(key);
+            if (!series.length) return { series, last: null, previous: null, first: null };
+            const last = series[series.length - 1];
+            const previous = series.length > 1 ? series[series.length - 2] : null;
+            const first = series[0];
+            return {
+                series,
+                last,
+                previous,
+                first,
+                vsPrevious: previous ? last.value - previous.value : null,
+                vsFirst: first.date !== last.date ? last.value - first.value : null
+            };
+        }
+
+        function setMeasureCm(key, value) {
+            const spec = BODY_MEASURES.find(item => item.key === key);
+            const day = appState.days[currentDate];
+            if (!spec || !day) return;
+            const raw = String(value).trim().replace(',', '.');
+            if (raw === '') delete day[key];
+            else {
+                const n = Math.round(parseFloat(raw) * 10) / 10;
+                if (!Number.isFinite(n) || n < spec.min || n > spec.max) {
+                    showToast(`Inserisci i centimetri tra ${spec.min} e ${spec.max}.`, 'rose');
+                    renderStorico();
+                    return;
+                }
+                day[key] = n;
+            }
+            saveState();
+            renderStorico();
+        }
+
+        function measureHint(spec) {
+            return `
+                <details class="bg-slate-950 border border-slate-800 rounded-xl">
+                    <summary class="px-4 py-3 text-base font-semibold text-slate-100">Come misurarlo</summary>
+                    <p class="px-4 pb-4 text-base text-slate-300 leading-relaxed">${escapeHtml(spec.hint)}</p>
+                </details>`;
+        }
+
+        function renderBodyMeasures() {
+            const host = document.getElementById('storico-measures');
+            if (!host) return;
+            const waist = BODY_MEASURES[0];
+            const waistInfo = measureSummary(waist.key);
+            const todayWaist = measureCm(appState.days[currentDate], waist.key);
+            const waistValue = waistInfo.last
+                ? `${formatItNumber(waistInfo.last.value, 1)} cm`
+                : 'Nessuna misura';
+            const waistWhen = waistInfo.last ? `Ultima misura il ${formatDateIt(waistInfo.last.date)}` : 'Circa una volta a settimana, al mattino, a digiuno.';
+            const deltaLine = (label, delta) => delta == null ? '' : `<p class="text-base text-slate-200">${label}: <strong class="text-white">${formatDeltaCm(delta)}</strong></p>`;
+            const waistChart = waistInfo.series.length
+                ? svgChart('Andamento del giro vita', [{ name: 'Vita', color: '#34d399', points: waistInfo.series.map(point => ({ x: point.date, y: point.value })) }], { bare: true })
+                : '<p class="text-base text-slate-400">Quando segni il giro vita, qui compare l’andamento.</p>';
+            const others = BODY_MEASURES.slice(1).map(spec => {
+                const info = measureSummary(spec.key);
+                const today = measureCm(appState.days[currentDate], spec.key);
+                const value = info.last ? `${formatItNumber(info.last.value, 1)} cm` : '—';
+                const when = info.last ? formatDateIt(info.last.date) : 'nessuna misura';
+                return `
+                    <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 space-y-3">
+                        <div>
+                            <h4 class="text-lg font-bold text-white">${escapeHtml(spec.label)}</h4>
+                            <p class="text-2xl font-bold text-white mt-1">${value}</p>
+                            <p class="text-sm text-slate-400 mt-1">${escapeHtml(when)}</p>
+                        </div>
+                        ${deltaLine('Dalla volta prima', info.vsPrevious)}
+                        ${deltaLine('Dalla prima misura', info.vsFirst)}
+                        ${info.series.length ? svgChart(spec.label, [{ name: spec.label, color: '#94a3b8', points: info.series.map(point => ({ x: point.date, y: point.value })) }], { bare: true }) : ''}
+                        <label class="block text-base text-slate-300">${escapeHtml(spec.label)} di oggi, cm
+                            <input inputmode="decimal" value="${today != null ? String(today).replace('.', ',') : ''}" placeholder="facoltativo" onchange="setMeasureCm('${spec.key}', this.value)" class="touch mt-1 w-full bg-slate-900 border border-slate-700 rounded-xl px-3 text-base text-white">
+                        </label>
+                        ${measureHint(spec)}
+                    </div>`;
+            }).join('');
+            host.innerHTML = `
+                <section class="space-y-4">
+                    <article class="bg-slate-900 border border-emerald-500/30 rounded-2xl p-5 shadow-xl space-y-4">
+                        <div>
+                            <p class="text-sm font-semibold uppercase tracking-wider text-emerald-300">Giro vita</p>
+                            <h3 class="text-lg font-bold text-white mt-1">All’ombelico</h3>
+                            <p class="text-4xl font-bold text-white mt-3">${waistValue}</p>
+                            <p class="text-base text-slate-300 mt-2">${waistWhen}</p>
+                        </div>
+                        ${deltaLine('Dalla volta prima', waistInfo.vsPrevious)}
+                        ${deltaLine('Dalla prima misura', waistInfo.vsFirst)}
+                        <label class="block text-base text-slate-200">Giro vita di oggi, cm
+                            <input inputmode="decimal" value="${todayWaist != null ? String(todayWaist).replace('.', ',') : ''}" placeholder="facoltativo" onchange="setMeasureCm('waistCm', this.value)" class="touch mt-2 w-full bg-slate-950 border border-slate-700 rounded-xl px-3 text-lg text-white">
+                        </label>
+                        <p class="text-sm text-slate-400 leading-relaxed">Per il ${formatDateIt(currentDate)}. Lascia vuoto nei giorni in cui non misuri.</p>
+                        ${measureHint(waist)}
+                        ${waistChart}
+                    </article>
+                    <div class="space-y-4">${others}</div>
+                </section>`;
+        }
+
+        function svgChart(title, series, options = {}) {
             const points = series.flatMap(item => item.points);
             if (!points.length) {
                 return `<div class="bg-slate-900 border border-slate-800 rounded-2xl p-4"><h3 class="text-sm font-bold text-white">${escapeHtml(title)}</h3><p class="text-xs text-slate-500 mt-2">Nessun dato.</p></div>`;
@@ -3334,14 +3493,10 @@
                 const dots = ordered.map(point => `<circle cx="${xAt(point.x).toFixed(1)}" cy="${yAt(point.y).toFixed(1)}" r="2.6" fill="${item.color}"></circle>`).join('');
                 return `<path d="${d}" fill="none" stroke="${item.color}" stroke-width="2"></path>${dots}`;
             }).join('');
-            const legend = series.map(item => `<span class="inline-flex items-center gap-1 mr-2"><span class="inline-block w-2 h-2 rounded-full" style="background:${item.color}"></span>${escapeHtml(item.name)}</span>`).join('');
+            const drawnSeries = series.filter(item => item.points && item.points.length);
+            const legend = drawnSeries.map(item => `<span class="inline-flex items-center gap-1 mr-2"><span class="inline-block w-2 h-2 rounded-full" style="background:${item.color}"></span>${escapeHtml(item.name)}</span>`).join('');
             const yDigits = max >= 30 ? 0 : 1;
-            return `
-                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3">
-                    <div class="flex items-start justify-between gap-2 mb-1">
-                        <h3 class="text-sm font-bold text-white">${escapeHtml(title)}</h3>
-                        <div class="text-[10px] text-slate-400 text-right">${legend}</div>
-                    </div>
+            const svg = `
                     <svg viewBox="0 0 ${w} ${h}" class="w-full h-40" role="img" aria-label="${escapeHtml(title)}">
                         <line x1="${padL}" y1="${padT}" x2="${padL}" y2="${h - padB}" stroke="#334155"></line>
                         <line x1="${padL}" y1="${h - padB}" x2="${w - padR}" y2="${h - padB}" stroke="#334155"></line>
@@ -3350,7 +3505,15 @@
                         <text x="${padL}" y="${h - 6}" fill="#94a3b8" font-size="10">${formatDateIt(dates[0]).slice(0, 5)}</text>
                         <text x="${w - padR}" y="${h - 6}" fill="#94a3b8" font-size="10" text-anchor="end">${formatDateIt(dates[dates.length - 1]).slice(0, 5)}</text>
                         ${drawn}
-                    </svg>
+                    </svg>`;
+            if (options.bare) return `<div class="space-y-2">${drawnSeries.length > 1 ? `<div class="text-sm text-slate-400">${legend}</div>` : ''}${svg}</div>`;
+            return `
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3">
+                    <div class="flex items-start justify-between gap-2 mb-1">
+                        <h3 class="text-sm font-bold text-white">${escapeHtml(title)}</h3>
+                        <div class="text-[10px] text-slate-400 text-right">${legend}</div>
+                    </div>
+                    ${svg}
                 </div>`;
         }
 
@@ -3358,6 +3521,7 @@
             const charts = document.getElementById('storico-charts');
             const table = document.getElementById('storico-table');
             if (!charts || !table) return;
+            renderBodyMeasures();
             const dates = Object.keys(appState.days || {}).filter(key => /^\d{4}-\d{2}-\d{2}$/.test(key)).sort();
             const weight = [];
             const sys = [];
@@ -3387,11 +3551,12 @@
                     <tr class="hover:bg-slate-800/60 cursor-pointer" onclick="openHistoryDay('${date}')">
                         <td class="px-3 py-2.5 font-semibold text-white whitespace-nowrap">${formatDateIt(date)}</td>
                         <td class="px-3 py-2.5 text-slate-200">${day.weightKg ? `${formatItNumber(day.weightKg, 1)} kg` : '—'}</td>
+                        <td class="px-3 py-2.5 text-slate-200">${measureCm(day, 'waistCm') != null ? `${formatItNumber(measureCm(day, 'waistCm'), 1)} cm` : '—'}</td>
                         <td class="px-3 py-2.5 text-slate-200">${escapeHtml(bpSummary(day))}</td>
                         <td class="px-3 py-2.5 text-slate-200">${liters ? `${glasses} bic. · ${formatItNumber(liters, 2)} L` : '—'}</td>
                         <td class="px-3 py-2.5 text-slate-200">${day.coffee || '—'}</td>
                     </tr>`;
-            }).join('') || `<tr><td colspan="5" class="px-3 py-6 text-center text-slate-500">Nessun giorno registrato.</td></tr>`;
+            }).join('') || `<tr><td colspan="6" class="px-3 py-6 text-center text-slate-500">Nessun giorno registrato.</td></tr>`;
             syncGithubForm();
         }
 
