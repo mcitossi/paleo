@@ -6,11 +6,11 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Pasti">
+    <meta name="apple-mobile-web-app-title" content="Piano">
     <meta name="theme-color" content="#020617">
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23059669'/%3E%3Cpath d='M32 12c2 8 8 12 8 20a8 8 0 1 1-16 0c0-8 6-12 8-20z' fill='white'/%3E%3C/svg%3E">
-    <title>Pasti e allenamento - Marco</title>
+    <title>Nutrizione &amp; Allenamento</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons -->
@@ -141,7 +141,7 @@
                 </div>
                 <div>
                     <div class="flex items-center gap-2">
-                        <h1 class="text-lg sm:text-xl font-extrabold tracking-tight text-white">Pasti e allenamento</h1>
+                        <h1 class="text-lg sm:text-xl font-extrabold tracking-tight text-white">Nutrizione &amp; Allenamento</h1>
                         <span class="hidden sm:inline-block text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-slate-800 text-emerald-400 border border-slate-700">Marco</span>
                     </div>
                     <p class="text-xs text-slate-400">ON circa 1.850 kcal · OFF circa 1.600 kcal</p>
@@ -403,8 +403,13 @@
                 </article>
                 <article class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-2">
                     <h3 class="text-lg font-bold text-white">Spuntino</h3>
-                    <p class="text-base text-slate-200 leading-relaxed">Yogurt greco 0% e un frutto. Nei giorni di allenamento, a metà mattina, aggiungi la whey se ce l’hai con te.</p>
+                    <p class="text-base text-slate-200 leading-relaxed">Yogurt greco 0% e un frutto. Nei giorni di allenamento, a metà mattina, aggiungi la whey se ce l’hai con te. Oppure una sola barretta, al posto dello spuntino.</p>
                 </article>
+            </div>
+            <div class="space-y-3">
+                <h3 class="text-lg font-bold text-white">Barrette, se non puoi comporre lo spuntino</h3>
+                <p class="text-base text-slate-300 leading-relaxed">Massimo una al giorno, al posto di uno spuntino, non in aggiunta. I numeri sono dell’etichetta ufficiale di quel gusto: gli altri gusti possono variare un poco.</p>
+                <div id="fuori-bars" class="space-y-4"></div>
             </div>
         </section>
 
@@ -707,70 +712,11 @@
             { id: 'g_burro', name: 'Burro biologico non salato', macro: 'G', category: 'Burro e Olio', amount: 3, unit: 'g' }
         ];
 
-        // Barrette jolly (fuori casa). Il credito blocchetti è volutamente semplice:
-        // Paleobull e EnerZona 40-30-30 = 2 blocchi P+C+G a barretta (½ barretta = 1 blocco);
-        // Snack Noir = 1 blocco P+C+G a barretta. Le note restano un promemoria, non cambiano il conteggio.
         const JOLLY_BARS = [
-            {
-                id: 'pb_arancia',
-                name: 'Paleobull Arancia e Chia',
-                grams: 50,
-                kcal: 200,
-                proteinG: 12.6,
-                carbsG: 21.6,
-                fatG: 6.1,
-                blocksPerBar: 2,
-                recommended: true,
-                paleo: true,
-                emergency: false,
-                note: 'Scelta consigliata. Paleo: senza soia e senza zuccheri aggiunti.',
-                url: 'https://www.planetahuerto.it/products/barrita-energetica-datiles-almendras-chia-y-naranja-paleobull-50-g'
-            },
-            {
-                id: 'pb_pesca',
-                name: 'Paleobull Pesca Muscle Bar',
-                grams: 50,
-                kcal: 182,
-                proteinG: 12.6,
-                carbsG: 24.3,
-                fatG: 3.4,
-                blocksPerBar: 2,
-                recommended: false,
-                paleo: true,
-                emergency: false,
-                note: 'Aggiungi 3-4 mandorle: il grasso della barretta è basso.',
-                url: 'https://www.planetahuerto.it/products/barrita-energetica-de-melocoton-datiles-y-almendras-paleobull-muscle-bar-50-g'
-            },
-            {
-                id: 'ez_noir',
-                name: 'EnerZona Snack Noir senza zuccheri',
-                grams: 33,
-                kcal: 110,
-                proteinG: 9.8,
-                carbsG: 5.1,
-                fatG: 4,
-                blocksPerBar: 1,
-                recommended: false,
-                paleo: false,
-                emergency: false,
-                note: 'Abbina 1/2 frutto. Contiene latte, non è paleo. Scorta da farmacia.',
-                url: 'https://www.enervit.com/it/prodotti/snack-noir-senza-zuccheri.html'
-            },
-            {
-                id: 'ez_bar',
-                name: 'EnerZona Nutrition Bar 40-30-30',
-                grams: 53,
-                kcal: 224,
-                proteinG: 15,
-                carbsG: 23,
-                fatG: 7.4,
-                blocksPerBar: 2,
-                recommended: false,
-                paleo: false,
-                emergency: true,
-                note: 'Solo emergenza fuori casa: contiene proteine della soia e zuccheri, non è paleo.',
-                url: ''
-            }
+            { id: 'quest_cream', name: 'Quest Protein Bar, Cookies & Cream', grams: 60, kcal: 190, proteinG: 21, carbsG: 9, fatG: 8, blocksPerBar: 1, recommended: false, paleo: false, emergency: false, note: '', url: 'https://www.questnutrition.com/products/cookies-cream-protein-bar' },
+            { id: 'quest_dough', name: 'Quest Protein Bar, Chocolate Chip Cookie Dough', grams: 60, kcal: 190, proteinG: 21, carbsG: 10, fatG: 9, blocksPerBar: 1, recommended: false, paleo: false, emergency: false, note: '', url: 'https://www.questnutrition.com/products/chocolate-chip-cookie-dough-protein-bar' },
+            { id: 'quest_strawberry', name: 'Quest Protein Bar, Strawberry Shortcake', grams: 60, kcal: 200, proteinG: 20, carbsG: 11, fatG: 10, blocksPerBar: 1, recommended: false, paleo: false, emergency: false, note: '', url: 'https://www.questnutrition.com/products/strawberry-shortcake-protein-bar' },
+            { id: 'quest_birthday', name: 'Quest Protein Bar, Birthday Cake', grams: 60, kcal: 180, proteinG: 20, carbsG: 13, fatG: 7, blocksPerBar: 1, recommended: false, paleo: false, emergency: false, note: '', url: 'https://www.questnutrition.com/products/birthday-cake-protein-bar' }
         ];
 
         JOLLY_BARS.forEach(bar => {
@@ -991,7 +937,7 @@
             if (!appState.walksByWeek || typeof appState.walksByWeek !== 'object' || Array.isArray(appState.walksByWeek)) appState.walksByWeek = {};
             if (!appState.dietModeByDate || typeof appState.dietModeByDate !== 'object' || Array.isArray(appState.dietModeByDate)) appState.dietModeByDate = {};
             normalizeShopping();
-            if (!JOLLY_BARS.some(b => b.id === appState.jollyBarId)) appState.jollyBarId = 'pb_arancia';
+            if (!JOLLY_BARS.some(b => b.id === appState.jollyBarId)) appState.jollyBarId = 'quest_cream';
             const glass = parseInt(appState.glassMl, 10);
             appState.glassMl = glass >= 50 && glass <= 1000 ? glass : 250;
             migrateLegacyWeeklyEggs();
@@ -1331,43 +1277,103 @@
             merluzzo: { p: 17, c: 0, g: 0.7, kcal: 82 },
             orata: { p: 19, c: 0, g: 6, kcal: 135 },
             albume: { p: 10.8, c: 0.7, g: 0.15, kcal: 48 },
-            cioccolato: { p: 10, c: 14, g: 55, kcal: 592 }
+            cioccolato: { p: 10, c: 14, g: 55, kcal: 592 },
+            yogurt2: { p: 9.7, c: 3.6, g: 2, kcal: 72 },
+            yogurt5: { p: 9, c: 3, g: 5, kcal: 96 },
+            yogurt10: { p: 6.4, c: 3.8, g: 10, kcal: 131 },
+            skyr: { p: 11, c: 3.6, g: 0.2, kcal: 63 },
+            kefir: { p: 3.3, c: 4.7, g: 3.5, kcal: 64 },
+            fiocchiLatte: { p: 11.5, c: 3.2, g: 2.2, kcal: 82 },
+            ricotta: { p: 8.8, c: 3, g: 10.9, kcal: 146 },
+            avena: { p: 13.5, c: 59, g: 7, kcal: 371 },
+            paneint: { p: 9, c: 43, g: 3.2, kcal: 247 },
+            nocciole: { p: 15, c: 7, g: 61, kcal: 628 },
+            pistacchi: { p: 20, c: 16, g: 45, kcal: 562 },
+            anacardi: { p: 18, c: 27, g: 44, kcal: 580 },
+            arachidi: { p: 25, c: 14, g: 50, kcal: 588 },
+            cioc85: { p: 9.5, c: 34, g: 46, kcal: 578 },
+            avocado: { p: 2, c: 8.5, g: 14.7, kcal: 160 },
+            olive: { p: 1, c: 0.5, g: 15, kcal: 145 },
+            bresaola: { p: 32, c: 0.5, g: 2, kcal: 151 },
+            crudo: { p: 27, c: 0.5, g: 8, kcal: 185 },
+            gamberi: { p: 20, c: 0.5, g: 0.8, kcal: 90 },
+            polpo: { p: 16, c: 2, g: 1, kcal: 82 },
+            calamari: { p: 16, c: 3, g: 1.4, kcal: 92 },
+            branzino: { p: 19, c: 0, g: 3.5, kcal: 110 },
+            trota: { p: 20, c: 0, g: 6, kcal: 141 },
+            tonnofresco: { p: 23.5, c: 0, g: 4.5, kcal: 144 },
+            lonza: { p: 22, c: 0, g: 4, kcal: 130 },
+            manzo: { p: 21, c: 0, g: 5, kcal: 137 },
+            macinato: { p: 20, c: 0, g: 5, kcal: 137 },
+            burgerPollo: { p: 20, c: 1, g: 5, kcal: 135 },
+            burgerTacchino: { p: 22, c: 1, g: 4, kcal: 130 },
+            patate: { p: 2, c: 17, g: 0.1, kcal: 77 },
+            dolci: { p: 1.6, c: 20, g: 0.1, kcal: 86 },
+            pastaint: { p: 13, c: 64, g: 2.5, kcal: 340 },
+            quinoa: { p: 14, c: 64, g: 6, kcal: 368 },
+            lenticchie: { p: 25, c: 52, g: 1.5, kcal: 330 },
+            lenticchieBox: { p: 8, c: 16, g: 0.5, kcal: 100 },
+            piselli: { p: 5.5, c: 10, g: 0.4, kcal: 70 }
         };
         const WHEY_NOTE = 'Etichetta Optipep 90 Pro: 89,1 g di proteine, 0 g di carboidrati e 3,5 g di grassi per 100 g.';
         const DIET_DEFAULTS = {
+            colazioneDairy: 'yogurt170',
+            colazioneGrassi: 'secca20',
             colazioneFrutta: 'bosco100',
             mattinaFrutta: 'pesche150',
             mattinaGrassi: 'mandorle10',
             pranzoCarb: 'basmati',
             pranzoPro: 'pollo200',
-            pranzoOlio: '10',
+            pranzoOlio: 'olio10',
+            pomeDairy: 'yogurt150',
             pomeFrutta: 'fragole100',
             pomeExtra: 'mandorle10',
             cenaCarb: 'cous40',
             cenaPro: 'merluzzo200',
-            seraNoci: false
+            cenaFat: 'olio10',
+            seraNoci: false,
+            seraGrassi: 'secca15',
+            jollyBar: 'none',
+            jollySlot: 'pomeriggio'
         };
+        const PROTEIN_EXTRA = ['bresaola100', 'crudo80', 'gamberi200', 'polpo200', 'calamari200', 'branzino200', 'trota200', 'tonnofresco150', 'lonza180', 'manzo150', 'macinato150', 'burgerPollo150', 'burgerTacchino150'];
         const DIET_OPTIONS = {
-            colazioneFrutta: ['bosco100', 'frutto100'],
-            mattinaFrutta: ['pesche150', 'mirtilli150', 'more150', 'albicocche150', 'ciliegie150', 'melone150'],
-            mattinaGrassi: ['mandorle10', 'noci2'],
-            pranzoCarb: ['basmati', 'integrale', 'cous', 'farro'],
-            pranzoPro: ['pollo200', 'tacchino200', 'roast180', 'tonno150', 'uova3', 'sgombro150', 'salmone150'],
-            pranzoOlio: ['10', '15'],
-            pomeFrutta: ['fragole100', 'more100', 'mirtilli100', 'ciliegie100'],
-            pomeExtra: ['mandorle10', 'noci2', 'cioccolato10'],
-            cenaCarb: ['cous40', 'wasa40', 'ceci100', 'fagioli120'],
-            cenaPro: ['merluzzo200', 'orata200', 'pollo200', 'salmone150', 'albume250', 'sgombro80']
+            colazioneDairy: { main: ['yogurt170'], extra: ['yogurt2_170', 'yogurt5_170', 'yogurt10_170', 'skyr170', 'kefir170', 'fiocchi160', 'ricotta150', 'uova2'] },
+            colazioneGrassi: { main: ['secca20'], extra: ['mandorle20', 'noci20', 'nocciole20', 'pistacchi20', 'anacardi20', 'arachidi15'] },
+            colazioneFrutta: { main: ['bosco100', 'frutto100'], extra: ['avena30', 'avena40', 'pane40'] },
+            mattinaFrutta: { main: ['pesche150', 'mirtilli150', 'more150', 'albicocche150', 'ciliegie150', 'melone150'], extra: [] },
+            mattinaGrassi: { main: ['mandorle10', 'noci2'], extra: ['nocciole10', 'pistacchi10', 'arachidi15', 'cioc85_10', 'cioccolato10'] },
+            pranzoCarb: { main: ['basmati', 'integrale', 'cous', 'farro'], extra: ['patate', 'dolci', 'pastaint', 'paneint', 'quinoa', 'lenticchie', 'piselli'] },
+            pranzoPro: { main: ['pollo200', 'tacchino200', 'roast180', 'tonno150', 'uova3', 'sgombro150', 'salmone150'], extra: PROTEIN_EXTRA },
+            pranzoOlio: { main: ['olio10', 'olio15'], extra: ['avocado70', 'olive50'] },
+            pomeDairy: { main: ['yogurt150'], extra: ['yogurt2_150', 'yogurt5_150', 'yogurt10_150', 'skyr150', 'kefir150', 'fiocchi150', 'ricotta130'] },
+            pomeFrutta: { main: ['fragole100', 'more100', 'mirtilli100', 'ciliegie100'], extra: [] },
+            pomeExtra: { main: ['mandorle10', 'noci2', 'cioccolato10'], extra: ['arachidi15', 'cioc85_10', 'nocciole10'] },
+            cenaCarb: { main: ['cous40', 'wasa40', 'ceci100', 'fagioli120'], extra: ['patate150', 'dolci130', 'pasta40', 'pane50', 'quinoa40', 'lenticchieBox120', 'piselli150'] },
+            cenaPro: { main: ['merluzzo200', 'orata200', 'pollo200', 'salmone150', 'albume250', 'sgombro80'], extra: PROTEIN_EXTRA },
+            cenaFat: { main: ['olio10'], extra: ['olio15', 'avocado70', 'olive50'] },
+            seraGrassi: { main: ['secca15'], extra: ['mandorle15', 'noci15', 'arachidi15'] },
+            jollyBar: { main: ['none', 'quest_cream', 'quest_dough', 'quest_strawberry', 'quest_birthday'], extra: [] }
         };
 
         function foodById(id, mode) {
             const on = mode === 'on';
-            const lunchGrams = { basmati: on ? 80 : 60, integrale: on ? 80 : 60, cous: on ? 85 : 60, farro: on ? 80 : 60 };
-            const lunchNames = { basmati: 'Riso basmati', integrale: 'Riso integrale', cous: 'Cous cous', farro: 'Farro' };
+            const lunchGrams = {
+                basmati: on ? 80 : 60, integrale: on ? 80 : 60, cous: on ? 85 : 60, farro: on ? 80 : 60,
+                patate: on ? 360 : 280, dolci: on ? 300 : 220, pastaint: on ? 80 : 60, paneint: on ? 90 : 70,
+                quinoa: on ? 80 : 60, lenticchie: on ? 80 : 60, piselli: on ? 250 : 200
+            };
+            const lunchNames = {
+                basmati: 'Riso basmati', integrale: 'Riso integrale', cous: 'Cous cous', farro: 'Farro',
+                patate: 'Patate', dolci: 'Patate dolci', pastaint: 'Pasta integrale', paneint: 'Pane integrale',
+                quinoa: 'Quinoa', lenticchie: 'Lenticchie secche', piselli: 'Piselli surgelati'
+            };
+            const lunchUnit = { patate: ' g', dolci: ' g', paneint: ' g', piselli: ' g' };
             if (lunchGrams[id] != null) {
                 const grams = lunchGrams[id];
                 const nutKey = id === 'cous' ? 'cous' : id;
-                return portion(lunchNames[id], grams + ' g crudo', NUT[nutKey], grams);
+                const suffix = lunchUnit[id] || ' g crudo';
+                return portion(lunchNames[id], grams + suffix, NUT[nutKey], grams);
             }
             const fixed = {
                 yogurt170: portion('Yogurt greco 0%', '170 g', NUT.yogurt, 170),
@@ -1408,9 +1414,76 @@
                 merluzzo200: portion('Merluzzo', '200 g', NUT.merluzzo, 200),
                 orata200: portion('Orata', '200 g', NUT.orata, 200),
                 albume250: portion('Albumi', '250 g', NUT.albume, 250, { note: 'Circa 7-8 albumi.' }),
-                cioccolato10: portion('Cioccolato 90%', '10 g', NUT.cioccolato, 10)
+                cioccolato10: portion('Cioccolato 90%', '10 g', NUT.cioccolato, 10),
+                yogurt2_170: portion('Yogurt greco 2%', '170 g', NUT.yogurt2, 170),
+                yogurt5_170: portion('Yogurt greco 5%', '170 g', NUT.yogurt5, 170, { note: 'Come Fage Total 5%: più grassi dello 0%, a parità di vasetto.' }),
+                yogurt10_170: portion('Yogurt greco 10%', '170 g', NUT.yogurt10, 170),
+                skyr170: portion('Skyr naturale', '170 g', NUT.skyr, 170),
+                kefir170: portion('Kefir bianco', '170 g', NUT.kefir, 170, { note: 'Stesso peso dello yogurt: molte meno proteine.' }),
+                fiocchi160: portion('Fiocchi di latte', '160 g', NUT.fiocchiLatte, 160),
+                ricotta150: portion('Ricotta vaccina', '150 g', NUT.ricotta, 150),
+                uova2: portion('Uova intere', '2 uova', NUT.uovo, 2),
+                yogurt2_150: portion('Yogurt greco 2%', '150 g', NUT.yogurt2, 150),
+                yogurt5_150: portion('Yogurt greco 5%', '150 g', NUT.yogurt5, 150),
+                yogurt10_150: portion('Yogurt greco 10%', '150 g', NUT.yogurt10, 150),
+                skyr150: portion('Skyr naturale', '150 g', NUT.skyr, 150),
+                kefir150: portion('Kefir bianco', '150 g', NUT.kefir, 150),
+                fiocchi150: portion('Fiocchi di latte', '150 g', NUT.fiocchiLatte, 150),
+                ricotta130: portion('Ricotta vaccina', '130 g', NUT.ricotta, 130),
+                mandorle20: portion('Mandorle', '20 g', NUT.mandorle, 20),
+                noci20: portion('Noci', '20 g', NUT.noci, 20),
+                nocciole20: portion('Nocciole', '20 g', NUT.nocciole, 20),
+                pistacchi20: portion('Pistacchi', '20 g', NUT.pistacchi, 20),
+                anacardi20: portion('Anacardi', '20 g', NUT.anacardi, 20),
+                arachidi15: portion('Burro di arachidi 100%', '15 g', NUT.arachidi, 15),
+                nocciole10: portion('Nocciole', '10 g', NUT.nocciole, 10),
+                pistacchi10: portion('Pistacchi', '10 g', NUT.pistacchi, 10),
+                cioc85_10: portion('Cioccolato 85%', '10 g', NUT.cioc85, 10),
+                mandorle15: portion('Mandorle', '15 g', NUT.mandorle, 15),
+                noci15: portion('Noci', '15 g', NUT.noci, 15),
+                avena30: portion('Fiocchi d’avena', '30 g', NUT.avena, 30),
+                avena40: portion('Fiocchi d’avena', '40 g', NUT.avena, 40),
+                pane40: portion('Pane integrale', '40 g', NUT.paneint, 40),
+                avocado70: portion('Avocado', 'mezzo, circa 70 g', NUT.avocado, 70, { note: 'Al posto di una parte dell’olio. Non conta nei grammi di olio.' }),
+                olive50: portion('Olive denocciolate', '50 g', NUT.olive, 50, { note: 'Meno grassi di 10 g di olio.' }),
+                bresaola100: portion('Bresaola', '100 g', NUT.bresaola, 100),
+                crudo80: portion('Prosciutto crudo sgrassato', '80 g', NUT.crudo, 80),
+                gamberi200: portion('Gamberi sgusciati', '200 g', NUT.gamberi, 200),
+                polpo200: portion('Polpo', '200 g', NUT.polpo, 200),
+                calamari200: portion('Calamari', '200 g', NUT.calamari, 200),
+                branzino200: portion('Branzino', '200 g', NUT.branzino, 200),
+                trota200: portion('Trota', '200 g', NUT.trota, 200),
+                tonnofresco150: portion('Tonno fresco', '150 g', NUT.tonnofresco, 150),
+                lonza180: portion('Lonza di maiale magra', '180 g', NUT.lonza, 180),
+                manzo150: portion('Manzo magro', '150 g', NUT.manzo, 150),
+                macinato150: portion('Macinato di manzo 5%', '150 g', NUT.macinato, 150),
+                burgerPollo150: portion('Hamburger di pollo, senza panatura', '150 g', NUT.burgerPollo, 150),
+                burgerTacchino150: portion('Hamburger di tacchino, senza panatura', '150 g', NUT.burgerTacchino, 150),
+                patate150: portion('Patate', '150 g', NUT.patate, 150),
+                dolci130: portion('Patate dolci', '130 g', NUT.dolci, 130),
+                pasta40: portion('Pasta integrale', '40 g cruda', NUT.pastaint, 40),
+                pane50: portion('Pane integrale', '50 g', NUT.paneint, 50),
+                quinoa40: portion('Quinoa', '40 g cruda', NUT.quinoa, 40),
+                lenticchieBox120: portion('Lenticchie in scatola, scolate', '120 g', NUT.lenticchieBox, 120),
+                piselli150: portion('Piselli surgelati', '150 g', NUT.piselli, 150),
+                quest_cream: { name: 'Quest Protein Bar, Cookies & Cream', amount: '60 g', p: 21, c: 9, g: 8, kcal: 190, grams: 60, url: 'https://www.questnutrition.com/products/cookies-cream-protein-bar', note: '190 kcal, 21 g proteine, 8 g grassi, 1 g zuccheri, 5 g polioli (eritritolo). L’etichetta USA segna 22 g di carboidrati perché include 13 g di fibra: qui ne contano 9. Niente maltitolo.' },
+                quest_dough: { name: 'Quest Protein Bar, Chocolate Chip Cookie Dough', amount: '60 g', p: 21, c: 10, g: 9, kcal: 190, grams: 60, url: 'https://www.questnutrition.com/products/chocolate-chip-cookie-dough-protein-bar', note: '190 kcal, 21 g proteine, 9 g grassi, 1 g zuccheri, 6 g polioli. Carboidrati USA 22 g, di cui fibra 12 g: qui 10 g. Niente maltitolo.' },
+                quest_strawberry: { name: 'Quest Protein Bar, Strawberry Shortcake', amount: '60 g', p: 20, c: 11, g: 10, kcal: 200, grams: 60, url: 'https://www.questnutrition.com/products/strawberry-shortcake-protein-bar', note: '200 kcal, 20 g proteine, 10 g grassi, 2 g zuccheri, 8 g polioli. Carboidrati USA 21 g, di cui fibra 10 g: qui 11 g.' },
+                quest_birthday: { name: 'Quest Protein Bar, Birthday Cake', amount: '60 g', p: 20, c: 13, g: 7, kcal: 180, grams: 60, url: 'https://www.questnutrition.com/products/birthday-cake-protein-bar', note: '180 kcal, 20 g proteine, 7 g grassi, zuccheri sotto 1 g, 9 g polioli. Carboidrati USA 25 g, di cui fibra 12 g: qui 13 g.' }
             };
             return fixed[id] || fixed.pollo200;
+        }
+
+        function optionGroups(key) {
+            const spec = DIET_OPTIONS[key];
+            if (!spec) return { main: [], extra: [] };
+            if (Array.isArray(spec)) return { main: spec, extra: [] };
+            return { main: spec.main || [], extra: spec.extra || [] };
+        }
+
+        function optionIds(key) {
+            const groups = optionGroups(key);
+            return groups.main.concat(groups.extra);
         }
 
         function dietChoices() {
@@ -1421,8 +1494,10 @@
                     out[key] = saved[key] === true;
                     return;
                 }
-                const allowed = DIET_OPTIONS[key] || [];
-                out[key] = allowed.includes(saved[key]) ? saved[key] : DIET_DEFAULTS[key];
+                let value = saved[key];
+                if (key === 'pranzoOlio' && (value === '10' || value === '15')) value = value === '15' ? 'olio15' : 'olio10';
+                const allowed = optionIds(key);
+                out[key] = allowed.includes(value) ? value : DIET_DEFAULTS[key];
             });
             return out;
         }
@@ -1441,13 +1516,41 @@
         }
 
         function macroLine(food) {
-            return `P ${food.p} g · C ${food.c} g · G ${food.g} g · ${formatKcal(food.kcal)} kcal`;
+            return `Proteine ${food.p} g, carboidrati ${food.c} g, grassi ${food.g} g, ${formatKcal(food.kcal)} kcal`;
+        }
+
+        function macroPills(food, size) {
+            const big = size === 'lg';
+            const parts = [Number(food.p) || 0, Number(food.c) || 0, Number(food.g) || 0];
+            const sum = parts.reduce((acc, n) => acc + n, 0);
+            const widths = [0, 0, 0];
+            if (sum > 0) {
+                parts.forEach((n, i) => { widths[i] = Math.round((n / sum) * 100); });
+                const drift = 100 - widths.reduce((acc, n) => acc + n, 0);
+                widths[parts.indexOf(Math.max(...parts))] += drift;
+            }
+            const pill = (label, cls) => `<span class="inline-flex items-center px-2.5 py-1 rounded-full ${cls} ${big ? 'text-base' : 'text-sm'} font-semibold leading-none">${label}</span>`;
+            const colors = ['bg-rose-400', 'bg-emerald-400', 'bg-amber-400'];
+            return `
+                <div class="space-y-2" role="img" aria-label="${escapeHtml(macroLine(food))}">
+                    <div class="flex flex-wrap gap-1.5">
+                        ${pill(`Proteine ${food.p} g`, 'bg-rose-500/25 text-rose-100')}
+                        ${pill(`Carboidrati ${food.c} g`, 'bg-emerald-500/25 text-emerald-100')}
+                        ${pill(`Grassi ${food.g} g`, 'bg-amber-500/25 text-amber-100')}
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="flex h-2.5 flex-1 rounded-full overflow-hidden bg-slate-800">
+                            ${widths.map((w, i) => `<div class="${colors[i]}" style="width:${Math.max(0, w)}%"></div>`).join('')}
+                        </div>
+                        <span class="${big ? 'text-2xl' : 'text-base'} font-bold text-white tabular-nums shrink-0">${formatKcal(food.kcal)} kcal</span>
+                    </div>
+                </div>`;
         }
 
         function setDietChoice(key, value) {
             const current = dietChoices();
             if (key === 'seraNoci') current.seraNoci = value === true || value === 'true';
-            else if ((DIET_OPTIONS[key] || []).includes(value)) current[key] = value;
+            else if (optionIds(key).includes(value)) current[key] = value;
             appState.mealPlanChoices = current;
             saveState();
             renderMealPlan();
@@ -1489,28 +1592,43 @@
         }
 
         function choiceFood(key, id, mode) {
-            if (key === 'pranzoOlio') return foodById(id === '15' ? 'olio15' : 'olio10', mode);
+            if (id === 'none') return { name: 'Nessuna barretta', amount: '', p: 0, c: 0, g: 0, kcal: 0, grams: 0 };
             return foodById(id, mode);
         }
 
+        function choiceRows(ids, selected, mode) {
+            return ids.map(id => {
+                const food = choiceFood('', id, mode);
+                const on = id === selected;
+                return `<li class="rounded-xl border ${on ? 'border-emerald-500/40 bg-slate-900' : 'border-transparent'} p-2 space-y-1">
+                    <div class="${on ? 'text-white font-semibold' : 'text-slate-200'}">${escapeHtml(food.name)} · ${escapeHtml(food.amount)}</div>
+                    ${macroPills(food)}
+                </li>`;
+            }).join('');
+        }
+
         function choiceSelect(label, key, selected, mode) {
-            const ids = DIET_OPTIONS[key] || [];
-            const options = ids.map(id => {
+            const groups = optionGroups(key);
+            const opt = (ids) => ids.map(id => {
                 const food = choiceFood(key, id, mode);
                 const picked = id === selected ? 'selected' : '';
                 return `<option value="${id}" ${picked}>${escapeHtml(food.name)} · ${escapeHtml(food.amount)}</option>`;
             }).join('');
-            const list = ids.map(id => {
-                const food = choiceFood(key, id, mode);
-                const on = id === selected;
-                return `<li class="leading-relaxed ${on ? 'text-white font-semibold' : 'text-slate-300'}">${escapeHtml(food.name)}, ${escapeHtml(food.amount)} — P ${food.p} g · C ${food.c} g · G ${food.g} g · ${food.kcal} kcal</li>`;
-            }).join('');
+            const extraOpen = groups.extra.includes(selected) ? 'open' : '';
+            const extraBlock = groups.extra.length ? `
+                <details ${extraOpen} class="bg-slate-900/60 border border-slate-800 rounded-xl">
+                    <summary class="px-3 py-3 text-base font-semibold text-slate-100">Altre opzioni</summary>
+                    <ul class="px-2 pb-3 space-y-2">${choiceRows(groups.extra, selected, mode)}</ul>
+                </details>` : '';
             return `
                 <div class="space-y-2">
                     <label class="block text-base text-slate-200">${escapeHtml(label)}
-                        <select onchange="setDietChoice('${key}', this.value)" class="touch mt-2 w-full bg-slate-900 text-white text-base rounded-xl px-3 border border-slate-700 focus:outline-none focus:border-emerald-500">${options}</select>
+                        <select onchange="setDietChoice('${key}', this.value)" class="touch mt-2 w-full bg-slate-900 text-white text-base rounded-xl px-3 border border-slate-700 focus:outline-none focus:border-emerald-500">
+                            <optgroup label="Di base">${opt(groups.main)}</optgroup>
+                            ${groups.extra.length ? `<optgroup label="Altre opzioni">${opt(groups.extra)}</optgroup>` : ''}
+                        </select>
                     </label>
-                    <ul class="space-y-1.5 text-base">${list}</ul>
+                    ${extraBlock}
                 </div>`;
         }
 
@@ -1519,23 +1637,24 @@
                 <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 space-y-2">
                     <div class="text-lg font-semibold text-white">${escapeHtml(food.name)}</div>
                     <div class="text-base text-slate-300">${escapeHtml(food.amount)}</div>
-                    <p class="text-base text-slate-100">${macroLine(food)}</p>
+                    ${macroPills(food)}
                     ${food.note ? `<p class="text-sm text-slate-400 leading-relaxed">${escapeHtml(food.note)}</p>` : ''}
+                    ${food.url ? `<a href="${escapeHtml(food.url)}" target="_blank" rel="noopener noreferrer" class="inline-flex min-h-11 items-center text-base font-semibold text-emerald-300">Scheda ufficiale</a>` : ''}
                     ${extraHtml || ''}
                 </div>`;
         }
 
         function dayMeals(mode, choice) {
             const on = mode === 'on';
-            const oil = on && choice.pranzoOlio === '15' ? foodById('olio15', mode) : foodById('olio10', mode);
+            const oil = foodById(choice.pranzoOlio, mode);
             const meals = [
                 {
                     title: 'Colazione',
                     note: 'Sempre, sia ON sia OFF.',
                     foods: [
-                        { food: foodById('yogurt170', mode) },
-                        { food: foodById('secca20', mode) },
-                        { food: foodById(choice.colazioneFrutta, mode), extra: choiceSelect('Frutta', 'colazioneFrutta', choice.colazioneFrutta, mode) }
+                        { food: foodById(choice.colazioneDairy, mode), extra: choiceSelect('Latticino o uova', 'colazioneDairy', choice.colazioneDairy, mode) },
+                        { food: foodById(choice.colazioneGrassi, mode), extra: choiceSelect('Frutta secca o burro di arachidi', 'colazioneGrassi', choice.colazioneGrassi, mode) },
+                        { food: foodById(choice.colazioneFrutta, mode), extra: choiceSelect('Frutta, avena o pane', 'colazioneFrutta', choice.colazioneFrutta, mode) }
                     ]
                 }
             ];
@@ -1546,7 +1665,7 @@
                     foods: [
                         { food: foodById(choice.mattinaFrutta, mode), extra: choiceSelect('Frutta, 150 g', 'mattinaFrutta', choice.mattinaFrutta, mode) },
                         { food: foodById('whey20', mode) },
-                        { food: foodById(choice.mattinaGrassi, mode), extra: choiceSelect('Frutta secca', 'mattinaGrassi', choice.mattinaGrassi, mode) }
+                        { food: foodById(choice.mattinaGrassi, mode), extra: choiceSelect('Frutta secca, arachidi o cioccolato', 'mattinaGrassi', choice.mattinaGrassi, mode) }
                     ]
                 });
             } else {
@@ -1564,11 +1683,11 @@
                     { food: foodById(choice.pranzoCarb, mode), extra: choiceSelect('Un carboidrato', 'pranzoCarb', choice.pranzoCarb, mode) },
                     { food: foodById(choice.pranzoPro, mode), extra: choiceSelect('Una proteina', 'pranzoPro', choice.pranzoPro, mode) },
                     { food: foodById('verdura200', mode) },
-                    { food: oil, extra: on ? choiceSelect('Olio', 'pranzoOlio', choice.pranzoOlio, mode) : '' }
+                    { food: oil, extra: choiceSelect('Olio, avocado o olive', 'pranzoOlio', choice.pranzoOlio, mode) }
                 ]
             });
             const pome = [
-                { food: foodById('yogurt150', mode) },
+                { food: foodById(choice.pomeDairy, mode), extra: choiceSelect('Latticino', 'pomeDairy', choice.pomeDairy, mode) },
                 { food: foodById(choice.pomeFrutta, mode), extra: choiceSelect('Frutta, 100 g', 'pomeFrutta', choice.pomeFrutta, mode) }
             ];
             if (on) pome.push({ food: foodById(choice.pomeExtra, mode), extra: choiceSelect('Aggiunta del giorno ON', 'pomeExtra', choice.pomeExtra, mode) });
@@ -1584,11 +1703,11 @@
                     { food: foodById(choice.cenaCarb, mode), extra: choiceSelect('Un carboidrato', 'cenaCarb', choice.cenaCarb, mode) },
                     { food: foodById(choice.cenaPro, mode), extra: choiceSelect('Una proteina', 'cenaPro', choice.cenaPro, mode) },
                     { food: foodById('verdura200', mode) },
-                    { food: foodById('olio10', mode) }
+                    { food: foodById(choice.cenaFat, mode), extra: choiceSelect('Olio, avocado o olive', 'cenaFat', choice.cenaFat, mode) }
                 ]
             });
             const night = [{ food: foodById('whey30', mode) }];
-            if (choice.seraNoci) night.push({ food: foodById('secca15', mode) });
+            if (choice.seraNoci) night.push({ food: foodById(choice.seraGrassi, mode), extra: choiceSelect('Quale', 'seraGrassi', choice.seraGrassi, mode) });
             meals.push({
                 title: 'Prima di dormire',
                 note: 'La frutta secca è facoltativa.',
@@ -1597,12 +1716,67 @@
                     <label class="flex items-start gap-3 bg-slate-950 border border-slate-800 rounded-xl p-4">
                         <input type="checkbox" ${choice.seraNoci ? 'checked' : ''} onchange="setDietChoice('seraNoci', this.checked)" class="w-6 h-6 mt-0.5 rounded accent-emerald-500 shrink-0">
                         <span>
-                            <span class="block text-base font-semibold text-white">Aggiungi 15 g di frutta secca</span>
-                            <span class="block text-sm text-slate-400 mt-1">${macroLine(foodById('secca15', mode))}</span>
+                            <span class="block text-base font-semibold text-white">Aggiungi frutta secca o burro di arachidi</span>
+                            <span class="block text-sm text-slate-400 mt-1">Circa 15 g. Facoltativo.</span>
                         </span>
                     </label>`
             });
-            return meals;
+            return applyJolly(meals, mode, choice);
+        }
+
+        const SNACK_BARS = [
+            { id: 'quest_cream', name: 'Quest Protein Bar, Cookies & Cream', grams: 60, kcal: 190, p: 21, c: 9, g: 8, sugar: '1 g', polyols: '5 g', fiber: '13 g', url: 'https://www.questnutrition.com/products/cookies-cream-protein-bar' },
+            { id: 'quest_dough', name: 'Quest Protein Bar, Chocolate Chip Cookie Dough', grams: 60, kcal: 190, p: 21, c: 10, g: 9, sugar: '1 g', polyols: '6 g', fiber: '12 g', url: 'https://www.questnutrition.com/products/chocolate-chip-cookie-dough-protein-bar' },
+            { id: 'quest_strawberry', name: 'Quest Protein Bar, Strawberry Shortcake', grams: 60, kcal: 200, p: 20, c: 11, g: 10, sugar: '2 g', polyols: '8 g', fiber: '10 g', url: 'https://www.questnutrition.com/products/strawberry-shortcake-protein-bar' },
+            { id: 'quest_birthday', name: 'Quest Protein Bar, Birthday Cake', grams: 60, kcal: 180, p: 20, c: 13, g: 7, sugar: 'meno di 1 g', polyols: '9 g', fiber: '12 g', url: 'https://www.questnutrition.com/products/birthday-cake-protein-bar' }
+        ];
+
+        function jollyPicker(slot, choice, mode) {
+            const slotNow = mode !== 'on' || choice.jollySlot !== 'mattina' ? 'pomeriggio' : 'mattina';
+            const active = choice.jollyBar && choice.jollyBar !== 'none' && slotNow === slot;
+            const opts = SNACK_BARS.map(bar => `<option value="${bar.id}" ${active && choice.jollyBar === bar.id ? 'selected' : ''}>${escapeHtml(bar.name)}</option>`).join('');
+            return `
+                <div class="space-y-2">
+                    <p class="text-sm text-slate-400 leading-relaxed">Massimo una barretta al giorno, al posto di questo spuntino, non in aggiunta.</p>
+                    <label class="block text-base text-slate-200">Barretta
+                        <select onchange="setJollySlot('${slot}', this.value)" class="touch mt-2 w-full bg-slate-900 text-white text-base rounded-xl px-3 border border-slate-700">
+                            <option value="none" ${active ? '' : 'selected'}>Nessuna</option>
+                            ${opts}
+                        </select>
+                    </label>
+                </div>`;
+        }
+
+        function setJollySlot(slot, id) {
+            const current = dietChoices();
+            if (!id || id === 'none') current.jollyBar = 'none';
+            else if (optionIds('jollyBar').includes(id)) {
+                current.jollyBar = id;
+                current.jollySlot = slot;
+            }
+            appState.mealPlanChoices = current;
+            saveState();
+            renderMealPlan();
+        }
+
+        function applyJolly(meals, mode, choice) {
+            const slot = mode !== 'on' || choice.jollySlot !== 'mattina' ? 'pomeriggio' : 'mattina';
+            return meals.map(meal => {
+                const isMorning = meal.title === 'Spuntino di metà mattina';
+                const isAfternoon = meal.title === 'Spuntino del pomeriggio';
+                if (!isMorning && !isAfternoon) return meal;
+                if (isMorning && mode !== 'on') return meal;
+                const thisSlot = isMorning ? 'mattina' : 'pomeriggio';
+                const picker = jollyPicker(thisSlot, choice, mode);
+                const useBar = choice.jollyBar && choice.jollyBar !== 'none' && slot === thisSlot;
+                if (!useBar) return { ...meal, trailing: `${meal.trailing || ''}${picker}` };
+                return {
+                    title: meal.title,
+                    note: 'La barretta sostituisce lo spuntino. Non va aggiunta al cibo.',
+                    foods: [{ food: foodById(choice.jollyBar, mode) }],
+                    trailing: picker
+                };
+            });
         }
 
         function renderMealPlan() {
@@ -1639,25 +1813,7 @@
                         ${button('off', 'Giorno OFF', 'Riposo')}
                     </div>
                     ${manual && manual !== (scheduled ? 'on' : 'off') ? '<button type="button" onclick="clearDietMode()" class="text-base font-semibold text-emerald-300 min-h-11">Torna al giorno previsto</button>' : ''}
-                    <div class="grid grid-cols-2 gap-3">
-                        <div class="bg-slate-950 border border-slate-800 rounded-xl p-4">
-                            <div class="text-sm text-rose-300">Proteine</div>
-                            <div class="text-3xl font-bold text-white mt-1">${total.p} g</div>
-                        </div>
-                        <div class="bg-slate-950 border border-slate-800 rounded-xl p-4">
-                            <div class="text-sm text-emerald-300">Carboidrati</div>
-                            <div class="text-3xl font-bold text-white mt-1">${total.c} g</div>
-                        </div>
-                        <div class="bg-slate-950 border border-slate-800 rounded-xl p-4">
-                            <div class="text-sm text-amber-300">Grassi</div>
-                            <div class="text-3xl font-bold text-white mt-1">${total.g} g</div>
-                        </div>
-                        <div class="bg-slate-950 border border-slate-800 rounded-xl p-4">
-                            <div class="text-sm text-slate-300">Energia</div>
-                            <div class="text-3xl font-bold text-white mt-1">${formatKcal(total.kcal)}</div>
-                            <div class="text-sm text-slate-400">kcal</div>
-                        </div>
-                    </div>
+                    <div class="bg-slate-950 border border-slate-800 rounded-xl p-4">${macroPills(total, 'lg')}</div>
                     <p class="text-base text-slate-200 leading-relaxed">Con le stesse scelte, il giorno ${otherMode === 'on' ? 'ON' : 'OFF'} farebbe ${other.p} g di proteine e ${formatKcal(other.kcal)} kcal.</p>
                     <p class="text-base text-slate-300 leading-relaxed">Olio extravergine oggi: ${oilG} g, massimo 20-30 g. Verdura oggi: ${vegG} g, massimo 500 g.</p>
                     <p class="text-sm text-slate-400 leading-relaxed">Il riferimento del piano è circa 1.850 kcal e 170 g di proteine nei giorni ON, circa 1.600 kcal e 150 g nei giorni OFF. I numeri grandi sono la somma delle porzioni scelte, da tabelle standard e arrotondate.</p>
@@ -1676,7 +1832,7 @@
                         <header class="space-y-2">
                             <h3 class="text-xl font-bold text-white">${escapeHtml(meal.title)}</h3>
                             ${meal.note ? `<p class="text-base text-slate-300 leading-relaxed">${escapeHtml(meal.note)}</p>` : ''}
-                            <p class="text-base text-emerald-200">Totale pasto · ${macroLine(mealTotal)}</p>
+                            <div class="pt-1">${macroPills(mealTotal)}</div>
                         </header>
                         <div class="space-y-3">
                             ${meal.foods.map(item => foodBlock(item.food, item.extra)).join('')}
@@ -2313,7 +2469,7 @@
 
         function saveCurrentDayAsPreset() {
             const input = document.getElementById('new-preset-name');
-            const name = (input?.value || '').trim() || `Menu Paleo #${appState.savedPresets.length + 1}`;
+            const name = (input?.value || '').trim() || `Giornata #${appState.savedPresets.length + 1}`;
             const copyMeals = JSON.parse(JSON.stringify(appState.days[currentDate].meals));
             appState.savedPresets.push({
                 name,
@@ -3115,7 +3271,7 @@
             appState = next;
             const glass = parseInt(appState.glassMl, 10);
             appState.glassMl = glass >= 50 && glass <= 1000 ? glass : 250;
-            if (!JOLLY_BARS.some(bar => bar.id === appState.jollyBarId)) appState.jollyBarId = 'pb_arancia';
+            if (!JOLLY_BARS.some(bar => bar.id === appState.jollyBarId)) appState.jollyBarId = 'quest_cream';
             appState.days = appState.days || {};
             appState.eggsExtraByWeek = appState.eggsExtraByWeek || {};
             appState.savedPresets = appState.savedPresets || [];
@@ -3990,10 +4146,19 @@
                 { id: 'merluzzo', name: 'Merluzzo', qty: 'circa 600 g' },
                 { id: 'orata', name: 'Orata', qty: 'circa 400 g' },
                 { id: 'albumi', name: 'Albumi', qty: 'circa 500 g' },
-                { id: 'whey', name: 'Whey Optipep 90 Pro', qty: 'circa 300 g' }
+                { id: 'whey', name: 'Whey Optipep 90 Pro', qty: 'circa 300 g' },
+                { id: 'bresaola', name: 'Bresaola', qty: '1 confezione' },
+                { id: 'crudo', name: 'Prosciutto crudo sgrassato', qty: '1 confezione' },
+                { id: 'gamberi', name: 'Gamberi sgusciati', qty: 'circa 300 g' },
+                { id: 'polpo', name: 'Polpo o calamari', qty: 'circa 300 g' },
+                { id: 'branzino', name: 'Branzino o trota', qty: 'circa 300 g' },
+                { id: 'tonnofresco', name: 'Tonno fresco', qty: 'circa 200 g' },
+                { id: 'lonza', name: 'Lonza di maiale magra', qty: 'circa 300 g' },
+                { id: 'macinato', name: 'Macinato magro 5% o hamburger di pollo/tacchino senza panatura', qty: 'circa 300 g' }
             ]},
             { id: 'latticini', title: 'Yogurt', items: [
-                { id: 'yogurt', name: 'Yogurt greco 0%', qty: 'circa 2,2 kg, vasetti da 150 o 170 g' }
+                { id: 'yogurt', name: 'Yogurt greco 0%', qty: 'circa 2,2 kg, vasetti da 150 o 170 g' },
+                { id: 'yogurt5', name: 'In alternativa: greco 2% o 5%, skyr, fiocchi di latte o ricotta', qty: 'se non prendi lo 0%' }
             ]},
             { id: 'cereali', title: 'Cereali, pane e legumi', items: [
                 { id: 'riso', name: 'Riso basmati', qty: 'circa 500 g' },
@@ -4002,7 +4167,15 @@
                 { id: 'farro', name: 'Farro', qty: 'circa 400 g' },
                 { id: 'wasa', name: 'Wasa integrali', qty: '1 confezione' },
                 { id: 'ceci', name: 'Ceci in scatola', qty: '2 scatole' },
-                { id: 'fagioli', name: 'Fagioli in scatola', qty: '2 scatole' }
+                { id: 'fagioli', name: 'Fagioli in scatola', qty: '2 scatole' },
+                { id: 'patate', name: 'Patate', qty: 'circa 1,5 kg' },
+                { id: 'dolci', name: 'Patate dolci', qty: 'circa 500 g' },
+                { id: 'pasta', name: 'Pasta integrale', qty: 'circa 400 g' },
+                { id: 'pane', name: 'Pane integrale', qty: '1 filone' },
+                { id: 'quinoa', name: 'Quinoa', qty: 'circa 300 g' },
+                { id: 'lenticchie', name: 'Lenticchie secche o in scatola', qty: '1 confezione' },
+                { id: 'piselli', name: 'Piselli surgelati', qty: '1 busta' },
+                { id: 'avena', name: 'Fiocchi d’avena', qty: 'circa 300 g' }
             ]},
             { id: 'verdura', title: 'Verdura', note: 'Circa 3 kg, anche surgelata. Massimo 500 g al giorno, meglio cotta se gonfia.', items: [
                 { id: 'zucchine', name: 'Zucchine', qty: '' },
@@ -4021,7 +4194,14 @@
                 { id: 'olio', name: 'Olio extravergine di oliva', qty: 'la bottiglia che hai già' },
                 { id: 'mandorle', name: 'Mandorle al naturale', qty: '200 g' },
                 { id: 'noci', name: 'Noci', qty: '150 g' },
-                { id: 'cioccolato', name: 'Cioccolato 90%', qty: '1 tavoletta' }
+                { id: 'arachidi', name: 'Burro di arachidi 100%', qty: '1 vasetto' },
+                { id: 'avocado', name: 'Avocado', qty: '3-4' },
+                { id: 'olive', name: 'Olive denocciolate', qty: '1 vasetto' },
+                { id: 'cioccolato', name: 'Cioccolato 85% o 90%', qty: '1 tavoletta' }
+            ]},
+            { id: 'barrette', title: 'Barrette, solo se ti servono', note: 'Facoltative. Massimo una al giorno, al posto di uno spuntino.', items: [
+                { id: 'quest_cream', name: 'Quest Protein Bar Cookies & Cream', qty: '1 confezione, se la usi' },
+                { id: 'quest_dough', name: 'Quest Protein Bar Cookie Dough', qty: 'oppure un altro gusto Quest' }
             ]}
         ];
 
@@ -4165,35 +4345,15 @@
 
         function renderFuoriCasa() {
             const host = document.getElementById('fuori-bars');
-            if (!host) return;
-            const fmtMacro = (n) => String(n).replace('.', ',');
-            host.innerHTML = JOLLY_BARS.map(bar => {
-                const border = bar.recommended ? 'border-emerald-500/40' : (bar.emergency ? 'border-rose-500/40' : 'border-slate-800');
-                const badge = bar.recommended
-                    ? '<span class="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Principale</span>'
-                    : (bar.emergency
-                        ? '<span class="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-200 border border-rose-500/30">Emergenza</span>'
-                        : '<span class="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700">Alternativa</span>');
-                const blocksLabel = bar.blocksPerBar === 1
-                    ? '1 blocco P + C + G (la barretta intera)'
-                    : '2 blocchi P + C + G (½ barretta = 1 blocco)';
-                const link = bar.url
-                    ? `<a href="${bar.url}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-xs font-semibold text-emerald-300 hover:text-emerald-200">Scheda prodotto <i data-lucide="external-link" class="w-3.5 h-3.5"></i></a>`
-                    : '';
-                return `
-                    <article class="bg-slate-900 border ${border} rounded-2xl p-4 space-y-2">
-                        <div class="flex items-start justify-between gap-2">
-                            <h4 class="font-bold text-white text-sm">${bar.name}</h4>
-                            ${badge}
-                        </div>
-                        <p class="text-xs text-slate-400">${bar.grams} g · ${bar.kcal} kcal · P ${fmtMacro(bar.proteinG)} g · C ${fmtMacro(bar.carbsG)} g · G ${fmtMacro(bar.fatG)} g</p>
-                        <p class="text-sm text-slate-200">${blocksLabel}</p>
-                        <p class="text-xs text-slate-300">${bar.note}</p>
-                        ${link}
-                    </article>
-                `;
-            }).join('');
-            lucide.createIcons();
+            if (!host || typeof SNACK_BARS === 'undefined') return;
+            host.innerHTML = SNACK_BARS.map(bar => `
+                <article class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3">
+                    <h4 class="text-lg font-bold text-white">${escapeHtml(bar.name)}</h4>
+                    <p class="text-sm text-slate-400">${bar.grams} g · zuccheri ${escapeHtml(bar.sugar)} · polioli ${escapeHtml(bar.polyols)} · fibra ${escapeHtml(bar.fiber)}, già tolta dai carboidrati</p>
+                    ${macroPills(bar)}
+                    <a href="${bar.url}" target="_blank" rel="noopener noreferrer" class="inline-flex text-base font-semibold text-emerald-300">Scheda ufficiale</a>
+                </article>
+            `).join('');
         }
 
         function changeDate(newDateStr) {
